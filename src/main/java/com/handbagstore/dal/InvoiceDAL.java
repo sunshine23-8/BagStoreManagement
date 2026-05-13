@@ -6,14 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvoiceDAL {
+    public InvoiceDAL() {
+        addDiscountCodesColumn();
+    }
+
     private Connection getConnection() throws SQLException {
         return DatabaseConnection.getInstance().getConnection();
     }
 
+    private void addDiscountCodesColumn() {
+        String sql = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('invoices') AND name = 'discount_codes') " +
+                     "ALTER TABLE invoices ADD discount_codes NVARCHAR(255);";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("Lỗi thêm cột discount_codes: " + e.getMessage());
+        }
+    }
+
     public int insert(InvoiceDTO inv) throws SQLException {
         String sql = "INSERT INTO invoices (invoice_code, customer_id, staff_id, discount_id, subtotal, " +
-                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at, paid_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at, paid_at, discount_codes) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, inv.getInvoiceCode());
             if (inv.getCustomerId() != null) ps.setInt(2, inv.getCustomerId());
@@ -32,6 +47,7 @@ public class InvoiceDAL {
             else ps.setNull(12, Types.TIMESTAMP);
             if (inv.getPaidAt() != null) ps.setTimestamp(13, Timestamp.valueOf(inv.getPaidAt()));
             else ps.setNull(13, Types.TIMESTAMP);
+            ps.setString(14, inv.getDiscountCode());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) return rs.getInt(1);
@@ -102,13 +118,14 @@ public class InvoiceDAL {
         return list;
     }
 
-    public List<InvoiceDTO> search(String invoiceCode, Integer customerId, java.sql.Date from, java.sql.Date to) throws SQLException {
+    public List<InvoiceDTO> search(String invoiceCode, Integer customerId, java.sql.Date from, java.sql.Date to,
+            String status) throws SQLException {
         StringBuilder sql = new StringBuilder(
-            "SELECT i.*, c.full_name AS customer_name, c.phone AS customer_phone, " +
-            "a.full_name AS staff_name, d.code AS discount_code " +
-            "FROM invoices i LEFT JOIN customers c ON i.customer_id = c.customer_id " +
-            "LEFT JOIN accounts a ON i.staff_id = a.account_id " +
-            "LEFT JOIN discounts d ON i.discount_id = d.discount_id WHERE 1=1 ");
+                "SELECT i.*, c.full_name AS customer_name, c.phone AS customer_phone, " +
+                        "a.full_name AS staff_name, d.code AS discount_code " +
+                        "FROM invoices i LEFT JOIN customers c ON i.customer_id = c.customer_id " +
+                        "LEFT JOIN accounts a ON i.staff_id = a.account_id " +
+                        "LEFT JOIN discounts d ON i.discount_id = d.discount_id WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
 
         if (invoiceCode != null && !invoiceCode.isEmpty()) {
@@ -127,6 +144,10 @@ public class InvoiceDAL {
             sql.append("AND CAST(i.created_at AS DATE) <= ? ");
             params.add(to);
         }
+        if (status != null && !status.isEmpty() && !"ALL".equals(status)) {
+            sql.append("AND i.status = ? ");
+            params.add(status);
+        }
         sql.append("ORDER BY i.created_at DESC");
 
         List<InvoiceDTO> list = new ArrayList<>();
@@ -135,7 +156,8 @@ public class InvoiceDAL {
                 ps.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapResultSet(rs));
+                while (rs.next())
+                    list.add(mapResultSet(rs));
             }
         }
         return list;
@@ -193,11 +215,19 @@ public class InvoiceDAL {
 
     /** Sinh mã hóa đơn tự động: HD + yyyyMMdd + sequence */
     public String generateInvoiceCode() throws SQLException {
-        String sql = "SELECT COUNT(*) + 1 AS seq FROM invoices WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
+        String sql = "SELECT MAX(invoice_code) AS max_code FROM invoices WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                int seq = rs.getInt("seq");
+                String maxCode = rs.getString("max_code");
+                int seq = 1;
+                if (maxCode != null && maxCode.length() >= 13) {
+                    try {
+                        seq = Integer.parseInt(maxCode.substring(10)) + 1;
+                    } catch (NumberFormatException e) {
+                        seq = 1;
+                    }
+                }
                 java.time.LocalDate today = java.time.LocalDate.now();
                 return String.format("HD%s%03d", today.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")), seq);
             }
@@ -229,7 +259,14 @@ public class InvoiceDAL {
         try { inv.setCustomerName(rs.getString("customer_name")); } catch (SQLException ignored) {}
         try { inv.setCustomerPhone(rs.getString("customer_phone")); } catch (SQLException ignored) {}
         try { inv.setStaffName(rs.getString("staff_name")); } catch (SQLException ignored) {}
-        try { inv.setDiscountCode(rs.getString("discount_code")); } catch (SQLException ignored) {}
+        try { 
+            String codes = rs.getString("discount_codes"); 
+            if (codes != null && !codes.isEmpty()) {
+                inv.setDiscountCode(codes);
+            } else {
+                inv.setDiscountCode(rs.getString("discount_code"));
+            }
+        } catch (SQLException ignored) {}
         return inv;
     }
 }

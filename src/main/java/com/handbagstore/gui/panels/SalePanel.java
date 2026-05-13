@@ -38,6 +38,7 @@ public class SalePanel extends JPanel {
     private final CustomerBLL customerBLL = new CustomerBLL();
     private final DiscountBLL discountBLL = new DiscountBLL();
     private final OrderBLL orderBLL = new OrderBLL();
+    private DiscountDTO birthdayDiscount;
     private final InventoryBLL inventoryBLL = new InventoryBLL();
 
     private CustomerDTO selectedCustomer;
@@ -76,14 +77,14 @@ public class SalePanel extends JPanel {
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(450, 0));
 
-        JLabel lblProducts = new JLabel("📦 Danh sách sản phẩm");
+        JLabel lblProducts = new JLabel("<html><font face='Segoe UI Emoji'>📦</font> Danh sách sản phẩm</html>");
         lblProducts.setFont(new Font("Segoe UI", Font.BOLD, 14));
         leftPanel.add(lblProducts, BorderLayout.NORTH);
 
         // Search
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         txtSearchProduct = new JTextField();
-        txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm sản phẩm...");
+        txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
         txtSearchProduct.addActionListener(e -> searchProducts());
         txtSearchProduct.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
@@ -99,7 +100,7 @@ public class SalePanel extends JPanel {
             }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
-        JButton btnSearch = new JButton("🔍");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
@@ -144,7 +145,7 @@ public class SalePanel extends JPanel {
             }
         });
 
-        btnAddToCart = new JButton("➕ Thêm vào đơn");
+        btnAddToCart = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm vào đơn</html>");
         btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
         btnAddToCart.setForeground(Color.WHITE);
@@ -158,12 +159,14 @@ public class SalePanel extends JPanel {
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
 
         JPanel cartHeaderPanel = new JPanel(new BorderLayout());
-        JLabel lblCart = new JLabel("🛒 Đơn hàng hiện tại");
+        JLabel lblCart = new JLabel("<html><font face='Segoe UI Emoji'>🛒</font> Đơn hàng hiện tại</html>");
         lblCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cartHeaderPanel.add(lblCart, BorderLayout.WEST);
 
-        btnRemoveFromCart = new JButton("❌ Xóa SP");
+        btnRemoveFromCart = new JButton("Xóa sản phẩm");
         btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnRemoveFromCart.setBackground(new Color(220, 53, 69));
+        btnRemoveFromCart.setForeground(Color.WHITE);
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
         cartHeaderPanel.add(btnRemoveFromCart, BorderLayout.EAST);
 
@@ -233,6 +236,8 @@ public class SalePanel extends JPanel {
         try {
             List<DiscountDTO> activeDiscounts = discountBLL.getActive();
             for (DiscountDTO d : activeDiscounts) {
+                if ("BIRTHDAY".equals(d.getOccasion()))
+                    continue; // Bỏ qua mã sinh nhật trong dropdown
                 String label = d.getCode() + " ("
                         + (d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue())) + ")";
                 cmbDiscount.addItem(new DiscountComboItem(d, label));
@@ -308,14 +313,13 @@ public class SalePanel extends JPanel {
         gbcP.weightx = 1.0;
         paymentPanel.add(cmbPaymentMethod, gbcP);
 
-        // Row 7: Received & Change
+        // Row 7: Received
         gbcP.gridx = 0;
         gbcP.gridy = 6;
         gbcP.weightx = 0;
         paymentPanel.add(new JLabel("Tiền nhận:"), gbcP);
 
-        JPanel receivedPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        txtPaymentReceived = new JTextField(12);
+        txtPaymentReceived = new JTextField();
         txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
                 calculateChange();
@@ -329,14 +333,21 @@ public class SalePanel extends JPanel {
                 calculateChange();
             }
         });
-        receivedPanel.add(txtPaymentReceived);
-        receivedPanel.add(new JLabel("   Thối: "));
-        lblChange = new JLabel("0đ");
-        receivedPanel.add(lblChange);
-
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
-        paymentPanel.add(receivedPanel, gbcP);
+        paymentPanel.add(txtPaymentReceived, gbcP);
+
+        // Row 8: Change
+        gbcP.gridx = 0;
+        gbcP.gridy = 7;
+        gbcP.weightx = 0;
+        paymentPanel.add(new JLabel("Tiền thối:"), gbcP);
+
+        lblChange = new JLabel("0đ");
+        lblChange.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        gbcP.gridx = 1;
+        gbcP.weightx = 1.0;
+        paymentPanel.add(lblChange, gbcP);
 
         cmbPaymentMethod.addActionListener(e -> {
             boolean isCash = cmbPaymentMethod.getSelectedIndex() == 0;
@@ -352,13 +363,13 @@ public class SalePanel extends JPanel {
         JPanel actionRow = new JPanel(new GridLayout(1, 2, 5, 5));
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        btnPayNow = new JButton("💰 Thanh toán ngay");
+        btnPayNow = new JButton("<html><font face='Segoe UI Emoji'>💰</font> Thanh toán ngay</html>");
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
         btnPayNow.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPayNow.addActionListener(e -> payNow());
 
-        btnPending = new JButton("⏳ Giữ đơn (Pending)");
+        btnPending = new JButton("<html><font face='Segoe UI Emoji'>⏳</font> Giữ đơn (Pending)</html>");
         btnPending.setBackground(new Color(13, 110, 253));
         btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -368,7 +379,7 @@ public class SalePanel extends JPanel {
         actionRow.add(btnPending);
 
         gbcP.gridx = 0;
-        gbcP.gridy = 7;
+        gbcP.gridy = 8;
         gbcP.gridwidth = 2;
         paymentPanel.add(actionRow, gbcP);
 
@@ -398,7 +409,7 @@ public class SalePanel extends JPanel {
                 showProductDetails(product);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết sản phẩm: " + ex.getMessage(), "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -480,7 +491,7 @@ public class SalePanel extends JPanel {
 
             dialog.setVisible(true);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết sản phẩm: " + ex.getMessage(), "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -517,7 +528,7 @@ public class SalePanel extends JPanel {
                     return;
             }
 
-            clearCart();
+            clearCart(true);
 
             // Load customer
             if (inv.getCustomerId() != null) {
@@ -544,8 +555,9 @@ public class SalePanel extends JPanel {
                 }
             }
 
-            // Delete the pending order (release stock and remove from DB)
-            orderBLL.deletePendingOrder(inv.getInvoiceId());
+            // Delete the pending order (REMOVE from DB, but KEEP stock deducted because
+            // it's now in active cart)
+            orderBLL.deletePendingOrder(inv.getInvoiceId(), false);
 
             updateCartDisplay();
             refreshAllData();
@@ -567,7 +579,7 @@ public class SalePanel extends JPanel {
         }
         try {
             productModel.setRowCount(0);
-            for (ProductDTO p : productBLL.search(keyword)) {
+            for (ProductDTO p : productBLL.search(keyword, false)) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
                 productModel
                         .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
@@ -580,16 +592,22 @@ public class SalePanel extends JPanel {
     private void doAddToCart(ProductDTO product, int qty) {
         try {
             if (!inventoryBLL.checkAvailability(product.getProductId(), qty)) {
-                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho SP: " + product.getName() + "!");
+                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho sản phẩm: " + product.getName() + "!");
                 return;
             }
+
+            // Check nếu đã có trong cart → cộng dồn
             for (InvoiceDetailDTO d : cartItems) {
                 if (d.getProductId() == product.getProductId()) {
+                    inventoryBLL.updateQuantity(product.getProductId(), -qty);
                     d.setQuantity(d.getQuantity() + qty);
                     updateCartDisplay();
+                    refreshProductList();
                     return;
                 }
             }
+
+            inventoryBLL.updateQuantity(product.getProductId(), -qty);
             InvoiceDetailDTO detail = new InvoiceDetailDTO();
             detail.setProductId(product.getProductId());
             detail.setProductCode(product.getProductCode());
@@ -598,6 +616,7 @@ public class SalePanel extends JPanel {
             detail.setQuantity(qty);
             cartItems.add(detail);
             updateCartDisplay();
+            refreshProductList();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
@@ -625,8 +644,15 @@ public class SalePanel extends JPanel {
         int row = cartTable.getSelectedRow();
         if (row < 0)
             return;
+        InvoiceDetailDTO item = cartItems.get(row);
+        try {
+            inventoryBLL.updateQuantity(item.getProductId(), item.getQuantity());
+        } catch (Exception ex) {
+            System.err.println("Lỗi trả hàng về kho: " + ex.getMessage());
+        }
         cartItems.remove(row);
         updateCartDisplay();
+        refreshProductList();
     }
 
     private void updateCartDisplay() {
@@ -641,10 +667,7 @@ public class SalePanel extends JPanel {
         }
         lblSubtotal.setText(formatCurrency(subtotal));
 
-        BigDecimal discountAmt = BigDecimal.ZERO;
-        if (selectedDiscount != null) {
-            discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
-        }
+        BigDecimal discountAmt = getDiscountAmount(subtotal);
         lblDiscount.setText("-" + formatCurrency(discountAmt));
 
         BigDecimal total = subtotal.subtract(discountAmt);
@@ -658,6 +681,7 @@ public class SalePanel extends JPanel {
         String phone = rawPhone.trim().replaceAll("[^0-9]", "");
         if (phone.isEmpty()) {
             selectedCustomer = null;
+            birthdayDiscount = null;
             lblCustomerInfo.setText(" ");
             Container parent = lblCustomerInfo.getParent();
             if (parent != null) {
@@ -686,10 +710,10 @@ public class SalePanel extends JPanel {
                         ? com.handbagstore.utils.DateUtils.formatDate(selectedCustomer.getBirthday())
                         : "N/A";
                 String info = selectedCustomer.getFullName() + " (" + bday + ")";
-                if (selectedCustomer.isBirthday()) {
+                if (com.handbagstore.utils.DateUtils.isBirthdayToday(selectedCustomer.getBirthday())) {
                     info += " 🎂 Sinh nhật hôm nay!";
                     lblCustomerInfo.setForeground(new Color(255, 193, 7));
-                    suggestBirthdayDiscount();
+                    applyAutomaticBirthdayDiscount();
                 } else {
                     lblCustomerInfo.setForeground(new Color(40, 167, 69)); // Green for found
                 }
@@ -707,26 +731,16 @@ public class SalePanel extends JPanel {
         }
     }
 
-    private void suggestBirthdayDiscount() {
+    private void applyAutomaticBirthdayDiscount() {
         try {
             List<DiscountDTO> birthdayDiscounts = discountBLL.getActiveBirthdayDiscounts();
             if (!birthdayDiscounts.isEmpty()) {
-                DiscountDTO bd = birthdayDiscounts.get(0);
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "🎂 Hôm nay là sinh nhật khách hàng!\nÁp dụng mã giảm giá sinh nhật: " + bd.getCode() + " (" +
-                                (bd.isPercentType() ? bd.getValue() + "%" : CurrencyUtils.format(bd.getValue())) + ")?",
-                        "Sinh nhật khách hàng", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    selectedDiscount = bd;
-                    for (int i = 1; i < cmbDiscount.getItemCount(); i++) {
-                        DiscountComboItem item = cmbDiscount.getItemAt(i);
-                        if (item != null && item.discount != null && bd.getCode().equals(item.discount.getCode())) {
-                            cmbDiscount.setSelectedIndex(i);
-                            break;
-                        }
-                    }
-                    updateCartDisplay();
-                }
+                birthdayDiscount = birthdayDiscounts.get(0);
+                JOptionPane.showMessageDialog(this,
+                        "🎂 Hôm nay là sinh nhật khách hàng!\nMã giảm giá sinh nhật '" + birthdayDiscount.getCode()
+                                + "' đã được tự động áp dụng.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                updateCartDisplay();
             }
         } catch (Exception ignored) {
         }
@@ -924,7 +938,7 @@ public class SalePanel extends JPanel {
                     options,
                     options[0]);
 
-            clearCart();
+            clearCart(false);
             refreshAllData();
 
             if (choice == 1) {
@@ -952,7 +966,7 @@ public class SalePanel extends JPanel {
             JOptionPane.showMessageDialog(this,
                     "⏳ Đơn hàng đang chờ thanh toán!\nMã HĐ: " + invoice.getInvoiceCode());
 
-            clearCart();
+            clearCart(false);
             refreshAllData();
             pendingWidget.refreshData();
         } catch (Exception ex) {
@@ -966,13 +980,28 @@ public class SalePanel extends JPanel {
         inv.setCustomerId(selectedCustomer != null ? selectedCustomer.getCustomerId() : null);
         inv.setSubtotal(getSubtotal());
 
-        BigDecimal discountAmt = BigDecimal.ZERO;
-        if (selectedDiscount != null) {
-            discountAmt = discountBLL.calculateDiscount(selectedDiscount, getSubtotal());
-            inv.setDiscountId(selectedDiscount.getDiscountId());
-        }
+        BigDecimal discountAmt = getDiscountAmount(getSubtotal());
+
         inv.setDiscountAmount(discountAmt);
         inv.setTotal(getSubtotal().subtract(discountAmt).max(BigDecimal.ZERO));
+
+        if (selectedDiscount != null) {
+            inv.setDiscountId(selectedDiscount.getDiscountId());
+        } else if (birthdayDiscount != null) {
+            inv.setDiscountId(birthdayDiscount.getDiscountId());
+        }
+
+        StringBuilder codes = new StringBuilder();
+        if (birthdayDiscount != null)
+            codes.append("Sinh nhật");
+        if (selectedDiscount != null) {
+            if (codes.length() > 0)
+                codes.append(" + ");
+            codes.append(selectedDiscount.getCode());
+        }
+        if (codes.length() > 0) {
+            inv.setDiscountCode(codes.toString());
+        }
         inv.setStatus(status);
         return inv;
     }
@@ -986,9 +1015,25 @@ public class SalePanel extends JPanel {
 
     private BigDecimal getTotal() {
         BigDecimal subtotal = getSubtotal();
-        BigDecimal disc = selectedDiscount != null ? discountBLL.calculateDiscount(selectedDiscount, subtotal)
-                : BigDecimal.ZERO;
+        BigDecimal disc = getDiscountAmount(subtotal);
         return subtotal.subtract(disc).max(BigDecimal.ZERO);
+    }
+
+    private BigDecimal getDiscountAmount(BigDecimal subtotal) {
+        BigDecimal discountAmt = BigDecimal.ZERO;
+        if (selectedDiscount != null && birthdayDiscount != null) {
+            if (selectedDiscount.isStackable() || birthdayDiscount.isStackable()) {
+                discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal)
+                        .add(discountBLL.calculateDiscount(birthdayDiscount, subtotal));
+            } else {
+                discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
+            }
+        } else if (selectedDiscount != null) {
+            discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
+        } else if (birthdayDiscount != null) {
+            discountAmt = discountBLL.calculateDiscount(birthdayDiscount, subtotal);
+        }
+        return discountAmt;
     }
 
     private void exportPdf() {
@@ -1016,14 +1061,45 @@ public class SalePanel extends JPanel {
                     path += ".pdf";
 
                 PdfExporter.exportInvoice(path, inv, details, customer);
-                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+                Object[] options = { "OK", "In hóa đơn" };
+                int choice = JOptionPane.showOptionDialog(
+                        this,
+                        "Đã xuất PDF thành công: " + path,
+                        "Thông báo",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                if (choice == 1) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Hệ thống không hỗ trợ mở tệp tự động.", "Thông báo",
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Không thể mở tệp: " + ex.getMessage(), "Lỗi",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void clearCart() {
+    private void clearCart(boolean returnStock) {
+        if (returnStock) {
+            for (InvoiceDetailDTO d : cartItems) {
+                try {
+                    inventoryBLL.updateQuantity(d.getProductId(), d.getQuantity());
+                } catch (Exception ignored) {
+                }
+            }
+        }
         cartItems.clear();
         selectedCustomer = null;
         selectedDiscount = null;
@@ -1036,6 +1112,7 @@ public class SalePanel extends JPanel {
         lblChange.setText("0đ");
         spnQuantity.setValue(1);
         updateCartDisplay();
+        refreshProductList();
     }
 
     private void showRegisterCustomerDialog(String phone) {

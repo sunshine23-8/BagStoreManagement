@@ -48,23 +48,29 @@ public class AccountBLL {
         }
     }
 
-    /** Tạo tài khoản staff (chỉ admin) - Tự động sinh username và password */
-    public int createStaffAccount(String fullName) throws SQLException {
+    /** Tạo tài khoản staff (chỉ admin) */
+    public int createStaffAccount(String username, String password, String fullName) throws SQLException {
         if (fullName == null || fullName.trim().isEmpty())
             throw new RuntimeException("Họ tên không được để trống!");
+        if (username == null || username.trim().isEmpty())
+            throw new RuntimeException("Tên tài khoản không được để trống!");
+        if (password == null || password.trim().isEmpty())
+            throw new RuntimeException("Mật khẩu không được để trống!");
+
+        if (accountDAL.getByUsername(username) != null) {
+            throw new RuntimeException("Tên tài khoản đã tồn tại!");
+        }
 
         AccountDTO staff = new AccountDTO();
-        staff.setUsername("temp_" + System.currentTimeMillis()); // Tạm thời
-        staff.setPasswordHash("temp");
-        staff.setFullName(fullName);
+        staff.setUsername(username.trim());
+        staff.setPasswordHash(PasswordUtils.hash(password));
+        staff.setFullName(fullName.trim());
         staff.setRole("STAFF");
         staff.setActive(true);
         staff.setMustChangePassword(false);
 
         int id = accountDAL.insert(staff);
         if (id > 0) {
-            String username = "staff" + String.format("%02d", id);
-            accountDAL.updateStaffCredentials(id, username, PasswordUtils.hash(username));
             logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "TẠO TÀI KHOẢN",
                     "Tạo tài khoản staff: " + username));
         }
@@ -103,6 +109,23 @@ public class AccountBLL {
         logDAL.insert(new SystemLogDTO(currentUser.getAccountId(),
                 active ? "MỞ KHÓA TÀI KHOẢN" : "KHÓA TÀI KHOẢN",
                 "Account ID: " + accountId));
+    }
+
+    /** Cập nhật thông tin staff */
+    public void updateStaffAccount(int accountId, String username, String fullName) throws SQLException {
+        if (fullName == null || fullName.trim().isEmpty())
+            throw new RuntimeException("Họ tên không được để trống!");
+        if (username == null || username.trim().isEmpty())
+            throw new RuntimeException("Tên tài khoản không được để trống!");
+
+        AccountDTO existing = accountDAL.getByUsername(username);
+        if (existing != null && existing.getAccountId() != accountId) {
+            throw new RuntimeException("Tên tài khoản đã tồn tại!");
+        }
+
+        accountDAL.updateStaffInfo(accountId, fullName.trim(), username.trim());
+        logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "CẬP NHẬT TÀI KHOẢN",
+                "Cập nhật tài khoản staff ID: " + accountId + " (" + username + ")"));
     }
 
     /** Lấy danh sách staff */

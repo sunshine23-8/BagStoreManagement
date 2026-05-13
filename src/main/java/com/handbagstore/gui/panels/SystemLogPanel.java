@@ -24,14 +24,14 @@ public class SystemLogPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
         JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel lblTitle = new JLabel("📋 Nhật ký Hệ thống");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>📋</font> Nhật ký Hệ thống</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         topPanel.add(lblTitle, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo hành động...");
-        JButton btnSearch = new JButton("🔍 Tìm");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchLogs());
         txtSearch.addActionListener(e -> searchLogs());

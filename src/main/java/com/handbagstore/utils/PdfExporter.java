@@ -30,16 +30,18 @@ public class PdfExporter {
 
     /**
      * Xuất hóa đơn ra file PDF.
+     * 
      * @param outputPath đường dẫn file PDF output
      * @param invoice    thông tin hóa đơn
      * @param details    chi tiết sản phẩm
      * @param customer   khách hàng (nullable = guest)
      */
     public static void exportInvoice(String outputPath, InvoiceDTO invoice,
-                                     List<InvoiceDetailDTO> details, CustomerDTO customer) throws Exception {
+            List<InvoiceDetailDTO> details, CustomerDTO customer) throws Exception {
         // Tạo thư mục nếu chưa có
         File file = new File(outputPath);
-        if (file.getParentFile() != null) file.getParentFile().mkdirs();
+        if (file.getParentFile() != null)
+            file.getParentFile().mkdirs();
 
         PdfWriter writer = new PdfWriter(outputPath);
         PdfDocument pdf = new PdfDocument(writer);
@@ -75,7 +77,7 @@ public class PdfExporter {
         doc.add(new Paragraph("\n"));
 
         // Bảng chi tiết sản phẩm
-        Table table = new Table(UnitValue.createPercentArray(new float[]{1, 3, 2, 1, 2}));
+        Table table = new Table(UnitValue.createPercentArray(new float[] { 1, 3, 2, 1, 2 }));
         table.setWidth(UnitValue.createPercentValue(100));
 
         // Header
@@ -101,9 +103,12 @@ public class PdfExporter {
                 .setTextAlignment(TextAlignment.RIGHT));
 
         if (invoice.getDiscountAmount() != null && invoice.getDiscountAmount().compareTo(BigDecimal.ZERO) > 0) {
-            doc.add(new Paragraph("Giảm giá" +
-                    (invoice.getDiscountCode() != null ? " (" + invoice.getDiscountCode() + ")" : "") +
-                    ": -" + formatMoney(invoice.getDiscountAmount()))
+            String discountLabel = "Giảm giá";
+            if (invoice.getDiscountCode() != null && !invoice.getDiscountCode().isEmpty()) {
+                discountLabel += " (" + invoice.getDiscountCode() + ")";
+            }
+
+            doc.add(new Paragraph(discountLabel + ": -" + formatMoney(invoice.getDiscountAmount()))
                     .setTextAlignment(TextAlignment.RIGHT));
         }
 
@@ -123,6 +128,10 @@ public class PdfExporter {
                     .setTextAlignment(TextAlignment.RIGHT));
         }
 
+        if (invoice.getDiscountCode() != null && invoice.getDiscountCode().contains("Sinh nhật")) {
+            doc.add(new Paragraph("Chúc bạn một tuổi mới thật rạng rỡ nhé!")
+                    .setTextAlignment(TextAlignment.CENTER).setBold());
+        }
         doc.add(new Paragraph("\n"));
         doc.add(new Paragraph("Cảm ơn quý khách!")
                 .setTextAlignment(TextAlignment.CENTER).setItalic());
@@ -131,7 +140,8 @@ public class PdfExporter {
     }
 
     private static String formatMoney(BigDecimal amount) {
-        if (amount == null) return "0";
+        if (amount == null)
+            return "0";
         return CURRENCY_FMT.format(amount) + "đ";
     }
 }

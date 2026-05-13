@@ -126,10 +126,10 @@ public class PendingOrdersWidget extends JPanel {
                     sb.append(d.getProductName()).append(" x").append(d.getQuantity()).append("<br/>");
                 }
             } else {
-                sb.append("Chưa có SP");
+                sb.append("Chưa có sản phẩm");
             }
         } catch (Exception ignored) {
-            sb.append("Lỗi tải SP");
+            sb.append("Lỗi tải sản phẩm");
         }
         sb.append("</html>");
 
@@ -145,7 +145,7 @@ public class PendingOrdersWidget extends JPanel {
         lblProd.setForeground(Color.GRAY);
         infoPanel.add(lblProd);
 
-        infoPanel.add(new JLabel("💰 " + inv.getTotal() + "đ"));
+        infoPanel.add(new JLabel("💰 " + CurrencyUtils.format(inv.getTotal())));
 
         // Countdown
         String remaining = getCountdownText(inv.getExpiresAt());
@@ -162,7 +162,7 @@ public class PendingOrdersWidget extends JPanel {
 
         // Buttons
         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 3));
-        JButton btnPay = new JButton("💰 TT");
+        JButton btnPay = new JButton("💰 Thanh toán");
         btnPay.setBackground(new Color(40, 167, 69));
         btnPay.setForeground(Color.WHITE);
         btnPay.setFont(new Font("Segoe UI", Font.BOLD, 11));
@@ -250,7 +250,30 @@ public class PendingOrdersWidget extends JPanel {
                     path += ".pdf";
 
                 PdfExporter.exportInvoice(path, inv, details, customer);
-                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+                Object[] options = { "OK", "In hóa đơn" };
+                int choice = JOptionPane.showOptionDialog(
+                        this,
+                        "Đã xuất PDF thành công: " + path,
+                        "Thông báo",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                if (choice == 1) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Hệ thống không hỗ trợ mở tệp tự động.", "Thông báo",
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Không thể mở tệp: " + ex.getMessage(), "Lỗi",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);

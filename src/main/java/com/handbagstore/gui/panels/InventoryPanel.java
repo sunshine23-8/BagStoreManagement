@@ -53,7 +53,7 @@ public class InventoryPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("🏭 Quản lý Kho hàng");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🏭</font> Quản lý Kho hàng</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
@@ -72,7 +72,7 @@ public class InventoryPanel extends JPanel {
         stockTopPanel.add(lblLowStockWarning, BorderLayout.NORTH);
 
         JPanel stockSearchPanel = new JPanel(new BorderLayout(10, 0));
-        stockSearchPanel.add(new JLabel("🔍 Tìm kiếm tên SP "), BorderLayout.WEST);
+        stockSearchPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm kiếm tên SP </html>"), BorderLayout.WEST);
         txtSearchStock = new JTextField();
         stockSearchPanel.add(txtSearchStock, BorderLayout.CENTER);
         stockTopPanel.add(stockSearchPanel, BorderLayout.CENTER);
@@ -106,7 +106,7 @@ public class InventoryPanel extends JPanel {
         });
 
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
-        tabs.addTab("📊 Tồn kho", stockPanel);
+        tabs.addTab("<html><font face='Segoe UI Emoji'>📊</font> Tồn kho</html>", stockPanel);
 
         // Tab 2: Nhập kho
         JPanel importPanel = new JPanel(new BorderLayout(5, 5));
@@ -139,7 +139,7 @@ public class InventoryPanel extends JPanel {
         importForm.add(new JLabel("Ghi chú:"));
         importForm.add(txtNote);
 
-        JButton btnImport = new JButton("📥 Nhập kho");
+        JButton btnImport = new JButton("<html><font face='Segoe UI Emoji'>📥</font> Nhập kho</html>");
         btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnImport.setBackground(new Color(40, 167, 69));
         btnImport.setForeground(Color.WHITE);
@@ -151,7 +151,7 @@ public class InventoryPanel extends JPanel {
 
         JPanel importSearchPanel = new JPanel(new BorderLayout(10, 0));
         importSearchPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        importSearchPanel.add(new JLabel("🔍 Tìm kiếm tên SP "), BorderLayout.WEST);
+        importSearchPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm kiếm tên SP </html>"), BorderLayout.WEST);
         txtSearchImport = new JTextField();
         importSearchPanel.add(txtSearchImport, BorderLayout.CENTER);
         importTop.add(importSearchPanel, BorderLayout.SOUTH);
@@ -185,7 +185,7 @@ public class InventoryPanel extends JPanel {
         });
 
         importPanel.add(new JScrollPane(importTable), BorderLayout.CENTER);
-        tabs.addTab("📥 Nhập kho", importPanel);
+        tabs.addTab("<html><font face='Segoe UI Emoji'>📥</font> Nhập kho</html>", importPanel);
 
         add(tabs, BorderLayout.CENTER);
     }
@@ -206,13 +206,14 @@ public class InventoryPanel extends JPanel {
             // Low stock warning
             List<InventoryLogDTO> lowStock = inventoryBLL.getLowStockItems();
             if (!lowStock.isEmpty()) {
-                StringBuilder warn = new StringBuilder("⚠️ Sắp hết hàng: ");
+                StringBuilder warn = new StringBuilder("<html><font face='Segoe UI Emoji'>⚠️</font> Sắp hết hàng: ");
                 for (InventoryLogDTO ls : lowStock) {
                     warn.append(ls.getProductName()).append(" (").append(ls.getAvailableQty()).append("), ");
                 }
+                warn.append("</html>");
                 lblLowStockWarning.setText(warn.toString());
             } else {
-                lblLowStockWarning.setText("✅ Tất cả sản phẩm đều đủ hàng");
+                lblLowStockWarning.setText("<html><font face='Segoe UI Emoji'>✅</font> Tất cả sản phẩm đều đủ hàng</html>");
                 lblLowStockWarning.setForeground(new Color(40, 167, 69));
             }
 
@@ -240,7 +241,7 @@ public class InventoryPanel extends JPanel {
                         b.getProductName(),
                         b.getQuantity(),
                         CurrencyUtils.format(b.getCostPrice()),
-                        BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice()),
+                        CurrencyUtils.format(BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice())),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }

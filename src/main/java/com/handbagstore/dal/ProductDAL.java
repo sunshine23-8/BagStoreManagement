@@ -68,10 +68,11 @@ public class ProductDAL {
     }
 
     /**
-     * Tìm kiếm sản phẩm theo từ khóa (tên, mã, thương hiệu).
+     * Tìm kiếm sản phẩm theo từ khóa (tên, mã, thương hiệu...).
+     * Nếu includeInactive = false, chỉ tìm trong các sản phẩm ACTIVE.
      */
-    public List<ProductDTO> search(String keyword) throws SQLException {
-        List<ProductDTO> list = getAll(false);
+    public List<ProductDTO> search(String keyword, boolean includeInactive) throws SQLException {
+        List<ProductDTO> list = getAll(includeInactive);
         if (keyword == null || keyword.trim().isEmpty()) return list;
 
         return list.stream()

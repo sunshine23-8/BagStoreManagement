@@ -35,14 +35,14 @@ public class ProductManagerPanel extends JPanel {
 
         // === TOP: Title + Search ===
         JPanel topPanel = new JPanel(new BorderLayout(10, 0));
-        JLabel lblTitle = new JLabel("📦 Quản lý Sản phẩm");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>📦</font> Quản lý Sản phẩm</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         topPanel.add(lblTitle, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
-        JButton btnSearch = new JButton("🔍 Tìm");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
@@ -118,13 +118,13 @@ public class ProductManagerPanel extends JPanel {
 
         // Button panel
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        btnAdd = new JButton("➕ Thêm");
+        btnAdd = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm</html>");
         btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate = new JButton("✏️ Sửa");
+        btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnDelete = new JButton("🗑 Ngừng kinh doanh");
+        btnDelete = new JButton("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
         btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnClear = new JButton("🔄 Làm mới");
+        btnClear = new JButton("<html><font face='Segoe UI Emoji'>🔄</font> Làm mới</html>");
         btnClear.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         btnAdd.setBackground(new Color(40, 167, 69));
@@ -178,7 +178,7 @@ public class ProductManagerPanel extends JPanel {
         }
         try {
             tableModel.setRowCount(0);
-            List<ProductDTO> products = productBLL.search(keyword);
+            List<ProductDTO> products = productBLL.search(keyword, true);
             for (ProductDTO p : products) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
                 tableModel.addRow(new Object[] {
@@ -207,10 +207,10 @@ public class ProductManagerPanel extends JPanel {
         cmbStatus.setSelectedItem(status);
 
         if ("INACTIVE".equals(status)) {
-            btnDelete.setText("🔄 Kinh doanh tiếp");
+            btnDelete.setText("<html><font face='Segoe UI Emoji'>🔄</font> Kinh doanh tiếp</html>");
             btnDelete.setBackground(new Color(40, 167, 69));
         } else {
-            btnDelete.setText("🗑 Ngừng kinh doanh");
+            btnDelete.setText("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
             btnDelete.setBackground(new Color(220, 53, 69));
         }
     }
@@ -311,7 +311,7 @@ public class ProductManagerPanel extends JPanel {
         cmbStyle.setSelectedIndex(0);
         cmbMaterial.setSelectedIndex(0);
         cmbStatus.setSelectedIndex(0);
-        btnDelete.setText("🗑 Ngừng kinh doanh");
+        btnDelete.setText("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
         btnDelete.setBackground(new Color(220, 53, 69));
         table.clearSelection();
     }

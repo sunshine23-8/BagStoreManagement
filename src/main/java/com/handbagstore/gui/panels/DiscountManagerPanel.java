@@ -22,6 +22,7 @@ public class DiscountManagerPanel extends JPanel {
     private JTextField txtCode, txtValue, txtMinOrder;
     private JComboBox<String> cmbType, cmbOccasion;
     private JTextField txtStartDate, txtEndDate;
+    private JCheckBox chkStackable;
     private JButton btnDeactivate;
     private final DiscountBLL discountBLL = new DiscountBLL();
 
@@ -31,27 +32,44 @@ public class DiscountManagerPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("🎫 Quản lý Mã giảm giá");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🎫</font> Quản lý Mã giảm giá</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
-        String[] cols = {"Mã", "Loại", "Giá trị", "Tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Trạng thái"};
+        String[] cols = {"Mã", "Loại", "Giá trị", "Đơn tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Cộng dồn", "Trạng thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
+            
+            @Override
+            public Class<?> getColumnClass(int c) {
+                if (c == 7) return Boolean.class;
+                return super.getColumnClass(c);
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(28);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         table.setFillsViewportHeight(true);
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (table.rowAtPoint(e.getPoint()) == -1) {
-                    clearForm();
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (row >= 0) {
+                    if (col == 7) {
+                        toggleStackableAt(row);
+                    } else if (col == 8) {
+                        toggleStatusAt(row);
+                    }
                 }
             }
         });
+        
+        table.getColumnModel().getColumn(7).setCellRenderer(new CheckBoxRenderer());
+        table.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer());
+        
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Form
@@ -62,48 +80,50 @@ public class DiscountManagerPanel extends JPanel {
         txtCode = new JTextField(); txtValue = new JTextField(); txtMinOrder = new JTextField();
         cmbType = new JComboBox<>(new String[]{"PERCENT", "AMOUNT"});
         cmbOccasion = new JComboBox<>(new String[]{"MANUAL", "BIRTHDAY", "SPECIAL"});
-        txtStartDate = new JTextField(); txtStartDate.setEditable(false);
-        txtStartDate.putClientProperty("JTextField.placeholderText", "Chọn ngày bắt đầu...");
-        txtStartDate.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        txtStartDate.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                LocalDate current = DateUtils.parseDate(txtStartDate.getText());
-                LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
-                if (picked != null) txtStartDate.setText(DateUtils.formatDate(picked));
-            }
+        txtStartDate = new JTextField();
+        txtStartDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+        JPanel startPanel = new JPanel(new BorderLayout(2, 0));
+        startPanel.add(txtStartDate, BorderLayout.CENTER);
+        JButton btnCalStart = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        btnCalStart.addActionListener(e -> {
+            LocalDate current = DateUtils.parseDate(txtStartDate.getText());
+            LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
+            if (picked != null) txtStartDate.setText(DateUtils.formatDate(picked));
         });
+        startPanel.add(btnCalStart, BorderLayout.EAST);
 
-        txtEndDate = new JTextField(); txtEndDate.setEditable(false);
-        txtEndDate.putClientProperty("JTextField.placeholderText", "Chọn ngày kết thúc...");
-        txtEndDate.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        txtEndDate.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                LocalDate current = DateUtils.parseDate(txtEndDate.getText());
-                LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
-                if (picked != null) txtEndDate.setText(DateUtils.formatDate(picked));
-            }
+        txtEndDate = new JTextField();
+        txtEndDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+        JPanel endPanel = new JPanel(new BorderLayout(2, 0));
+        endPanel.add(txtEndDate, BorderLayout.CENTER);
+        JButton btnCalEnd = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        btnCalEnd.addActionListener(e -> {
+            LocalDate current = DateUtils.parseDate(txtEndDate.getText());
+            LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
+            if (picked != null) txtEndDate.setText(DateUtils.formatDate(picked));
         });
+        endPanel.add(btnCalEnd, BorderLayout.EAST);
 
         form.add(new JLabel("Mã:")); form.add(txtCode);
         form.add(new JLabel("Loại:")); form.add(cmbType);
         form.add(new JLabel("Giá trị:")); form.add(txtValue);
         form.add(new JLabel("Tối thiểu:")); form.add(txtMinOrder);
-        form.add(new JLabel("Bắt đầu:")); form.add(txtStartDate);
-        form.add(new JLabel("Kết thúc:")); form.add(txtEndDate);
+        form.add(new JLabel("Bắt đầu:")); form.add(startPanel);
+        form.add(new JLabel("Kết thúc:")); form.add(endPanel);
         bottom.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnCreate = new JButton("➕ Tạo mã");
+        JButton btnCreate = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Tạo mã</html>");
         btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createDiscount());
 
-        btnDeactivate = new JButton("❌ Vô hiệu hóa");
+        btnDeactivate = new JButton("<html><font face='Segoe UI Emoji'>❌</font> Vô hiệu hóa</html>");
         btnDeactivate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDeactivate.setBackground(new Color(220, 53, 69)); btnDeactivate.setForeground(Color.WHITE);
         btnDeactivate.addActionListener(e -> toggleDiscountStatus());
 
-        JButton btnUpdate = new JButton("✏️ Cập nhật");
+        JButton btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate.setBackground(new Color(13, 110, 253)); btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateDiscount());
@@ -114,6 +134,8 @@ public class DiscountManagerPanel extends JPanel {
         JPanel formWithOccasion = new JPanel(new BorderLayout());
         JPanel occasionRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         occasionRow.add(new JLabel("Dịp:")); occasionRow.add(cmbOccasion);
+        chkStackable = new JCheckBox("Cộng dồn");
+        occasionRow.add(chkStackable);
         formWithOccasion.add(form, BorderLayout.CENTER);
         formWithOccasion.add(occasionRow, BorderLayout.SOUTH);
         bottom.add(formWithOccasion, BorderLayout.CENTER);
@@ -131,6 +153,7 @@ public class DiscountManagerPanel extends JPanel {
                     d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue()),
                     CurrencyUtils.format(d.getMinOrderAmt()), DateUtils.formatDateTime(d.getStartTime()),
                     DateUtils.formatDateTime(d.getEndTime()), d.getOccasion(),
+                    d.isStackable(),
                     d.isActive() ? "Hoạt động" : "Đã vô hiệu"
                 });
             }
@@ -199,6 +222,7 @@ public class DiscountManagerPanel extends JPanel {
         d.setEndTime(end.atTime(23, 59, 59));
         
         d.setOccasion((String) cmbOccasion.getSelectedItem());
+        d.setStackable(chkStackable.isSelected());
         return d;
     }
 
@@ -217,6 +241,7 @@ public class DiscountManagerPanel extends JPanel {
                 txtStartDate.setText(DateUtils.formatDate(d.getStartTime().toLocalDate()));
                 txtEndDate.setText(DateUtils.formatDate(d.getEndTime().toLocalDate()));
                 cmbOccasion.setSelectedItem(d.getOccasion());
+                chkStackable.setSelected(d.isStackable());
 
                 if (d.isActive()) {
                     btnDeactivate.setText("❌ Vô hiệu hóa");
@@ -234,6 +259,7 @@ public class DiscountManagerPanel extends JPanel {
         txtStartDate.setText(""); txtEndDate.setText("");
         cmbType.setSelectedIndex(0);
         cmbOccasion.setSelectedIndex(0);
+        chkStackable.setSelected(false);
         btnDeactivate.setText("❌ Vô hiệu hóa");
         btnDeactivate.setBackground(new Color(220, 53, 69));
         table.clearSelection();
@@ -251,6 +277,66 @@ public class DiscountManagerPanel extends JPanel {
             loadSelectedRow(); // Update button text
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void toggleStackableAt(int row) {
+        String code = (String) tableModel.getValueAt(row, 0);
+        try {
+            DiscountDTO d = discountBLL.getByCode(code);
+            if (d != null) {
+                boolean newVal = !d.isStackable();
+                d.setStackable(newVal);
+                discountBLL.updateDiscount(d);
+                tableModel.setValueAt(newVal, row, 7);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void toggleStatusAt(int row) {
+        String code = (String) tableModel.getValueAt(row, 0);
+        try {
+            DiscountDTO d = discountBLL.getByCode(code);
+            if (d != null) {
+                boolean newStatus = !d.isActive();
+                discountBLL.toggleActive(d.getDiscountId(), newStatus);
+                tableModel.setValueAt(newStatus ? "Hoạt động" : "Đã vô hiệu", row, 8);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    class CheckBoxRenderer extends JCheckBox implements javax.swing.table.TableCellRenderer {
+        public CheckBoxRenderer() {
+            setHorizontalAlignment(JLabel.CENTER);
+        }
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setSelected(value != null && (Boolean) value);
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
+            } else {
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+            return this;
+        }
+    }
+
+    class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setText(value.toString());
+            if ("Hoạt động".equals(value)) {
+                setBackground(new Color(40, 167, 69));
+                setForeground(Color.WHITE);
+            } else {
+                setBackground(new Color(220, 53, 69));
+                setForeground(Color.WHITE);
+            }
+            return this;
         }
     }
 }
