@@ -2,6 +2,7 @@ package com.handbagstore.gui;
 
 import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.dto.AccountDTO;
+import com.handbagstore.gui.components.ChangePasswordDialog;
 
 import javax.swing.*;
 import java.awt.*;
@@ -109,6 +110,15 @@ public class LoginFrame extends JFrame {
             }
 
             // Chuyển sang màn hình chính theo role
+            if (account.isMustChangePassword()) {
+                ChangePasswordDialog dialog = new ChangePasswordDialog(this);
+                dialog.setVisible(true);
+                if (!dialog.isSuccess()) {
+                    AccountBLL.setCurrentUser(null); // Reset session if cancelled
+                    return;
+                }
+            }
+
             dispose();
             if (account.isAdmin()) {
                 new MainAdminFrame().setVisible(true);

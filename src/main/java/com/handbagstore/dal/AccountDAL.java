@@ -60,7 +60,7 @@ public class AccountDAL {
         String sql = "SELECT * FROM accounts WHERE role = 'STAFF' ORDER BY account_id ASC";
         List<AccountDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+                ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 list.add(mapResultSet(rs));
             }
@@ -72,14 +72,16 @@ public class AccountDAL {
      * Tạo tài khoản mới.
      */
     public int insert(AccountDTO account) throws SQLException {
-        String sql = "INSERT INTO accounts (username, password_hash, full_name, role, is_active) " +
-                     "VALUES (?, ?, ?, ?, ?); SELECT SCOPE_IDENTITY();";
+        String sql = "INSERT INTO accounts (username, password_hash, full_name, role, is_active, must_change_password) "
+                +
+                "VALUES (?, ?, ?, ?, ?, ?); SELECT SCOPE_IDENTITY();";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, account.getUsername());
             ps.setString(2, account.getPasswordHash());
             ps.setString(3, account.getFullName());
             ps.setString(4, account.getRole());
             ps.setBoolean(5, account.isActive());
+            ps.setBoolean(6, account.isMustChangePassword());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -94,7 +96,32 @@ public class AccountDAL {
      * Reset mật khẩu.
      */
     public void resetPassword(int accountId, String newPasswordHash) throws SQLException {
-        String sql = "UPDATE accounts SET password_hash = ? WHERE account_id = ?";
+        String sql = "UPDATE accounts SET password_hash = ?, must_change_password = 1 WHERE account_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, newPasswordHash);
+            ps.setInt(2, accountId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Cập nhật username và password (dùng sau khi sinh ID).
+     */
+    public void updateStaffCredentials(int accountId, String username, String passwordHash) throws SQLException {
+        String sql = "UPDATE accounts SET username = ?, password_hash = ? WHERE account_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, username);
+            ps.setString(2, passwordHash);
+            ps.setInt(3, accountId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
+     * Đổi mật khẩu chủ động.
+     */
+    public void changePassword(int accountId, String newPasswordHash) throws SQLException {
+        String sql = "UPDATE accounts SET password_hash = ?, must_change_password = 0 WHERE account_id = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, newPasswordHash);
             ps.setInt(2, accountId);
@@ -125,8 +152,10 @@ public class AccountDAL {
         account.setFullName(rs.getString("full_name"));
         account.setRole(rs.getString("role"));
         account.setActive(rs.getBoolean("is_active"));
+        account.setMustChangePassword(rs.getBoolean("must_change_password"));
         Timestamp ts = rs.getTimestamp("created_at");
-        if (ts != null) account.setCreatedAt(ts.toLocalDateTime());
+        if (ts != null)
+            account.setCreatedAt(ts.toLocalDateTime());
         return account;
     }
 }
