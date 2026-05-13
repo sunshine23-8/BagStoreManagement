@@ -3,6 +3,7 @@ package com.handbagstore.gui.panels;
 import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.bll.DiscountBLL;
 import com.handbagstore.dto.DiscountDTO;
+import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
@@ -48,8 +49,27 @@ public class DiscountManagerPanel extends JPanel {
         txtCode = new JTextField(); txtValue = new JTextField(); txtMinOrder = new JTextField();
         cmbType = new JComboBox<>(new String[]{"PERCENT", "AMOUNT"});
         cmbOccasion = new JComboBox<>(new String[]{"MANUAL", "BIRTHDAY", "SPECIAL"});
-        txtStartDate = new JTextField(); txtStartDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
-        txtEndDate = new JTextField(); txtEndDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+        txtStartDate = new JTextField(); txtStartDate.setEditable(false);
+        txtStartDate.putClientProperty("JTextField.placeholderText", "Chọn ngày bắt đầu...");
+        txtStartDate.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        txtStartDate.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                LocalDate current = DateUtils.parseDate(txtStartDate.getText());
+                LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
+                if (picked != null) txtStartDate.setText(DateUtils.formatDate(picked));
+            }
+        });
+
+        txtEndDate = new JTextField(); txtEndDate.setEditable(false);
+        txtEndDate.putClientProperty("JTextField.placeholderText", "Chọn ngày kết thúc...");
+        txtEndDate.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        txtEndDate.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                LocalDate current = DateUtils.parseDate(txtEndDate.getText());
+                LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
+                if (picked != null) txtEndDate.setText(DateUtils.formatDate(picked));
+            }
+        });
 
         form.add(new JLabel("Mã:")); form.add(txtCode);
         form.add(new JLabel("Loại:")); form.add(cmbType);
@@ -104,10 +124,29 @@ public class DiscountManagerPanel extends JPanel {
             d.setType((String) cmbType.getSelectedItem());
             d.setValue(new BigDecimal(txtValue.getText().trim()));
             d.setMinOrderAmt(txtMinOrder.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(txtMinOrder.getText().trim()));
-            LocalDate start = DateUtils.parseDate(txtStartDate.getText().trim());
-            if (start != null) d.setStartTime(start.atStartOfDay());
-            LocalDate end = DateUtils.parseDate(txtEndDate.getText().trim());
-            if (end != null) d.setEndTime(end.atTime(LocalTime.MAX));
+            String startStr = txtStartDate.getText().trim();
+            if (startStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày bắt đầu!");
+                return;
+            }
+            LocalDate start = DateUtils.parseDate(startStr);
+            if (start == null) {
+                JOptionPane.showMessageDialog(this, "Ngày bắt đầu không đúng định dạng (dd/MM/yyyy)!");
+                return;
+            }
+            d.setStartTime(start.atStartOfDay());
+
+            String endStr = txtEndDate.getText().trim();
+            if (endStr.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày kết thúc!");
+                return;
+            }
+            LocalDate end = DateUtils.parseDate(endStr);
+            if (end == null) {
+                JOptionPane.showMessageDialog(this, "Ngày kết thúc không đúng định dạng (dd/MM/yyyy)!");
+                return;
+            }
+            d.setEndTime(end.atTime(LocalTime.MAX));
             d.setOccasion((String) cmbOccasion.getSelectedItem());
             d.setActive(true);
             d.setCreatedBy(AccountBLL.getCurrentUser().getAccountId());
