@@ -173,4 +173,9 @@ public class MainStaffFrame extends JFrame {
             customerPanel.refreshData();
         }
     }
+    public void refreshInvoicePanel() {
+        if (invoicePanel != null) {
+            invoicePanel.refreshData();
+        }
+    }
 }

@@ -65,7 +65,7 @@ public class SalePanel extends JPanel {
 
     public SalePanel() {
         initComponents();
-        refreshProductList();
+        refreshAllData();
     }
 
     private void initComponents() {
@@ -335,7 +335,7 @@ public class SalePanel extends JPanel {
         add(centerPanel, BorderLayout.CENTER);
 
         // === RIGHT: Pending Orders ===
-        pendingWidget = new PendingOrdersWidget();
+        pendingWidget = new PendingOrdersWidget(this::refreshAllData, this::loadPendingOrder);
         pendingWidget.setPreferredSize(new Dimension(280, 0));
         add(pendingWidget, BorderLayout.EAST);
     }
@@ -446,6 +446,66 @@ public class SalePanel extends JPanel {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void refreshAllData() {
+        refreshProductList();
+        Window win = SwingUtilities.getWindowAncestor(this);
+        if (win instanceof com.handbagstore.gui.MainStaffFrame) {
+            ((com.handbagstore.gui.MainStaffFrame) win).refreshInvoicePanel();
+        }
+    }
+
+    public void loadPendingOrder(InvoiceDTO inv) {
+        try {
+            if (!cartItems.isEmpty()) {
+                int confirm = JOptionPane.showConfirmDialog(this,
+                        "Giỏ hàng hiện tại đang có sản phẩm. Bạn có muốn xóa giỏ hàng để tải đơn hàng chờ này không?",
+                        "Xác nhận", JOptionPane.YES_NO_OPTION);
+                if (confirm != JOptionPane.YES_OPTION)
+                    return;
+            }
+
+            clearCart();
+
+            // Load customer
+            if (inv.getCustomerId() != null) {
+                CustomerDTO customer = customerBLL.getById(inv.getCustomerId());
+                if (customer != null) {
+                    txtCustomerPhone.setText(customer.getPhone());
+                    lookupCustomer();
+                }
+            }
+
+            // Load items
+            List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
+            cartItems.addAll(details);
+
+            // Load discount
+            if (inv.getDiscountId() != null) {
+                for (int i = 1; i < cmbDiscount.getItemCount(); i++) {
+                    DiscountComboItem item = cmbDiscount.getItemAt(i);
+                    if (item != null && item.discount != null
+                            && item.discount.getDiscountId() == inv.getDiscountId()) {
+                        cmbDiscount.setSelectedIndex(i);
+                        break;
+                    }
+                }
+            }
+
+            // Delete the pending order (release stock and remove from DB)
+            orderBLL.deletePendingOrder(inv.getInvoiceId());
+
+            updateCartDisplay();
+            refreshAllData();
+            pendingWidget.refreshData();
+
+            JOptionPane.showMessageDialog(this, "Đã tải đơn hàng " + inv.getInvoiceCode() + " vào giỏ hàng.");
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải đơn hàng: " + ex.getMessage(), "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -732,7 +792,7 @@ public class SalePanel extends JPanel {
                     options[0]);
 
             clearCart();
-            refreshProductList();
+            refreshAllData();
 
             if (choice == 1) {
                 exportPdf();
@@ -752,7 +812,7 @@ public class SalePanel extends JPanel {
             int invoiceId = orderBLL.createPendingOrder(invoice, new ArrayList<>(cartItems), () -> {
                 SwingUtilities.invokeLater(() -> {
                     pendingWidget.refreshData();
-                    refreshProductList();
+                    refreshAllData();
                 });
             });
 
@@ -760,7 +820,7 @@ public class SalePanel extends JPanel {
                     "⏳ Đơn hàng đang chờ thanh toán!\nMã HĐ: " + invoice.getInvoiceCode());
 
             clearCart();
-            refreshProductList();
+            refreshAllData();
             pendingWidget.refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
