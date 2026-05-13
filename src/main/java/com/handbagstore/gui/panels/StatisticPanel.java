@@ -72,8 +72,7 @@ public class StatisticPanel extends JPanel {
         revenueCards.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Card doanh thu ngày
-        JPanel dailyCard = createRevenueCard(
-                "\"<html><font face='Segoe UI Emoji'>💰</font> Doanh thu hôm nay</html>\"");
+        JPanel dailyCard = createRevenueCard("<html><font face='Segoe UI Emoji'>💰</font> Doanh thu hôm nay</html>");
         dailyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
         dailyCard.addMouseListener(new MouseAdapter() {
             @Override
