@@ -153,7 +153,8 @@ public class InventoryPanel extends JPanel {
 
         importPanel.add(importTop, BorderLayout.NORTH);
 
-        String[] importCols = { "Mã SP", "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
+        String[] importCols = { "Mã SP", "Sản phẩm", "Số lượng", "Giá vốn", "Tổng tiền lô hàng", "Ngày nhập",
+                "Người nhập", "Ghi chú" };
         importModel = new DefaultTableModel(importCols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -228,9 +229,11 @@ public class InventoryPanel extends JPanel {
                 if (b.getImportDate() != null) {
                     formattedDate = b.getImportDate().format(formatter);
                 }
+
                 importModel.addRow(new Object[] {
                         b.getProductCode(),
                         b.getProductName(), b.getQuantity(), b.getCostPrice(),
+                        BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice()),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }
