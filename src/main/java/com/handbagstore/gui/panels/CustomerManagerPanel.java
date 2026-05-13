@@ -18,7 +18,10 @@ public class CustomerManagerPanel extends JPanel {
     private JTextField txtSearch, txtName, txtPhone, txtBirthday;
     private final CustomerBLL customerBLL = new CustomerBLL();
 
-    public CustomerManagerPanel() { initComponents(); refreshData(); }
+    public CustomerManagerPanel() {
+        initComponents();
+        refreshData();
+    }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
@@ -33,7 +36,8 @@ public class CustomerManagerPanel extends JPanel {
         JButton btnSearch = new JButton("🔍");
         btnSearch.addActionListener(e -> searchCustomers());
         txtSearch.addActionListener(e -> searchCustomers());
-        searchPanel.add(txtSearch); searchPanel.add(btnSearch);
+        searchPanel.add(txtSearch);
+        searchPanel.add(btnSearch);
 
         JPanel topPanel = new JPanel(new BorderLayout());
         topPanel.add(lblTitle, BorderLayout.WEST);
@@ -44,19 +48,27 @@ public class CustomerManagerPanel extends JPanel {
         split.setResizeWeight(0.5);
 
         // Customer table
-        String[] custCols = {"ID", "Họ tên", "SĐT", "Sinh nhật"};
+        String[] custCols = { "ID", "Họ tên", "SĐT", "Sinh nhật" };
         customerModel = new DefaultTableModel(custCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         customerTable = new JTable(customerModel);
         customerTable.setRowHeight(28);
         customerTable.getSelectionModel().addListSelectionListener(e -> loadHistory());
-        split.setTopComponent(new JScrollPane(customerTable));
+        JScrollPane customerScrollPane = new JScrollPane(customerTable);
+        customerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
+        split.setTopComponent(customerScrollPane);
 
         // History table
-        String[] hisCols = {"Mã HĐ", "Ngày", "Tổng tiền", "Trạng thái"};
+        String[] hisCols = { "Mã HĐ", "Ngày", "Tổng tiền", "Trạng thái" };
         historyModel = new DefaultTableModel(hisCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         historyTable = new JTable(historyModel);
         historyTable.setRowHeight(28);
@@ -71,30 +83,42 @@ public class CustomerManagerPanel extends JPanel {
         JPanel bottom = new JPanel(new BorderLayout(10, 5));
         JPanel form = new JPanel(new GridLayout(1, 6, 10, 5));
         form.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
-        txtName = new JTextField(); txtPhone = new JTextField();
-        txtBirthday = new JTextField(); txtBirthday.setEditable(false);
-        txtBirthday.putClientProperty("JTextField.placeholderText", "Chọn ngày sinh...");
-        txtBirthday.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        txtBirthday.addMouseListener(new java.awt.event.MouseAdapter() {
-            public void mouseClicked(java.awt.event.MouseEvent e) {
-                LocalDate current = DateUtils.parseDate(txtBirthday.getText());
-                LocalDate picked = DateChooser.showDialog(CustomerManagerPanel.this, current);
-                if (picked != null) txtBirthday.setText(DateUtils.formatDate(picked));
-            }
+        txtName = new JTextField();
+        txtPhone = new JTextField();
+        txtBirthday = new JTextField();
+        txtBirthday.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+
+        JPanel birthdayPanel = new JPanel(new BorderLayout(2, 0));
+        birthdayPanel.add(txtBirthday, BorderLayout.CENTER);
+
+        JButton btnCal = new JButton("📅");
+        btnCal.setToolTipText("Chọn ngày từ lịch");
+        btnCal.addActionListener(e -> {
+            LocalDate current = DateUtils.parseDate(txtBirthday.getText());
+            LocalDate picked = DateChooser.showDialog(CustomerManagerPanel.this, current);
+            if (picked != null)
+                txtBirthday.setText(DateUtils.formatDate(picked));
         });
-        form.add(new JLabel("Họ tên:")); form.add(txtName);
-        form.add(new JLabel("SĐT:")); form.add(txtPhone);
-        form.add(new JLabel("Sinh nhật:")); form.add(txtBirthday);
+        birthdayPanel.add(btnCal, BorderLayout.EAST);
+
+        form.add(new JLabel("Họ tên:"));
+        form.add(txtName);
+        form.add(new JLabel("SĐT:"));
+        form.add(txtPhone);
+        form.add(new JLabel("Sinh nhật:"));
+        form.add(birthdayPanel);
         bottom.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnAdd = new JButton("➕ Thêm");
-        btnAdd.setBackground(new Color(40, 167, 69)); btnAdd.setForeground(Color.WHITE);
+        btnAdd.setBackground(new Color(40, 167, 69));
+        btnAdd.setForeground(Color.WHITE);
         btnAdd.addActionListener(e -> addCustomer());
         JButton btnUpdate = new JButton("✏️ Cập nhật");
         btnUpdate.setBackground(new Color(255, 193, 7));
         btnUpdate.addActionListener(e -> updateCustomer());
-        btnPanel.add(btnAdd); btnPanel.add(btnUpdate);
+        btnPanel.add(btnAdd);
+        btnPanel.add(btnUpdate);
         bottom.add(btnPanel, BorderLayout.SOUTH);
         add(bottom, BorderLayout.SOUTH);
     }
@@ -104,9 +128,9 @@ public class CustomerManagerPanel extends JPanel {
             customerModel.setRowCount(0);
             List<CustomerDTO> list = customerBLL.getAll();
             for (CustomerDTO c : list) {
-                customerModel.addRow(new Object[]{
-                    c.getCustomerId(), c.getFullName(), c.getPhone(),
-                    c.getBirthday() != null ? DateUtils.formatDate(c.getBirthday()) : ""
+                customerModel.addRow(new Object[] {
+                        c.getCustomerId(), c.getFullName(), c.getPhone(),
+                        c.getBirthday() != null ? DateUtils.formatDate(c.getBirthday()) : ""
                 });
             }
         } catch (Exception ex) {
@@ -116,13 +140,16 @@ public class CustomerManagerPanel extends JPanel {
 
     private void searchCustomers() {
         String kw = txtSearch.getText().trim();
-        if (kw.isEmpty()) { refreshData(); return; }
+        if (kw.isEmpty()) {
+            refreshData();
+            return;
+        }
         try {
             customerModel.setRowCount(0);
             for (CustomerDTO c : customerBLL.search(kw)) {
-                customerModel.addRow(new Object[]{
-                    c.getCustomerId(), c.getFullName(), c.getPhone(),
-                    c.getBirthday() != null ? DateUtils.formatDate(c.getBirthday()) : ""
+                customerModel.addRow(new Object[] {
+                        c.getCustomerId(), c.getFullName(), c.getPhone(),
+                        c.getBirthday() != null ? DateUtils.formatDate(c.getBirthday()) : ""
                 });
             }
         } catch (Exception ex) {
@@ -132,7 +159,8 @@ public class CustomerManagerPanel extends JPanel {
 
     private void loadHistory() {
         int row = customerTable.getSelectedRow();
-        if (row < 0) return;
+        if (row < 0)
+            return;
         try {
             int custId = (int) customerModel.getValueAt(row, 0);
             txtName.setText((String) customerModel.getValueAt(row, 1));
@@ -142,9 +170,9 @@ public class CustomerManagerPanel extends JPanel {
             historyModel.setRowCount(0);
             List<InvoiceDTO> history = customerBLL.getPurchaseHistory(custId);
             for (InvoiceDTO inv : history) {
-                historyModel.addRow(new Object[]{
-                    inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
-                    inv.getTotal(), inv.getStatus()
+                historyModel.addRow(new Object[] {
+                        inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
+                        inv.getTotal(), inv.getStatus()
                 });
             }
         } catch (Exception ex) {
@@ -161,7 +189,8 @@ public class CustomerManagerPanel extends JPanel {
             c.setBirthday(bd);
             customerBLL.addCustomer(c);
             JOptionPane.showMessageDialog(this, "Thêm khách hàng thành công!");
-            clearForm(); refreshData();
+            clearForm();
+            refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
@@ -169,7 +198,10 @@ public class CustomerManagerPanel extends JPanel {
 
     private void updateCustomer() {
         int row = customerTable.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Chọn khách hàng!"); return; }
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Chọn khách hàng!");
+            return;
+        }
         try {
             CustomerDTO c = new CustomerDTO();
             c.setCustomerId((int) customerModel.getValueAt(row, 0));
@@ -186,6 +218,8 @@ public class CustomerManagerPanel extends JPanel {
     }
 
     private void clearForm() {
-        txtName.setText(""); txtPhone.setText(""); txtBirthday.setText("");
+        txtName.setText("");
+        txtPhone.setText("");
+        txtBirthday.setText("");
     }
 }
