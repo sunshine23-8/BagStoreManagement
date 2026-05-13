@@ -52,6 +52,7 @@ public class PendingOrdersWidget extends JPanel {
         add(scrollPane, BorderLayout.CENTER);
 
         JButton btnRefresh = new JButton("🔄 Làm mới");
+        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRefresh.addActionListener(e -> refreshData());
         add(btnRefresh, BorderLayout.SOUTH);
     }

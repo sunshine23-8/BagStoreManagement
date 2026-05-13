@@ -21,6 +21,7 @@ public class DiscountManagerPanel extends JPanel {
     private JTextField txtCode, txtValue, txtMinOrder;
     private JComboBox<String> cmbType, cmbOccasion;
     private JTextField txtStartDate, txtEndDate;
+    private JButton btnDeactivate;
     private final DiscountBLL discountBLL = new DiscountBLL();
 
     public DiscountManagerPanel() { initComponents(); refreshData(); }
@@ -39,6 +40,17 @@ public class DiscountManagerPanel extends JPanel {
         };
         table = new JTable(tableModel);
         table.setRowHeight(28);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+        table.setFillsViewportHeight(true);
+        table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                if (table.rowAtPoint(e.getPoint()) == -1) {
+                    clearForm();
+                }
+            }
+        });
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Form
@@ -81,14 +93,23 @@ public class DiscountManagerPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnCreate = new JButton("➕ Tạo mã");
+        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createDiscount());
 
-        JButton btnDeactivate = new JButton("❌ Vô hiệu hóa");
+        btnDeactivate = new JButton("❌ Vô hiệu hóa");
+        btnDeactivate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDeactivate.setBackground(new Color(220, 53, 69)); btnDeactivate.setForeground(Color.WHITE);
-        btnDeactivate.addActionListener(e -> deactivateDiscount());
+        btnDeactivate.addActionListener(e -> toggleDiscountStatus());
 
-        btnPanel.add(btnCreate); btnPanel.add(btnDeactivate);
+        JButton btnUpdate = new JButton("✏️ Cập nhật");
+        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnUpdate.setBackground(new Color(13, 110, 253)); btnUpdate.setForeground(Color.WHITE);
+        btnUpdate.addActionListener(e -> updateDiscount());
+
+        btnPanel.add(btnCreate); 
+        btnPanel.add(btnUpdate);
+        btnPanel.add(btnDeactivate);
         JPanel formWithOccasion = new JPanel(new BorderLayout());
         JPanel occasionRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         occasionRow.add(new JLabel("Dịp:")); occasionRow.add(cmbOccasion);
@@ -119,56 +140,114 @@ public class DiscountManagerPanel extends JPanel {
 
     private void createDiscount() {
         try {
-            DiscountDTO d = new DiscountDTO();
-            d.setCode(txtCode.getText().trim().toUpperCase());
-            d.setType((String) cmbType.getSelectedItem());
-            d.setValue(new BigDecimal(txtValue.getText().trim()));
-            d.setMinOrderAmt(txtMinOrder.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(txtMinOrder.getText().trim()));
-            String startStr = txtStartDate.getText().trim();
-            if (startStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày bắt đầu!");
-                return;
-            }
-            LocalDate start = DateUtils.parseDate(startStr);
-            if (start == null) {
-                JOptionPane.showMessageDialog(this, "Ngày bắt đầu không đúng định dạng (dd/MM/yyyy)!");
-                return;
-            }
-            d.setStartTime(start.atStartOfDay());
-
-            String endStr = txtEndDate.getText().trim();
-            if (endStr.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Vui lòng nhập ngày kết thúc!");
-                return;
-            }
-            LocalDate end = DateUtils.parseDate(endStr);
-            if (end == null) {
-                JOptionPane.showMessageDialog(this, "Ngày kết thúc không đúng định dạng (dd/MM/yyyy)!");
-                return;
-            }
-            d.setEndTime(end.atTime(LocalTime.MAX));
-            d.setOccasion((String) cmbOccasion.getSelectedItem());
+            DiscountDTO d = getFormData();
             d.setActive(true);
             d.setCreatedBy(AccountBLL.getCurrentUser().getAccountId());
 
             discountBLL.createDiscount(d);
             JOptionPane.showMessageDialog(this, "Tạo mã giảm giá thành công!");
-            txtCode.setText(""); txtValue.setText(""); txtMinOrder.setText("");
-            txtStartDate.setText(""); txtEndDate.setText("");
+            clearForm();
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 
-    private void deactivateDiscount() {
+    private void updateDiscount() {
+        int row = table.getSelectedRow();
+        if (row < 0) { JOptionPane.showMessageDialog(this, "Chọn mã giảm giá!"); return; }
+        try {
+            String oldCode = (String) tableModel.getValueAt(row, 0);
+            DiscountDTO existing = discountBLL.getByCode(oldCode);
+            
+            DiscountDTO d = getFormData();
+            d.setDiscountId(existing.getDiscountId());
+            d.setActive(existing.isActive());
+            d.setCreatedBy(existing.getCreatedBy());
+
+            discountBLL.updateDiscount(d);
+            JOptionPane.showMessageDialog(this, "Cập nhật thành công!");
+            refreshData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private DiscountDTO getFormData() {
+        DiscountDTO d = new DiscountDTO();
+        d.setCode(txtCode.getText().trim().toUpperCase());
+        if (d.getCode().isEmpty()) throw new RuntimeException("Mã không được để trống!");
+        
+        d.setType((String) cmbType.getSelectedItem());
+        String valStr = txtValue.getText().trim();
+        if (valStr.isEmpty()) throw new RuntimeException("Giá trị không được để trống!");
+        d.setValue(new BigDecimal(valStr));
+        
+        d.setMinOrderAmt(txtMinOrder.getText().trim().isEmpty() ? BigDecimal.ZERO : new BigDecimal(txtMinOrder.getText().trim()));
+        
+        String startStr = txtStartDate.getText().trim();
+        if (startStr.isEmpty()) throw new RuntimeException("Vui lòng nhập ngày bắt đầu!");
+        LocalDate start = DateUtils.parseDate(startStr);
+        if (start == null) throw new RuntimeException("Ngày bắt đầu không đúng định dạng!");
+        d.setStartTime(start.atStartOfDay());
+
+        String endStr = txtEndDate.getText().trim();
+        if (endStr.isEmpty()) throw new RuntimeException("Vui lòng nhập ngày kết thúc!");
+        LocalDate end = DateUtils.parseDate(endStr);
+        if (end == null) throw new RuntimeException("Ngày kết thúc không đúng định dạng!");
+        d.setEndTime(end.atTime(23, 59, 59));
+        
+        d.setOccasion((String) cmbOccasion.getSelectedItem());
+        return d;
+    }
+
+    private void loadSelectedRow() {
+        int row = table.getSelectedRow();
+        if (row < 0) return;
+        try {
+            String code = (String) tableModel.getValueAt(row, 0);
+            // We search in the full list or just fetch from DB. Since it's a manager panel, fetch is safer.
+            DiscountDTO d = discountBLL.getByCode(code); 
+            if (d != null) {
+                txtCode.setText(d.getCode());
+                cmbType.setSelectedItem(d.getType());
+                txtValue.setText(d.getValue().toString());
+                txtMinOrder.setText(d.getMinOrderAmt().toString());
+                txtStartDate.setText(DateUtils.formatDate(d.getStartTime().toLocalDate()));
+                txtEndDate.setText(DateUtils.formatDate(d.getEndTime().toLocalDate()));
+                cmbOccasion.setSelectedItem(d.getOccasion());
+
+                if (d.isActive()) {
+                    btnDeactivate.setText("❌ Vô hiệu hóa");
+                    btnDeactivate.setBackground(new Color(220, 53, 69));
+                } else {
+                    btnDeactivate.setText("🔄 Khôi phục");
+                    btnDeactivate.setBackground(new Color(40, 167, 69));
+                }
+            }
+        } catch (Exception ignored) {}
+    }
+
+    private void clearForm() {
+        txtCode.setText(""); txtValue.setText(""); txtMinOrder.setText("");
+        txtStartDate.setText(""); txtEndDate.setText("");
+        cmbType.setSelectedIndex(0);
+        cmbOccasion.setSelectedIndex(0);
+        btnDeactivate.setText("❌ Vô hiệu hóa");
+        btnDeactivate.setBackground(new Color(220, 53, 69));
+        table.clearSelection();
+    }
+
+    private void toggleDiscountStatus() {
         int row = table.getSelectedRow();
         if (row < 0) { JOptionPane.showMessageDialog(this, "Chọn mã giảm giá!"); return; }
         try {
             String code = (String) tableModel.getValueAt(row, 0);
-            DiscountDTO d = discountBLL.validateCode(code);
-            discountBLL.deactivate(d.getDiscountId());
+            DiscountDTO d = discountBLL.getByCode(code);
+            boolean newStatus = !d.isActive();
+            discountBLL.toggleActive(d.getDiscountId(), newStatus);
             refreshData();
+            loadSelectedRow(); // Update button text
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }

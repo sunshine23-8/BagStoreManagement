@@ -1,7 +1,7 @@
 package com.handbagstore.dto;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 /**
  * DTO cho bảng import_batches.
@@ -13,7 +13,7 @@ public class ImportBatchDTO {
     private Integer supplierId;
     private int quantity;
     private BigDecimal costPrice;
-    private LocalDateTime importDate;
+    private LocalDate importDate;
     private String note;
     private int createdBy;
 
@@ -41,8 +41,8 @@ public class ImportBatchDTO {
     public BigDecimal getCostPrice() { return costPrice; }
     public void setCostPrice(BigDecimal costPrice) { this.costPrice = costPrice; }
 
-    public LocalDateTime getImportDate() { return importDate; }
-    public void setImportDate(LocalDateTime importDate) { this.importDate = importDate; }
+    public LocalDate getImportDate() { return importDate; }
+    public void setImportDate(LocalDate importDate) { this.importDate = importDate; }
 
     public String getNote() { return note; }
     public void setNote(String note) { this.note = note; }

@@ -44,12 +44,16 @@ public class SalePanel extends JPanel {
     class DiscountComboItem {
         DiscountDTO discount;
         String label;
+
         public DiscountComboItem(DiscountDTO discount, String label) {
             this.discount = discount;
             this.label = label;
         }
+
         @Override
-        public String toString() { return label; }
+        public String toString() {
+            return label;
+        }
     }
 
     // Panel đơn pending
@@ -78,12 +82,21 @@ public class SalePanel extends JPanel {
         txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm sản phẩm...");
         txtSearchProduct.addActionListener(e -> searchProducts());
         txtSearchProduct.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchProducts(); }
-            public void removeUpdate(DocumentEvent e) { searchProducts(); }
-            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchProducts();
+            }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
         JButton btnSearch = new JButton("🔍");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
 
@@ -102,6 +115,7 @@ public class SalePanel extends JPanel {
         };
         productTable = new JTable(productModel);
         productTable.setRowHeight(28);
+        productTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         productTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -120,6 +134,7 @@ public class SalePanel extends JPanel {
         spnQuantity = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         addPanel.add(spnQuantity);
         btnAddToCart = new JButton("➕ Thêm vào đơn");
+        btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
         btnAddToCart.setForeground(Color.WHITE);
         btnAddToCart.addActionListener(e -> addToCart());
@@ -145,6 +160,7 @@ public class SalePanel extends JPanel {
         };
         cartTable = new JTable(cartModel);
         cartTable.setRowHeight(28);
+        cartTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         centerPanel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
 
         // Payment section
@@ -157,9 +173,17 @@ public class SalePanel extends JPanel {
         customerRow.add(new JLabel("SĐT Khách:"));
         txtCustomerPhone = new JTextField(12);
         txtCustomerPhone.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { lookupCustomer(); }
-            public void removeUpdate(DocumentEvent e) { lookupCustomer(); }
-            public void changedUpdate(DocumentEvent e) { lookupCustomer(); }
+            public void insertUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
         });
         customerRow.add(txtCustomerPhone);
         lblCustomerInfo = new JLabel(" ");
@@ -175,20 +199,24 @@ public class SalePanel extends JPanel {
         try {
             List<DiscountDTO> activeDiscounts = discountBLL.getActive();
             for (DiscountDTO d : activeDiscounts) {
-                String label = d.getCode() + " (" + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue())) + ")";
+                String label = d.getCode() + " ("
+                        + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue())) + ")";
                 cmbDiscount.addItem(new DiscountComboItem(d, label));
             }
-        } catch (Exception ignored) {}
-        
+        } catch (Exception ignored) {
+        }
+
         cmbDiscount.setRenderer(new DefaultListCellRenderer() {
             @Override
-            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
                 Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
                 if (value instanceof DiscountComboItem) {
                     DiscountDTO d = ((DiscountComboItem) value).discount;
                     if (d != null) {
                         String tooltip = "<html>Mã: <b>" + d.getCode() + "</b><br>" +
-                                "Giảm: " + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue())) + "<br>" +
+                                "Giảm: " + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue()))
+                                + "<br>" +
                                 "Đơn tối thiểu: " + formatCurrency(d.getMinOrderAmt()) + "<br>" +
                                 "Từ: " + com.handbagstore.utils.DateUtils.formatDateTime(d.getStartTime()) + "<br>" +
                                 "Đến: " + com.handbagstore.utils.DateUtils.formatDateTime(d.getEndTime()) + "</html>";
@@ -200,10 +228,11 @@ public class SalePanel extends JPanel {
                 return c;
             }
         });
-        
+
         cmbDiscount.addActionListener(e -> applyDiscount());
         discountRow.add(cmbDiscount);
         btnRemoveFromCart = new JButton("❌ Xóa SP");
+        btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
         discountRow.add(btnRemoveFromCart);
         paymentPanel.add(discountRow);
@@ -233,9 +262,17 @@ public class SalePanel extends JPanel {
         receivedRow.add(new JLabel("Tiền nhận:"));
         txtPaymentReceived = new JTextField(10);
         txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { calculateChange(); }
-            public void removeUpdate(DocumentEvent e) { calculateChange(); }
-            public void changedUpdate(DocumentEvent e) { calculateChange(); }
+            public void insertUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                calculateChange();
+            }
         });
         receivedRow.add(txtPaymentReceived);
         receivedRow.add(new JLabel("Thối:"));
@@ -270,6 +307,7 @@ public class SalePanel extends JPanel {
         btnPending.addActionListener(e -> createPending());
 
         btnExportPdf = new JButton("📄 Xuất PDF");
+        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnExportPdf.addActionListener(e -> exportPdf());
 
         actionRow.add(btnPayNow);
@@ -289,7 +327,8 @@ public class SalePanel extends JPanel {
     // ==================== Logic Methods ====================
 
     private String formatCurrency(BigDecimal amount) {
-        if (amount == null) return "0đ";
+        if (amount == null)
+            return "0đ";
         java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
         return formatter.format(amount) + "đ";
     }
@@ -389,7 +428,8 @@ public class SalePanel extends JPanel {
             List<ProductDTO> products = productBLL.getAll(false);
             for (ProductDTO p : products) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                productModel.addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
+                productModel
+                        .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
@@ -406,7 +446,8 @@ public class SalePanel extends JPanel {
             productModel.setRowCount(0);
             for (ProductDTO p : productBLL.search(keyword)) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                productModel.addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
+                productModel
+                        .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
@@ -499,9 +540,9 @@ public class SalePanel extends JPanel {
                 lblCustomerInfo.setText("Không tìm thấy — khách vãng lai");
                 if (phone.matches("\\d{10}")) {
                     SwingUtilities.invokeLater(() -> {
-                        int choice = JOptionPane.showConfirmDialog(this, 
-                            "Khách hàng này chưa có trong hệ thống.\nBạn có muốn đăng ký khách hàng mới không?", 
-                            "Đăng ký thành viên", JOptionPane.YES_NO_OPTION);
+                        int choice = JOptionPane.showConfirmDialog(this,
+                                "Khách hàng này chưa có trong hệ thống.\nBạn có muốn đăng ký khách hàng mới không?",
+                                "Đăng ký thành viên", JOptionPane.YES_NO_OPTION);
                         if (choice == JOptionPane.YES_OPTION) {
                             Window window = SwingUtilities.getWindowAncestor(this);
                             if (window instanceof com.handbagstore.gui.MainStaffFrame) {
@@ -511,7 +552,9 @@ public class SalePanel extends JPanel {
                     });
                 }
             } else {
-                String bday = selectedCustomer.getBirthday() != null ? com.handbagstore.utils.DateUtils.formatDate(selectedCustomer.getBirthday()) : "N/A";
+                String bday = selectedCustomer.getBirthday() != null
+                        ? com.handbagstore.utils.DateUtils.formatDate(selectedCustomer.getBirthday())
+                        : "N/A";
                 String info = selectedCustomer.getFullName() + " (" + bday + ")";
                 if (selectedCustomer.isBirthday()) {
                     info += " 🎂 Sinh nhật hôm nay!";
@@ -560,7 +603,8 @@ public class SalePanel extends JPanel {
             return;
         }
         Object selectedObj = cmbDiscount.getSelectedItem();
-        if (!(selectedObj instanceof DiscountComboItem)) return;
+        if (!(selectedObj instanceof DiscountComboItem))
+            return;
         DiscountComboItem item = (DiscountComboItem) selectedObj;
         String code = item.discount.getCode();
         try {
@@ -587,7 +631,8 @@ public class SalePanel extends JPanel {
     private void showUpsellDialog(List<ProductDTO> suggestions, BigDecimal needed) {
         if (suggestions.isEmpty())
             return;
-        StringBuilder sb = new StringBuilder("Sản phẩm gợi ý mua thêm (cần thêm ≥ " + formatCurrency(needed) + "):\n\n");
+        StringBuilder sb = new StringBuilder(
+                "Sản phẩm gợi ý mua thêm (cần thêm ≥ " + formatCurrency(needed) + "):\n\n");
         int count = 0;
         for (ProductDTO p : suggestions) {
             if (count++ >= 10)
@@ -608,7 +653,8 @@ public class SalePanel extends JPanel {
             }
             BigDecimal received = new BigDecimal(input);
             BigDecimal change = received.subtract(total);
-            lblChange.setText(change.compareTo(BigDecimal.ZERO) >= 0 ? formatCurrency(change) : "Thiếu " + formatCurrency(change.abs()));
+            lblChange.setText(change.compareTo(BigDecimal.ZERO) >= 0 ? formatCurrency(change)
+                    : "Thiếu " + formatCurrency(change.abs()));
             lblChange.setForeground(change.compareTo(BigDecimal.ZERO) >= 0
                     ? new Color(40, 167, 69)
                     : new Color(220, 53, 69));
@@ -651,8 +697,8 @@ public class SalePanel extends JPanel {
             lastInvoiceId = invoiceId;
 
             String changeMsg = isCash ? "\nTiền thối: " + formatCurrency(change) : "";
-            
-            Object[] options = {"Đóng", "📄 Xuất PDF"};
+
+            Object[] options = { "Đóng", "📄 Xuất PDF" };
             int choice = JOptionPane.showOptionDialog(this,
                     "✅ Thanh toán thành công!\nMã HĐ: " + invoice.getInvoiceCode() + changeMsg,
                     "Thanh toán",
@@ -736,7 +782,8 @@ public class SalePanel extends JPanel {
         }
         try {
             InvoiceDTO inv = orderBLL.getInvoiceById(lastInvoiceId);
-            if (inv == null) return;
+            if (inv == null)
+                return;
             List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(lastInvoiceId);
             CustomerDTO customer = null;
             if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
@@ -746,11 +793,12 @@ public class SalePanel extends JPanel {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Lưu PDF Hóa Đơn");
             fileChooser.setSelectedFile(new java.io.File("HoaDon_" + inv.getInvoiceCode() + ".pdf"));
-            
+
             if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!path.toLowerCase().endsWith(".pdf")) path += ".pdf";
-                
+                if (!path.toLowerCase().endsWith(".pdf"))
+                    path += ".pdf";
+
                 PdfExporter.exportInvoice(path, inv, details, customer);
                 JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
             }
