@@ -56,6 +56,7 @@ public class StatisticPanel extends JPanel {
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         filterPanel.add(new JLabel("Năm:"));
         spnYear = new JSpinner(new SpinnerNumberModel(LocalDate.now().getYear(), 2020, 2030, 1));
+        spnYear.setEditor(new JSpinner.NumberEditor(spnYear, "#"));
         filterPanel.add(spnYear);
         filterPanel.add(new JLabel("Tháng:"));
         spnMonth = new JSpinner(new SpinnerNumberModel(LocalDate.now().getMonthValue(), 1, 12, 1));

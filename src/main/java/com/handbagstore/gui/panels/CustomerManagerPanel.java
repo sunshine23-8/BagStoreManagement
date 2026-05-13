@@ -64,7 +64,16 @@ public class CustomerManagerPanel extends JPanel {
         };
         customerTable = new JTable(customerModel);
         customerTable.setRowHeight(28);
+        customerTable.setFillsViewportHeight(true);
         customerTable.getSelectionModel().addListSelectionListener(e -> loadHistory());
+        customerTable.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (customerTable.rowAtPoint(e.getPoint()) == -1) {
+                    customerTable.clearSelection();
+                }
+            }
+        });
         JScrollPane customerScrollPane = new JScrollPane(customerTable);
         customerScrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS);
         split.setTopComponent(customerScrollPane);
@@ -167,8 +176,11 @@ public class CustomerManagerPanel extends JPanel {
 
     private void loadHistory() {
         int row = customerTable.getSelectedRow();
-        if (row < 0)
+        if (row < 0) {
+            clearForm();
+            historyModel.setRowCount(0);
             return;
+        }
         try {
             int custId = (int) customerModel.getValueAt(row, 0);
             txtName.setText((String) customerModel.getValueAt(row, 1));
