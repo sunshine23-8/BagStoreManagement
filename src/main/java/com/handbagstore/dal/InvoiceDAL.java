@@ -199,11 +199,19 @@ public class InvoiceDAL {
 
     /** Sinh mã hóa đơn tự động: HD + yyyyMMdd + sequence */
     public String generateInvoiceCode() throws SQLException {
-        String sql = "SELECT COUNT(*) + 1 AS seq FROM invoices WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
+        String sql = "SELECT MAX(invoice_code) AS max_code FROM invoices WHERE CAST(created_at AS DATE) = CAST(GETDATE() AS DATE)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
-                int seq = rs.getInt("seq");
+                String maxCode = rs.getString("max_code");
+                int seq = 1;
+                if (maxCode != null && maxCode.length() >= 13) {
+                    try {
+                        seq = Integer.parseInt(maxCode.substring(10)) + 1;
+                    } catch (NumberFormatException e) {
+                        seq = 1;
+                    }
+                }
                 java.time.LocalDate today = java.time.LocalDate.now();
                 return String.format("HD%s%03d", today.format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd")), seq);
             }
