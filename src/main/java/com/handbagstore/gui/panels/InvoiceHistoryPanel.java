@@ -161,6 +161,11 @@ public class InvoiceHistoryPanel extends JPanel {
             if (all.isEmpty()) return;
             InvoiceDTO inv = all.get(0);
 
+            if ("CANCELLED".equals(inv.getStatus())) {
+                JOptionPane.showMessageDialog(this, "Không thể xuất PDF cho hóa đơn đã bị hủy.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                return;
+            }
+
             List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
             com.handbagstore.dto.CustomerDTO customer = null;
             if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
