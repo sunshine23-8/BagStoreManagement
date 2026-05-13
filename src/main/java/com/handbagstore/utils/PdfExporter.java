@@ -9,6 +9,9 @@ import java.util.Locale;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.dto.InvoiceDTO;
 import com.handbagstore.dto.InvoiceDetailDTO;
+import com.itextpdf.io.font.PdfEncodings;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.layout.Document;
@@ -42,7 +45,14 @@ public class PdfExporter {
         PdfDocument pdf = new PdfDocument(writer);
         Document doc = new Document(pdf);
 
-        // Font (dùng font mặc định, hỗ trợ tiếng Việt có thể cần font riêng)
+        // Font hỗ trợ tiếng Việt (Arial trên Windows)
+        try {
+            String fontPath = "C:/Windows/Fonts/arial.ttf";
+            PdfFont font = PdfFontFactory.createFont(fontPath, PdfEncodings.IDENTITY_H);
+            doc.setFont(font);
+        } catch (Exception e) {
+            System.err.println("Không thể load font Arial, dùng font mặc định: " + e.getMessage());
+        }
         // Tiêu đề
         doc.add(new Paragraph("CỬA HÀNG TÚI XÁCH")
                 .setTextAlignment(TextAlignment.CENTER)
