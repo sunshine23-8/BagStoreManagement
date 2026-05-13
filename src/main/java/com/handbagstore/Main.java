@@ -2,6 +2,7 @@ package com.handbagstore;
 
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.handbagstore.gui.LoginFrame;
+import com.handbagstore.gui.MainAdminFrame;
 
 import javax.swing.*;
 
@@ -23,5 +24,10 @@ public class Main {
             LoginFrame loginFrame = new LoginFrame();
             loginFrame.setVisible(true);
         });
+
+        // SwingUtilities.invokeLater(() -> {
+        // MainAdminFrame mainAdminFrame = new MainAdminFrame();
+        // mainAdminFrame.setVisible(true);
+        // });
     }
 }
