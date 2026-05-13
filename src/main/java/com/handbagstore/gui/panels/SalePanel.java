@@ -83,7 +83,7 @@ public class SalePanel extends JPanel {
         // Search
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         txtSearchProduct = new JTextField();
-        txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm sản phẩm...");
+        txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
         txtSearchProduct.addActionListener(e -> searchProducts());
         txtSearchProduct.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
@@ -99,7 +99,7 @@ public class SalePanel extends JPanel {
             }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
-        JButton btnSearch = new JButton("🔍");
+        JButton btnSearch = new JButton("🔍 Tìm");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
@@ -162,7 +162,7 @@ public class SalePanel extends JPanel {
         lblCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cartHeaderPanel.add(lblCart, BorderLayout.WEST);
 
-        btnRemoveFromCart = new JButton("❌ Xóa SP");
+        btnRemoveFromCart = new JButton("Xóa sản phẩm");
         btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRemoveFromCart.setBackground(new Color(220, 53, 69));
         btnRemoveFromCart.setForeground(Color.WHITE);
@@ -400,7 +400,7 @@ public class SalePanel extends JPanel {
                 showProductDetails(product);
             }
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết sản phẩm: " + ex.getMessage(), "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -482,7 +482,7 @@ public class SalePanel extends JPanel {
 
             dialog.setVisible(true);
         } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết sản phẩm: " + ex.getMessage(), "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
         }
     }
@@ -569,7 +569,7 @@ public class SalePanel extends JPanel {
         }
         try {
             productModel.setRowCount(0);
-            for (ProductDTO p : productBLL.search(keyword)) {
+            for (ProductDTO p : productBLL.search(keyword, false)) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
                 productModel
                         .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
@@ -582,7 +582,7 @@ public class SalePanel extends JPanel {
     private void doAddToCart(ProductDTO product, int qty) {
         try {
             if (!inventoryBLL.checkAvailability(product.getProductId(), qty)) {
-                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho SP: " + product.getName() + "!");
+                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho sản phẩm: " + product.getName() + "!");
                 return;
             }
 

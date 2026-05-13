@@ -28,8 +28,8 @@ public class ProductBLL {
         return productDAL.getByCode(code);
     }
 
-    public List<ProductDTO> search(String keyword) throws SQLException {
-        return productDAL.search(keyword);
+    public List<ProductDTO> search(String keyword, boolean includeInactive) throws SQLException {
+        return productDAL.search(keyword, includeInactive);
     }
 
     public int addProduct(ProductDTO product) throws SQLException {

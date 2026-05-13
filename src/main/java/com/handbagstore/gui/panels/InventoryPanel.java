@@ -240,7 +240,7 @@ public class InventoryPanel extends JPanel {
                         b.getProductName(),
                         b.getQuantity(),
                         CurrencyUtils.format(b.getCostPrice()),
-                        BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice()),
+                        CurrencyUtils.format(BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice())),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }
