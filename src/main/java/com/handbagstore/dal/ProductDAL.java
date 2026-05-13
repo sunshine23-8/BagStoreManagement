@@ -156,8 +156,8 @@ public class ProductDAL {
      */
     public List<ProductDTO> getUpsellSuggestions(long deltaAmount) throws SQLException {
         String sql = "SELECT p.* FROM products p " +
-                     "JOIN inventory i ON p.product_id = i.product_id " +
-                     "WHERE p.price >= ? AND (i.quantity - i.reserved_qty) > 0 AND p.status = 'ACTIVE' " +
+                     "WHERE p.price >= ? AND p.status = 'ACTIVE' " +
+                     "AND EXISTS (SELECT 1 FROM inventory i WHERE i.product_id = p.product_id AND (i.quantity - i.reserved_qty) > 0) " +
                      "ORDER BY p.price ASC";
         List<ProductDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {

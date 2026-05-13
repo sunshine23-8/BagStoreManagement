@@ -146,9 +146,17 @@ public class SalePanel extends JPanel {
         // === CENTER: Cart + Payment ===
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
 
+        JPanel cartHeaderPanel = new JPanel(new BorderLayout());
         JLabel lblCart = new JLabel("🛒 Đơn hàng hiện tại");
         lblCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        centerPanel.add(lblCart, BorderLayout.NORTH);
+        cartHeaderPanel.add(lblCart, BorderLayout.WEST);
+
+        btnRemoveFromCart = new JButton("❌ Xóa SP");
+        btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnRemoveFromCart.addActionListener(e -> removeFromCart());
+        cartHeaderPanel.add(btnRemoveFromCart, BorderLayout.EAST);
+
+        centerPanel.add(cartHeaderPanel, BorderLayout.NORTH);
 
         // Cart table
         String[] cartCols = { "Mã SP", "Tên SP", "Đơn giá", "SL", "Thành tiền" };
@@ -239,10 +247,6 @@ public class SalePanel extends JPanel {
 
         cmbDiscount.addActionListener(e -> applyDiscount());
         discountRow.add(cmbDiscount);
-        btnRemoveFromCart = new JButton("❌ Xóa SP");
-        btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnRemoveFromCart.addActionListener(e -> removeFromCart());
-        discountRow.add(btnRemoveFromCart);
         paymentPanel.add(discountRow);
 
         // Totals
@@ -344,7 +348,17 @@ public class SalePanel extends JPanel {
             String code = (String) productModel.getValueAt(row, 0);
             ProductDTO product = productBLL.getByCode(code);
             if (product != null) {
-                int stock = inventoryBLL.getAvailableQuantity(product.getProductId());
+                showProductDetails(product);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
+                    JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void showProductDetails(ProductDTO product) {
+        try {
+            int stock = inventoryBLL.getAvailableQuantity(product.getProductId());
 
                 // Create custom dialog
                 JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this),
@@ -418,7 +432,6 @@ public class SalePanel extends JPanel {
                 dialog.add(btnPanel, BorderLayout.SOUTH);
 
                 dialog.setVisible(true);
-            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi khi lấy chi tiết SP: " + ex.getMessage(), "Lỗi",
                     JOptionPane.ERROR_MESSAGE);
@@ -457,6 +470,32 @@ public class SalePanel extends JPanel {
         }
     }
 
+    private void doAddToCart(ProductDTO product, int qty) {
+        try {
+            if (!inventoryBLL.checkAvailability(product.getProductId(), qty)) {
+                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho SP: " + product.getName() + "!");
+                return;
+            }
+            for (InvoiceDetailDTO d : cartItems) {
+                if (d.getProductId() == product.getProductId()) {
+                    d.setQuantity(d.getQuantity() + qty);
+                    updateCartDisplay();
+                    return;
+                }
+            }
+            InvoiceDetailDTO detail = new InvoiceDetailDTO();
+            detail.setProductId(product.getProductId());
+            detail.setProductCode(product.getProductCode());
+            detail.setProductName(product.getName());
+            detail.setUnitPrice(product.getPrice());
+            detail.setQuantity(qty);
+            cartItems.add(detail);
+            updateCartDisplay();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
     private void addToCart() {
         int row = productTable.getSelectedRow();
         if (row < 0) {
@@ -467,32 +506,9 @@ public class SalePanel extends JPanel {
             String code = (String) productModel.getValueAt(row, 0);
             int qty = (int) spnQuantity.getValue();
             ProductDTO product = productBLL.getByCode(code);
-            if (product == null)
-                return;
-
-            // Check tồn kho
-            if (!inventoryBLL.checkAvailability(product.getProductId(), qty)) {
-                JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho!");
-                return;
+            if (product != null) {
+                doAddToCart(product, qty);
             }
-
-            // Check nếu đã có trong cart → cộng dồn
-            for (InvoiceDetailDTO d : cartItems) {
-                if (d.getProductId() == product.getProductId()) {
-                    d.setQuantity(d.getQuantity() + qty);
-                    updateCartDisplay();
-                    return;
-                }
-            }
-
-            InvoiceDetailDTO detail = new InvoiceDetailDTO();
-            detail.setProductId(product.getProductId());
-            detail.setProductCode(product.getProductCode());
-            detail.setProductName(product.getName());
-            detail.setUnitPrice(product.getPrice());
-            detail.setQuantity(qty);
-            cartItems.add(detail);
-            updateCartDisplay();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
@@ -645,18 +661,93 @@ public class SalePanel extends JPanel {
     }
 
     private void showUpsellDialog(List<ProductDTO> suggestions, BigDecimal needed) {
-        if (suggestions.isEmpty())
-            return;
-        StringBuilder sb = new StringBuilder(
-                "Sản phẩm gợi ý mua thêm (cần thêm ≥ " + formatCurrency(needed) + "):\n\n");
+        if (suggestions.isEmpty()) return;
+
+        JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), "Gợi ý sản phẩm mua thêm");
+        dialog.setModal(true);
+        dialog.setSize(600, 450);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new BorderLayout(10, 10));
+
+        JPanel headerPanel = new JPanel();
+        headerPanel.setBackground(new Color(52, 152, 219));
+        JLabel lblHeader = new JLabel("Để được giảm giá, cần mua thêm ≥ " + formatCurrency(needed));
+        lblHeader.setForeground(Color.WHITE);
+        lblHeader.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        headerPanel.add(lblHeader);
+        dialog.add(headerPanel, BorderLayout.NORTH);
+
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
         int count = 0;
         for (ProductDTO p : suggestions) {
-            if (count++ >= 10)
-                break;
-            sb.append("• ").append(p.getProductCode()).append(" - ").append(p.getName())
-                    .append(" — ").append(formatCurrency(p.getPrice())).append("\n");
+            if (count++ >= 10) break;
+            
+            JPanel itemPanel = new JPanel(new BorderLayout(5, 5));
+            itemPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, Color.LIGHT_GRAY),
+                    BorderFactory.createEmptyBorder(5, 5, 5, 5)
+            ));
+
+            int stock = 0;
+            try {
+                stock = inventoryBLL.getAvailableQuantity(p.getProductId());
+            } catch (Exception ignored) {}
+
+            itemPanel.setCursor(new Cursor(Cursor.HAND_CURSOR));
+            itemPanel.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    showProductDetails(p);
+                }
+                @Override
+                public void mouseEntered(java.awt.event.MouseEvent e) {
+                    itemPanel.setBackground(new Color(240, 240, 240));
+                }
+                @Override
+                public void mouseExited(java.awt.event.MouseEvent e) {
+                    itemPanel.setBackground(null);
+                }
+            });
+
+            String info = String.format("<html><b>%s</b> - %s<br><font color='#e74c3c'>%s</font> | Tồn kho: %d | %s</html>",
+                    p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock, p.getBrand());
+            JLabel lblInfo = new JLabel(info);
+            lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+            itemPanel.add(lblInfo, BorderLayout.CENTER);
+
+            JPanel actionPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+            actionPanel.setOpaque(false);
+            JSpinner spnQty = new JSpinner(new SpinnerNumberModel(1, 1, stock > 0 ? stock : 1, 1));
+            actionPanel.add(spnQty);
+            
+            JButton btnAdd = new JButton("Thêm vào đơn");
+            btnAdd.setBackground(new Color(40, 167, 69));
+            btnAdd.setForeground(Color.WHITE);
+            btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            btnAdd.addActionListener(e -> {
+                doAddToCart(p, (int) spnQty.getValue());
+                JOptionPane.showMessageDialog(dialog, "Đã thêm " + p.getName() + " vào đơn hàng!");
+            });
+            actionPanel.add(btnAdd);
+            itemPanel.add(actionPanel, BorderLayout.EAST);
+
+            listPanel.add(itemPanel);
         }
-        JOptionPane.showMessageDialog(this, sb.toString(), "Gợi ý sản phẩm", JOptionPane.INFORMATION_MESSAGE);
+
+        JScrollPane scrollPane = new JScrollPane(listPanel);
+        dialog.add(scrollPane, BorderLayout.CENTER);
+
+        JPanel btnPanel = new JPanel();
+        JButton btnClose = new JButton("Đóng");
+        btnClose.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnClose.addActionListener(e -> dialog.dispose());
+        btnPanel.add(btnClose);
+        dialog.add(btnPanel, BorderLayout.SOUTH);
+
+        dialog.setVisible(true);
     }
 
     private void calculateChange() {
