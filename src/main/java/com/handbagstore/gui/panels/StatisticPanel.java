@@ -25,6 +25,16 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.axis.NumberTickUnit;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieToolTipGenerator;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.PieSectionEntity;
 
 public class StatisticPanel extends JPanel {
     private JLabel lblDailyRevenue, lblMonthlyRevenue;
@@ -36,13 +46,18 @@ public class StatisticPanel extends JPanel {
     private JPanel chartContainer, dateRangePanel;
     private final StatisticBLL statisticBLL = new StatisticBLL();
 
-    public StatisticPanel() { initComponents(); refreshData(); updateChart(); }
+    public StatisticPanel() {
+        initComponents();
+        refreshData();
+        updateChart();
+    }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>📊</font> Thống kê Doanh thu</nobr></html>");
+        JLabel lblTitle = new JLabel(
+                "<html><nobr><font face='Segoe UI Emoji'>📊</font> Thống kê Doanh thu</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
@@ -51,13 +66,21 @@ public class StatisticPanel extends JPanel {
 
         // Tab 1: Doanh thu
         JPanel revenuePanel = new JPanel(new BorderLayout(10, 10));
-        
+
         JPanel topHeader = new JPanel(new BorderLayout(5, 5));
         JPanel revenueCards = new JPanel(new GridLayout(1, 2, 20, 0));
         revenueCards.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Card doanh thu ngày
-        JPanel dailyCard = createRevenueCard("<html><font face='Segoe UI Emoji'>💰</font> Doanh thu hôm nay</html>");
+        JPanel dailyCard = createRevenueCard(
+                "\"<html><font face='Segoe UI Emoji'>💰</font> Doanh thu hôm nay</html>\"");
+        dailyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        dailyCard.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showDailyRevenueDetails();
+            }
+        });
         lblDailyRevenue = new JLabel("0đ");
         lblDailyRevenue.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblDailyRevenue.setForeground(new Color(40, 167, 69));
@@ -65,7 +88,15 @@ public class StatisticPanel extends JPanel {
         revenueCards.add(dailyCard);
 
         // Card doanh thu tháng
-        JPanel monthlyCard = createRevenueCard("<html><font face='Segoe UI Emoji'>📅</font> Doanh thu tháng này</html>");
+        JPanel monthlyCard = createRevenueCard(
+                "<html><font face='Segoe UI Emoji'>📅</font> Doanh thu tháng này</html>");
+        monthlyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        monthlyCard.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showMonthlyRevenueDetails();
+            }
+        });
         lblMonthlyRevenue = new JLabel("0đ");
         lblMonthlyRevenue.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblMonthlyRevenue.setForeground(new Color(64, 133, 240));
@@ -88,21 +119,22 @@ public class StatisticPanel extends JPanel {
         btnRefresh.addActionListener(e -> refreshData());
         filterPanel.add(btnRefresh);
         topHeader.add(filterPanel, BorderLayout.SOUTH);
-        
+
         revenuePanel.add(topHeader, BorderLayout.NORTH);
 
         // Biểu đồ
         JPanel chartSection = new JPanel(new BorderLayout(5, 5));
         chartSection.setBorder(BorderFactory.createTitledBorder(
-            BorderFactory.createLineBorder(new Color(200, 200, 200)), "<html><font face='Segoe UI Emoji'>📊</font> Biểu đồ doanh thu</html>"));
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                "<html><font face='Segoe UI Emoji'>📊</font> Biểu đồ doanh thu</html>"));
 
         JPanel chartControls = new JPanel(new FlowLayout(FlowLayout.LEFT));
         chartControls.add(new JLabel("Xem theo:"));
-        cbChartType = new JComboBox<>(new String[]{"Ngày", "Tháng", "Năm"});
+        cbChartType = new JComboBox<>(new String[] { "Ngày", "Tháng", "Năm" });
         cbChartType.addActionListener(e -> toggleChartFilters());
         chartControls.add(cbChartType);
 
-        cbDayRange = new JComboBox<>(new String[]{"7 ngày qua", "30 ngày qua", "Tùy chọn"});
+        cbDayRange = new JComboBox<>(new String[] { "7 ngày qua", "30 ngày qua", "Tùy chọn" });
         cbDayRange.addActionListener(e -> toggleChartFilters());
         chartControls.add(cbDayRange);
 
@@ -137,9 +169,12 @@ public class StatisticPanel extends JPanel {
 
         // Tab 2: Top sản phẩm
         JPanel topPanel = new JPanel(new BorderLayout());
-        String[] topCols = {"Mã SP", "Tên SP", "Số lượng bán", "Doanh thu"};
+        String[] topCols = { "Mã SP", "Tên SP", "Số lượng bán", "Doanh thu" };
         topModel = new DefaultTableModel(topCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         topProductsTable = new JTable(topModel);
         topProductsTable.setRowHeight(28);
@@ -149,9 +184,12 @@ public class StatisticPanel extends JPanel {
 
         // Tab 3: Tồn kho
         JPanel stockPanel = new JPanel(new BorderLayout());
-        String[] stockCols = {"Mã SP", "Tên SP", "Tổng kho", "Đang giữ", "Khả dụng", "Giá vốn", "Giá bán"};
+        String[] stockCols = { "Mã SP", "Tên SP", "Tổng kho", "Đang giữ", "Khả dụng", "Giá vốn", "Giá bán" };
         stockModel = new DefaultTableModel(stockCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
@@ -166,9 +204,8 @@ public class StatisticPanel extends JPanel {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
         card.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(new Color(60, 60, 80), 1, true),
-            BorderFactory.createEmptyBorder(15, 20, 15, 20)
-        ));
+                BorderFactory.createLineBorder(new Color(60, 60, 80), 1, true),
+                BorderFactory.createEmptyBorder(15, 20, 15, 20)));
         JLabel lbl = new JLabel(title);
         lbl.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         card.add(lbl);
@@ -180,7 +217,8 @@ public class StatisticPanel extends JPanel {
         cbDayRange.setVisible("Ngày".equals(type));
         dateRangePanel.setVisible("Ngày".equals(type) && "Tùy chọn".equals(cbDayRange.getSelectedItem()));
         spnChartYear.setVisible("Tháng".equals(type));
-        revalidate(); repaint();
+        revalidate();
+        repaint();
     }
 
     private void updateChart() {
@@ -210,7 +248,8 @@ public class StatisticPanel extends JPanel {
                 xLabel = "Ngày";
                 Map<String, BigDecimal> data = statisticBLL.getRevenueByDateRange(Date.valueOf(from), Date.valueOf(to));
                 for (LocalDate d = from; !d.isAfter(to); d = d.plusDays(1)) {
-                    dataset.addValue(data.getOrDefault(d.toString(), BigDecimal.ZERO), "Doanh thu", d.format(DateTimeFormatter.ofPattern("dd/MM")));
+                    dataset.addValue(data.getOrDefault(d.toString(), BigDecimal.ZERO), "Doanh thu",
+                            d.format(DateTimeFormatter.ofPattern("dd/MM")));
                 }
             } else if ("Tháng".equals(type)) {
                 int year = (int) spnChartYear.getValue();
@@ -231,9 +270,11 @@ public class StatisticPanel extends JPanel {
 
             JFreeChart chart;
             if (isLine) {
-                chart = ChartFactory.createLineChart(title, xLabel, "Doanh thu (VNĐ)", dataset, PlotOrientation.VERTICAL, false, true, false);
+                chart = ChartFactory.createLineChart(title, xLabel, "Doanh thu (VNĐ)", dataset,
+                        PlotOrientation.VERTICAL, false, true, false);
             } else {
-                chart = ChartFactory.createBarChart(title, xLabel, "Doanh thu (VNĐ)", dataset, PlotOrientation.VERTICAL, false, true, false);
+                chart = ChartFactory.createBarChart(title, xLabel, "Doanh thu (VNĐ)", dataset, PlotOrientation.VERTICAL,
+                        false, true, false);
             }
 
             // --- Tùy chỉnh giao diện (UI/UX) ---
@@ -248,7 +289,7 @@ public class StatisticPanel extends JPanel {
             // Font cho các trục
             Font axisTitleFont = new Font("Segoe UI", Font.BOLD, 12);
             Font tickLabelFont = new Font("Segoe UI", Font.PLAIN, 11);
-            
+
             CategoryAxis domainAxis = plot.getDomainAxis();
             domainAxis.setLabelFont(axisTitleFont);
             domainAxis.setTickLabelFont(tickLabelFont);
@@ -256,7 +297,7 @@ public class StatisticPanel extends JPanel {
             NumberAxis rangeAxis = (NumberAxis) plot.getRangeAxis();
             rangeAxis.setLabelFont(axisTitleFont);
             rangeAxis.setTickLabelFont(tickLabelFont);
-            
+
             // Format trục Y (Doanh thu)
             rangeAxis.setAutoTickUnitSelection(true); // Tự động chọn khoảng chia để không bị chồng chéo
             rangeAxis.setNumberFormatOverride(new DecimalFormat("#,###")); // Định dạng số có dấu phẩy
@@ -322,6 +363,122 @@ public class StatisticPanel extends JPanel {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void showDailyRevenueDetails() {
+        LocalDate today = LocalDate.now();
+        showProductRevenuePieChart(today, today, "Phân bổ doanh thu theo sản phẩm hôm nay",
+                "Chi tiết doanh thu hôm nay");
+    }
+
+    private void showMonthlyRevenueDetails() {
+        LocalDate now = LocalDate.now();
+        LocalDate from = now.withDayOfMonth(1);
+        LocalDate to = now.withDayOfMonth(now.lengthOfMonth());
+        showProductRevenuePieChart(from, to, "Phân bổ doanh thu theo sản phẩm tháng này",
+                "Chi tiết doanh thu tháng này");
+    }
+
+    private void showProductRevenuePieChart(LocalDate from, LocalDate to, String chartTitle, String dialogTitle) {
+        try {
+            List<Object[]> productRevenue = statisticBLL.getTopProducts(Date.valueOf(from), Date.valueOf(to),
+                    Integer.MAX_VALUE);
+
+            if (productRevenue == null || productRevenue.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "Không có doanh thu trong khoảng thời gian này để hiển thị biểu đồ.", "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            final DefaultPieDataset dataset = new DefaultPieDataset();
+            for (Object[] row : productRevenue) {
+                String productName = (String) row[1];
+                BigDecimal revenue = (BigDecimal) row[3];
+                if (revenue != null && revenue.compareTo(BigDecimal.ZERO) > 0) {
+                    dataset.setValue(productName, revenue);
+                }
+            }
+
+            if (dataset.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(this,
+                        "Không có doanh thu trong khoảng thời gian này để hiển thị biểu đồ.", "Thông báo",
+                        JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            JFreeChart chart = ChartFactory.createPieChart(
+                    chartTitle,
+                    dataset,
+                    false, // Legend
+                    true, // Tooltips
+                    false // URLs
+            );
+
+            chart.setBackgroundPaint(Color.WHITE);
+            chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 18));
+
+            PiePlot plot = (PiePlot) chart.getPlot();
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setOutlineVisible(false);
+            plot.setShadowPaint(null);
+            plot.setLabelGenerator(null);
+
+            plot.setToolTipGenerator(new StandardPieToolTipGenerator(
+                    "{0}: {1}đ ({2})",
+                    new DecimalFormat("#,###"),
+                    new DecimalFormat("0.0%")));
+
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), dialogTitle, true);
+            dialog.setLayout(new BorderLayout(10, 10));
+
+            JLabel lblInfo = new JLabel("Di chuột vào từng phần của biểu đồ để xem chi tiết", SwingConstants.CENTER);
+            lblInfo.setFont(new Font("Segoe UI", Font.BOLD, 15));
+            lblInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            lblInfo.setForeground(new Color(100, 100, 100));
+            dialog.add(lblInfo, BorderLayout.SOUTH);
+
+            ChartPanel chartPanel = new ChartPanel(chart);
+            chartPanel.setDisplayToolTips(true);
+            chartPanel.setInitialDelay(0);
+
+            chartPanel.addChartMouseListener(new ChartMouseListener() {
+                @Override
+                public void chartMouseMoved(ChartMouseEvent event) {
+                    ChartEntity entity = event.getEntity();
+                    if (entity instanceof PieSectionEntity) {
+                        PieSectionEntity pieEntity = (PieSectionEntity) entity;
+                        String key = (String) pieEntity.getSectionKey();
+                        Number value = dataset.getValue(key);
+                        double total = 0;
+                        for (int i = 0; i < dataset.getItemCount(); i++) {
+                            total += dataset.getValue(i).doubleValue();
+                        }
+                        double percent = (value.doubleValue() / total) * 100;
+
+                        lblInfo.setText(String.format("📦 %s: %sđ (%.1f%%)",
+                                key, new DecimalFormat("#,###").format(value), percent));
+                        lblInfo.setForeground(new Color(13, 110, 253));
+                    } else {
+                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết");
+                        lblInfo.setForeground(new Color(100, 100, 100));
+                    }
+                }
+
+                @Override
+                public void chartMouseClicked(ChartMouseEvent event) {
+                }
+            });
+
+            chartPanel.setPreferredSize(new Dimension(800, 600));
+            dialog.add(chartPanel, BorderLayout.CENTER);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu biểu đồ: " + ex.getMessage());
         }
     }
 }
