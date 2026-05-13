@@ -23,6 +23,10 @@ public class InvoiceHistoryPanel extends JPanel {
     private final InvoiceDAL invoiceDAL = new InvoiceDAL();
     private final OrderBLL orderBLL = new OrderBLL();
 
+    private String filterStatus = "ALL";
+    private java.sql.Date filterFrom = null;
+    private java.sql.Date filterTo = null;
+
     public InvoiceHistoryPanel() { initComponents(); refreshData(); }
 
     private void initComponents() {
@@ -41,13 +45,20 @@ public class InvoiceHistoryPanel extends JPanel {
         JButton btnSearch = new JButton("🔍 Tìm");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchInvoices());
+
+        JButton btnFilter = new JButton("⏳ Bộ lọc");
+        btnFilter.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnFilter.addActionListener(e -> showFilterDialog());
+
         txtSearch.addActionListener(e -> searchInvoices());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) { searchInvoices(); }
             public void removeUpdate(DocumentEvent e) { searchInvoices(); }
             public void changedUpdate(DocumentEvent e) { searchInvoices(); }
         });
-        searchPanel.add(txtSearch); searchPanel.add(btnSearch);
+        searchPanel.add(txtSearch);
+        searchPanel.add(btnSearch);
+        searchPanel.add(btnFilter);
         topPanel.add(searchPanel, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
@@ -108,10 +119,9 @@ public class InvoiceHistoryPanel extends JPanel {
 
     private void searchInvoices() {
         String keyword = txtSearch.getText().trim();
-        if (keyword.isEmpty()) { refreshData(); return; }
         try {
             invoiceModel.setRowCount(0);
-            List<InvoiceDTO> invoices = invoiceDAL.search(keyword, null, null, null);
+            List<InvoiceDTO> invoices = invoiceDAL.search(keyword, null, filterFrom, filterTo, filterStatus);
             for (InvoiceDTO inv : invoices) {
                 invoiceModel.addRow(new Object[]{
                     inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
@@ -132,7 +142,7 @@ public class InvoiceHistoryPanel extends JPanel {
         try {
             String code = (String) invoiceModel.getValueAt(row, 0);
             // Find invoice by code to get ID — for simplicity, search all
-            List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null);
+            List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null, null);
             if (all.isEmpty()) return;
             InvoiceDTO inv = all.get(0);
 
@@ -157,7 +167,7 @@ public class InvoiceHistoryPanel extends JPanel {
         }
         try {
             String code = (String) invoiceModel.getValueAt(row, 0);
-            List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null);
+            List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null, "ALL");
             if (all.isEmpty()) return;
             InvoiceDTO inv = all.get(0);
 
@@ -186,5 +196,67 @@ public class InvoiceHistoryPanel extends JPanel {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
+    }
+
+    private void showFilterDialog() {
+        JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), "Bộ lọc hóa đơn");
+        dialog.setModal(true);
+        dialog.setSize(350, 250);
+        dialog.setLocationRelativeTo(this);
+        dialog.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+
+        JTextField txtFrom = new JTextField(filterFrom != null ? DateUtils.formatDate(filterFrom.toLocalDate()) : "");
+        JTextField txtTo = new JTextField(filterTo != null ? DateUtils.formatDate(filterTo.toLocalDate()) : "");
+        txtFrom.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+        txtTo.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+
+        String[] statuses = { "Tất cả", "PAID", "CANCELLED", "PENDING" };
+        String[] statusValues = { "ALL", "PAID", "CANCELLED", "PENDING" };
+        JComboBox<String> cmbStatus = new JComboBox<>(statuses);
+        for (int i = 0; i < statusValues.length; i++) {
+            if (statusValues[i].equals(filterStatus)) {
+                cmbStatus.setSelectedIndex(i);
+                break;
+            }
+        }
+
+        gbc.gridx = 0; gbc.gridy = 0; dialog.add(new JLabel("Từ ngày:"), gbc);
+        gbc.gridx = 1; dialog.add(txtFrom, gbc);
+        gbc.gridx = 0; gbc.gridy = 1; dialog.add(new JLabel("Đến ngày:"), gbc);
+        gbc.gridx = 1; dialog.add(txtTo, gbc);
+        gbc.gridx = 0; gbc.gridy = 2; dialog.add(new JLabel("Trạng thái:"), gbc);
+        gbc.gridx = 1; dialog.add(cmbStatus, gbc);
+
+        JButton btnApply = new JButton("Áp dụng");
+        btnApply.addActionListener(e -> {
+            try {
+                String fromStr = txtFrom.getText().trim();
+                String toStr = txtTo.getText().trim();
+                filterFrom = fromStr.isEmpty() ? null : java.sql.Date.valueOf(DateUtils.parseDate(fromStr));
+                filterTo = toStr.isEmpty() ? null : java.sql.Date.valueOf(DateUtils.parseDate(toStr));
+                filterStatus = statusValues[cmbStatus.getSelectedIndex()];
+                dialog.dispose();
+                searchInvoices();
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(dialog, "Lỗi định dạng ngày: " + ex.getMessage());
+            }
+        });
+
+        JButton btnReset = new JButton("Đặt lại");
+        btnReset.addActionListener(e -> {
+            filterFrom = null; filterTo = null; filterStatus = "ALL";
+            dialog.dispose();
+            searchInvoices();
+        });
+
+        JPanel btnPanel = new JPanel();
+        btnPanel.add(btnApply); btnPanel.add(btnReset);
+        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        dialog.add(btnPanel, gbc);
+
+        dialog.setVisible(true);
     }
 }

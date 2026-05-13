@@ -517,7 +517,7 @@ public class SalePanel extends JPanel {
                     return;
             }
 
-            clearCart();
+            clearCart(true);
 
             // Load customer
             if (inv.getCustomerId() != null) {
@@ -544,8 +544,8 @@ public class SalePanel extends JPanel {
                 }
             }
 
-            // Delete the pending order (release stock and remove from DB)
-            orderBLL.deletePendingOrder(inv.getInvoiceId());
+            // Delete the pending order (REMOVE from DB, but KEEP stock deducted because it's now in active cart)
+            orderBLL.deletePendingOrder(inv.getInvoiceId(), false);
 
             updateCartDisplay();
             refreshAllData();
@@ -583,13 +583,19 @@ public class SalePanel extends JPanel {
                 JOptionPane.showMessageDialog(this, "Không đủ hàng trong kho cho SP: " + product.getName() + "!");
                 return;
             }
+
+            // Check nếu đã có trong cart → cộng dồn
             for (InvoiceDetailDTO d : cartItems) {
                 if (d.getProductId() == product.getProductId()) {
+                    inventoryBLL.updateQuantity(product.getProductId(), -qty);
                     d.setQuantity(d.getQuantity() + qty);
                     updateCartDisplay();
+                    refreshProductList();
                     return;
                 }
             }
+
+            inventoryBLL.updateQuantity(product.getProductId(), -qty);
             InvoiceDetailDTO detail = new InvoiceDetailDTO();
             detail.setProductId(product.getProductId());
             detail.setProductCode(product.getProductCode());
@@ -598,6 +604,7 @@ public class SalePanel extends JPanel {
             detail.setQuantity(qty);
             cartItems.add(detail);
             updateCartDisplay();
+            refreshProductList();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
         }
@@ -625,8 +632,15 @@ public class SalePanel extends JPanel {
         int row = cartTable.getSelectedRow();
         if (row < 0)
             return;
+        InvoiceDetailDTO item = cartItems.get(row);
+        try {
+            inventoryBLL.updateQuantity(item.getProductId(), item.getQuantity());
+        } catch (Exception ex) {
+            System.err.println("Lỗi trả hàng về kho: " + ex.getMessage());
+        }
         cartItems.remove(row);
         updateCartDisplay();
+        refreshProductList();
     }
 
     private void updateCartDisplay() {
@@ -924,7 +938,7 @@ public class SalePanel extends JPanel {
                     options,
                     options[0]);
 
-            clearCart();
+            clearCart(false);
             refreshAllData();
 
             if (choice == 1) {
@@ -952,7 +966,7 @@ public class SalePanel extends JPanel {
             JOptionPane.showMessageDialog(this,
                     "⏳ Đơn hàng đang chờ thanh toán!\nMã HĐ: " + invoice.getInvoiceCode());
 
-            clearCart();
+            clearCart(false);
             refreshAllData();
             pendingWidget.refreshData();
         } catch (Exception ex) {
@@ -1023,7 +1037,15 @@ public class SalePanel extends JPanel {
         }
     }
 
-    private void clearCart() {
+    private void clearCart(boolean returnStock) {
+        if (returnStock) {
+            for (InvoiceDetailDTO d : cartItems) {
+                try {
+                    inventoryBLL.updateQuantity(d.getProductId(), d.getQuantity());
+                } catch (Exception ignored) {
+                }
+            }
+        }
         cartItems.clear();
         selectedCustomer = null;
         selectedDiscount = null;
@@ -1036,6 +1058,7 @@ public class SalePanel extends JPanel {
         lblChange.setText("0đ");
         spnQuantity.setValue(1);
         updateCartDisplay();
+        refreshProductList();
     }
 
     private void showRegisterCustomerDialog(String phone) {

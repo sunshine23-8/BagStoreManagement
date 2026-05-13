@@ -53,4 +53,9 @@ public class InventoryBLL {
         int available = inventoryDAL.getAvailableQuantity(productId);
         return available >= requestedQty;
     }
+
+    /** Cập nhật số lượng tồn kho (delta > 0: nhập/trả, delta < 0: xuất/bán) */
+    public void updateQuantity(int productId, int delta) throws SQLException {
+        inventoryDAL.updateQuantity(productId, delta);
+    }
 }
