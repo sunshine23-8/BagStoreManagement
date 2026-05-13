@@ -68,17 +68,21 @@ public class StaffManagerPanel extends JPanel {
 
         // Form
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 5));
-        JPanel form = new JPanel(new GridLayout(2, 4, 10, 5));
+        JPanel form = new JPanel(new GridLayout(2, 3, 10, 5));
         form.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
+        
         txtFullName = new JTextField();
-        form.add(new JLabel("Họ tên nhân viên"));
+        txtUsername = new JTextField();
+        txtPassword = new JPasswordField(); // Use password field for security
+
+        form.add(new JLabel("Họ tên nhân viên:"));
+        form.add(new JLabel("Tên tài khoản:"));
+        form.add(new JLabel("Mật khẩu:"));
+        
         form.add(txtFullName);
-        form.add(new JLabel(""));
-        form.add(new JLabel(""));
-        form.add(new JLabel(""));
-        form.add(new JLabel(""));
-        form.add(new JLabel(""));
-        form.add(new JLabel(""));
+        form.add(txtUsername);
+        form.add(txtPassword);
+        
         bottomPanel.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
@@ -122,16 +126,21 @@ public class StaffManagerPanel extends JPanel {
     }
 
     private void createAccount() {
-        if (txtFullName.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên nhân viên!", "Thông báo",
+        String fullName = txtFullName.getText().trim();
+        String username = txtUsername.getText().trim();
+        String password = txtPassword.getText().trim();
+
+        if (fullName.isEmpty() || username.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin!", "Thông báo",
                     JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
-            accountBLL.createStaffAccount(txtFullName.getText().trim());
-            JOptionPane.showMessageDialog(this,
-                    "Tạo tài khoản thành công!");
+            accountBLL.createStaffAccount(username, password, fullName);
+            JOptionPane.showMessageDialog(this, "Tạo tài khoản thành công!");
             txtFullName.setText("");
+            txtUsername.setText("");
+            txtPassword.setText("");
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);

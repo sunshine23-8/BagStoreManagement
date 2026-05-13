@@ -126,10 +126,10 @@ public class PendingOrdersWidget extends JPanel {
                     sb.append(d.getProductName()).append(" x").append(d.getQuantity()).append("<br/>");
                 }
             } else {
-                sb.append("Chưa có SP");
+                sb.append("Chưa có sản phẩm");
             }
         } catch (Exception ignored) {
-            sb.append("Lỗi tải SP");
+            sb.append("Lỗi tải sản phẩm");
         }
         sb.append("</html>");
 
@@ -145,7 +145,7 @@ public class PendingOrdersWidget extends JPanel {
         lblProd.setForeground(Color.GRAY);
         infoPanel.add(lblProd);
 
-        infoPanel.add(new JLabel("💰 " + inv.getTotal() + "đ"));
+        infoPanel.add(new JLabel("💰 " + CurrencyUtils.format(inv.getTotal())));
 
         // Countdown
         String remaining = getCountdownText(inv.getExpiresAt());
@@ -162,7 +162,7 @@ public class PendingOrdersWidget extends JPanel {
 
         // Buttons
         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 3));
-        JButton btnPay = new JButton("💰 TT");
+        JButton btnPay = new JButton("💰 Thanh toán");
         btnPay.setBackground(new Color(40, 167, 69));
         btnPay.setForeground(Color.WHITE);
         btnPay.setFont(new Font("Segoe UI", Font.BOLD, 11));

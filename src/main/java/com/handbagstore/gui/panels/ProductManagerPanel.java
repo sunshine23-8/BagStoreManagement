@@ -178,7 +178,7 @@ public class ProductManagerPanel extends JPanel {
         }
         try {
             tableModel.setRowCount(0);
-            List<ProductDTO> products = productBLL.search(keyword);
+            List<ProductDTO> products = productBLL.search(keyword, true);
             for (ProductDTO p : products) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
                 tableModel.addRow(new Object[] {
