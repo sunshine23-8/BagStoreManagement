@@ -33,7 +33,7 @@ public class CustomerDAL {
     }
 
     public List<CustomerDTO> getAll() throws SQLException {
-        String sql = "SELECT * FROM customers ORDER BY full_name";
+        String sql = "SELECT * FROM customers ORDER BY customer_id ASC";
         List<CustomerDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -43,7 +43,7 @@ public class CustomerDAL {
     }
 
     public List<CustomerDTO> search(String keyword) throws SQLException {
-        String sql = "SELECT * FROM customers WHERE full_name LIKE ? OR phone LIKE ? ORDER BY full_name";
+        String sql = "SELECT * FROM customers WHERE full_name LIKE ? OR phone LIKE ? ORDER BY customer_id ASC";
         String term = "%" + keyword + "%";
         List<CustomerDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
