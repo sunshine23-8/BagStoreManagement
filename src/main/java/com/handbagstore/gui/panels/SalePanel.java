@@ -349,7 +349,7 @@ public class SalePanel extends JPanel {
         });
 
         // Action buttons
-        JPanel actionRow = new JPanel(new GridLayout(1, 3, 5, 5));
+        JPanel actionRow = new JPanel(new GridLayout(1, 2, 5, 5));
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         btnPayNow = new JButton("💰 Thanh toán ngay");
@@ -364,13 +364,8 @@ public class SalePanel extends JPanel {
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());
 
-        JButton btnExportPdf = new JButton("📄 Xuất PDF");
-        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnExportPdf.addActionListener(e -> exportPdf());
-
         actionRow.add(btnPayNow);
         actionRow.add(btnPending);
-        actionRow.add(btnExportPdf);
 
         gbcP.gridx = 0;
         gbcP.gridy = 7;

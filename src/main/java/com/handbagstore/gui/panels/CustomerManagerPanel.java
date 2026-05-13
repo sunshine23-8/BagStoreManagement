@@ -1,8 +1,10 @@
 package com.handbagstore.gui.panels;
 
 import com.handbagstore.bll.CustomerBLL;
+import com.handbagstore.bll.OrderBLL;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.dto.InvoiceDTO;
+import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.CurrencyUtils;
@@ -20,6 +22,8 @@ public class CustomerManagerPanel extends JPanel {
     private DefaultTableModel customerModel, historyModel;
     private JTextField txtSearch, txtName, txtPhone, txtBirthday;
     private final CustomerBLL customerBLL = new CustomerBLL();
+    private final OrderBLL orderBLL = new OrderBLL();
+    private java.util.List<InvoiceDTO> currentHistory = new java.util.ArrayList<>();
 
     public CustomerManagerPanel() {
         initComponents();
@@ -93,7 +97,16 @@ public class CustomerManagerPanel extends JPanel {
         historyTable.setRowHeight(28);
         historyTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         JPanel historyPanel = new JPanel(new BorderLayout());
-        historyPanel.add(new JLabel("  📜 Lịch sử mua hàng:"), BorderLayout.NORTH);
+        
+        JPanel historyHeader = new JPanel(new BorderLayout());
+        historyHeader.add(new JLabel("  📜 Lịch sử mua hàng:"), BorderLayout.WEST);
+        
+        JButton btnExportPdf = new JButton("📄 In PDF");
+        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnExportPdf.addActionListener(e -> exportPdf());
+        historyHeader.add(btnExportPdf, BorderLayout.EAST);
+        
+        historyPanel.add(historyHeader, BorderLayout.NORTH);
         historyPanel.add(new JScrollPane(historyTable), BorderLayout.CENTER);
         split.setBottomComponent(historyPanel);
 
@@ -195,8 +208,8 @@ public class CustomerManagerPanel extends JPanel {
             txtBirthday.setText((String) customerModel.getValueAt(row, 3));
 
             historyModel.setRowCount(0);
-            List<InvoiceDTO> history = customerBLL.getPurchaseHistory(custId);
-            for (InvoiceDTO inv : history) {
+            currentHistory = customerBLL.getPurchaseHistory(custId);
+            for (InvoiceDTO inv : currentHistory) {
                 historyModel.addRow(new Object[] {
                         inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
                         CurrencyUtils.format(inv.getTotal()), inv.getStatus()
@@ -256,5 +269,39 @@ public class CustomerManagerPanel extends JPanel {
         txtBirthday.setText("");
         customerTable.clearSelection();
         txtName.requestFocus();
+    }
+
+    private void exportPdf() {
+        int row = historyTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn từ lịch sử mua hàng!");
+            return;
+        }
+        try {
+            InvoiceDTO inv = currentHistory.get(row);
+            java.util.List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
+            
+            CustomerDTO customer = null;
+            if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
+                customer = customerBLL.getById(inv.getCustomerId());
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu Hóa Đơn PDF");
+            fileChooser.setSelectedFile(new java.io.File(inv.getInvoiceCode() + ".pdf"));
+            
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                java.io.File file = fileChooser.getSelectedFile();
+                String path = file.getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".pdf")) {
+                    path += ".pdf";
+                }
+                
+                com.handbagstore.utils.PdfExporter.exportInvoice(path, inv, details, customer);
+                JOptionPane.showMessageDialog(this, "Xuất PDF thành công!\n" + path);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
