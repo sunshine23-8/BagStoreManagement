@@ -22,6 +22,7 @@ public class DiscountManagerPanel extends JPanel {
     private JTextField txtCode, txtValue, txtMinOrder;
     private JComboBox<String> cmbType, cmbOccasion;
     private JTextField txtStartDate, txtEndDate;
+    private JCheckBox chkStackable;
     private JButton btnDeactivate;
     private final DiscountBLL discountBLL = new DiscountBLL();
 
@@ -35,7 +36,7 @@ public class DiscountManagerPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
-        String[] cols = {"Mã", "Loại", "Giá trị", "Tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Trạng thái"};
+        String[] cols = {"Mã", "Loại", "Giá trị", "Tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Cộng dồn", "Trạng thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
         };
@@ -116,6 +117,8 @@ public class DiscountManagerPanel extends JPanel {
         JPanel formWithOccasion = new JPanel(new BorderLayout());
         JPanel occasionRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         occasionRow.add(new JLabel("Dịp:")); occasionRow.add(cmbOccasion);
+        chkStackable = new JCheckBox("Cộng dồn");
+        occasionRow.add(chkStackable);
         formWithOccasion.add(form, BorderLayout.CENTER);
         formWithOccasion.add(occasionRow, BorderLayout.SOUTH);
         bottom.add(formWithOccasion, BorderLayout.CENTER);
@@ -133,6 +136,7 @@ public class DiscountManagerPanel extends JPanel {
                     d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue()),
                     CurrencyUtils.format(d.getMinOrderAmt()), DateUtils.formatDateTime(d.getStartTime()),
                     DateUtils.formatDateTime(d.getEndTime()), d.getOccasion(),
+                    d.isStackable() ? "Có" : "Không",
                     d.isActive() ? "Hoạt động" : "Đã vô hiệu"
                 });
             }
@@ -201,6 +205,7 @@ public class DiscountManagerPanel extends JPanel {
         d.setEndTime(end.atTime(23, 59, 59));
         
         d.setOccasion((String) cmbOccasion.getSelectedItem());
+        d.setStackable(chkStackable.isSelected());
         return d;
     }
 
@@ -219,6 +224,7 @@ public class DiscountManagerPanel extends JPanel {
                 txtStartDate.setText(DateUtils.formatDate(d.getStartTime().toLocalDate()));
                 txtEndDate.setText(DateUtils.formatDate(d.getEndTime().toLocalDate()));
                 cmbOccasion.setSelectedItem(d.getOccasion());
+                chkStackable.setSelected(d.isStackable());
 
                 if (d.isActive()) {
                     btnDeactivate.setText("❌ Vô hiệu hóa");
@@ -236,6 +242,7 @@ public class DiscountManagerPanel extends JPanel {
         txtStartDate.setText(""); txtEndDate.setText("");
         cmbType.setSelectedIndex(0);
         cmbOccasion.setSelectedIndex(0);
+        chkStackable.setSelected(false);
         btnDeactivate.setText("❌ Vô hiệu hóa");
         btnDeactivate.setBackground(new Color(220, 53, 69));
         table.clearSelection();

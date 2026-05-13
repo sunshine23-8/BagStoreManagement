@@ -6,14 +6,29 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class InvoiceDAL {
+    public InvoiceDAL() {
+        addDiscountCodesColumn();
+    }
+
     private Connection getConnection() throws SQLException {
         return DatabaseConnection.getInstance().getConnection();
     }
 
+    private void addDiscountCodesColumn() {
+        String sql = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('invoices') AND name = 'discount_codes') " +
+                     "ALTER TABLE invoices ADD discount_codes NVARCHAR(255);";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("Lỗi thêm cột discount_codes: " + e.getMessage());
+        }
+    }
+
     public int insert(InvoiceDTO inv) throws SQLException {
         String sql = "INSERT INTO invoices (invoice_code, customer_id, staff_id, discount_id, subtotal, " +
-                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at, paid_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at, paid_at, discount_codes) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, inv.getInvoiceCode());
             if (inv.getCustomerId() != null) ps.setInt(2, inv.getCustomerId());
@@ -32,6 +47,7 @@ public class InvoiceDAL {
             else ps.setNull(12, Types.TIMESTAMP);
             if (inv.getPaidAt() != null) ps.setTimestamp(13, Timestamp.valueOf(inv.getPaidAt()));
             else ps.setNull(13, Types.TIMESTAMP);
+            ps.setString(14, inv.getDiscountCode());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) return rs.getInt(1);
@@ -243,7 +259,14 @@ public class InvoiceDAL {
         try { inv.setCustomerName(rs.getString("customer_name")); } catch (SQLException ignored) {}
         try { inv.setCustomerPhone(rs.getString("customer_phone")); } catch (SQLException ignored) {}
         try { inv.setStaffName(rs.getString("staff_name")); } catch (SQLException ignored) {}
-        try { inv.setDiscountCode(rs.getString("discount_code")); } catch (SQLException ignored) {}
+        try { 
+            String codes = rs.getString("discount_codes"); 
+            if (codes != null && !codes.isEmpty()) {
+                inv.setDiscountCode(codes);
+            } else {
+                inv.setDiscountCode(rs.getString("discount_code"));
+            }
+        } catch (SQLException ignored) {}
         return inv;
     }
 }

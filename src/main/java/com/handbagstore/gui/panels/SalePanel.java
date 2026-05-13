@@ -38,6 +38,7 @@ public class SalePanel extends JPanel {
     private final CustomerBLL customerBLL = new CustomerBLL();
     private final DiscountBLL discountBLL = new DiscountBLL();
     private final OrderBLL orderBLL = new OrderBLL();
+    private DiscountDTO birthdayDiscount;
     private final InventoryBLL inventoryBLL = new InventoryBLL();
 
     private CustomerDTO selectedCustomer;
@@ -235,6 +236,7 @@ public class SalePanel extends JPanel {
         try {
             List<DiscountDTO> activeDiscounts = discountBLL.getActive();
             for (DiscountDTO d : activeDiscounts) {
+                if ("BIRTHDAY".equals(d.getOccasion())) continue; // Bỏ qua mã sinh nhật trong dropdown
                 String label = d.getCode() + " ("
                         + (d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue())) + ")";
                 cmbDiscount.addItem(new DiscountComboItem(d, label));
@@ -310,35 +312,33 @@ public class SalePanel extends JPanel {
         gbcP.weightx = 1.0;
         paymentPanel.add(cmbPaymentMethod, gbcP);
 
-        // Row 7: Received & Change
+        // Row 7: Received
         gbcP.gridx = 0;
         gbcP.gridy = 6;
         gbcP.weightx = 0;
         paymentPanel.add(new JLabel("Tiền nhận:"), gbcP);
 
-        JPanel receivedPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-        txtPaymentReceived = new JTextField(12);
+        txtPaymentReceived = new JTextField();
         txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) {
-                calculateChange();
-            }
-
-            public void removeUpdate(DocumentEvent e) {
-                calculateChange();
-            }
-
-            public void changedUpdate(DocumentEvent e) {
-                calculateChange();
-            }
+            public void insertUpdate(DocumentEvent e) { calculateChange(); }
+            public void removeUpdate(DocumentEvent e) { calculateChange(); }
+            public void changedUpdate(DocumentEvent e) { calculateChange(); }
         });
-        receivedPanel.add(txtPaymentReceived);
-        receivedPanel.add(new JLabel("   Thối: "));
-        lblChange = new JLabel("0đ");
-        receivedPanel.add(lblChange);
-
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
-        paymentPanel.add(receivedPanel, gbcP);
+        paymentPanel.add(txtPaymentReceived, gbcP);
+
+        // Row 8: Change
+        gbcP.gridx = 0;
+        gbcP.gridy = 7;
+        gbcP.weightx = 0;
+        paymentPanel.add(new JLabel("Tiền thối:"), gbcP);
+
+        lblChange = new JLabel("0đ");
+        lblChange.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        gbcP.gridx = 1;
+        gbcP.weightx = 1.0;
+        paymentPanel.add(lblChange, gbcP);
 
         cmbPaymentMethod.addActionListener(e -> {
             boolean isCash = cmbPaymentMethod.getSelectedIndex() == 0;
@@ -370,7 +370,7 @@ public class SalePanel extends JPanel {
         actionRow.add(btnPending);
 
         gbcP.gridx = 0;
-        gbcP.gridy = 7;
+        gbcP.gridy = 8;
         gbcP.gridwidth = 2;
         paymentPanel.add(actionRow, gbcP);
 
@@ -657,10 +657,7 @@ public class SalePanel extends JPanel {
         }
         lblSubtotal.setText(formatCurrency(subtotal));
 
-        BigDecimal discountAmt = BigDecimal.ZERO;
-        if (selectedDiscount != null) {
-            discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
-        }
+        BigDecimal discountAmt = getDiscountAmount(subtotal);
         lblDiscount.setText("-" + formatCurrency(discountAmt));
 
         BigDecimal total = subtotal.subtract(discountAmt);
@@ -674,6 +671,7 @@ public class SalePanel extends JPanel {
         String phone = rawPhone.trim().replaceAll("[^0-9]", "");
         if (phone.isEmpty()) {
             selectedCustomer = null;
+            birthdayDiscount = null;
             lblCustomerInfo.setText(" ");
             Container parent = lblCustomerInfo.getParent();
             if (parent != null) {
@@ -702,10 +700,10 @@ public class SalePanel extends JPanel {
                         ? com.handbagstore.utils.DateUtils.formatDate(selectedCustomer.getBirthday())
                         : "N/A";
                 String info = selectedCustomer.getFullName() + " (" + bday + ")";
-                if (selectedCustomer.isBirthday()) {
+                if (com.handbagstore.utils.DateUtils.isBirthdayToday(selectedCustomer.getBirthday())) {
                     info += " 🎂 Sinh nhật hôm nay!";
                     lblCustomerInfo.setForeground(new Color(255, 193, 7));
-                    suggestBirthdayDiscount();
+                    applyAutomaticBirthdayDiscount();
                 } else {
                     lblCustomerInfo.setForeground(new Color(40, 167, 69)); // Green for found
                 }
@@ -723,26 +721,15 @@ public class SalePanel extends JPanel {
         }
     }
 
-    private void suggestBirthdayDiscount() {
+    private void applyAutomaticBirthdayDiscount() {
         try {
             List<DiscountDTO> birthdayDiscounts = discountBLL.getActiveBirthdayDiscounts();
             if (!birthdayDiscounts.isEmpty()) {
-                DiscountDTO bd = birthdayDiscounts.get(0);
-                int confirm = JOptionPane.showConfirmDialog(this,
-                        "🎂 Hôm nay là sinh nhật khách hàng!\nÁp dụng mã giảm giá sinh nhật: " + bd.getCode() + " (" +
-                                (bd.isPercentType() ? bd.getValue() + "%" : CurrencyUtils.format(bd.getValue())) + ")?",
-                        "Sinh nhật khách hàng", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    selectedDiscount = bd;
-                    for (int i = 1; i < cmbDiscount.getItemCount(); i++) {
-                        DiscountComboItem item = cmbDiscount.getItemAt(i);
-                        if (item != null && item.discount != null && bd.getCode().equals(item.discount.getCode())) {
-                            cmbDiscount.setSelectedIndex(i);
-                            break;
-                        }
-                    }
-                    updateCartDisplay();
-                }
+                birthdayDiscount = birthdayDiscounts.get(0);
+                JOptionPane.showMessageDialog(this,
+                        "🎂 Hôm nay là sinh nhật khách hàng!\nMã giảm giá sinh nhật '" + birthdayDiscount.getCode() + "' đã được tự động áp dụng.",
+                        "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                updateCartDisplay();
             }
         } catch (Exception ignored) {
         }
@@ -982,13 +969,26 @@ public class SalePanel extends JPanel {
         inv.setCustomerId(selectedCustomer != null ? selectedCustomer.getCustomerId() : null);
         inv.setSubtotal(getSubtotal());
 
-        BigDecimal discountAmt = BigDecimal.ZERO;
-        if (selectedDiscount != null) {
-            discountAmt = discountBLL.calculateDiscount(selectedDiscount, getSubtotal());
-            inv.setDiscountId(selectedDiscount.getDiscountId());
-        }
+        BigDecimal discountAmt = getDiscountAmount(getSubtotal());
+        
         inv.setDiscountAmount(discountAmt);
         inv.setTotal(getSubtotal().subtract(discountAmt).max(BigDecimal.ZERO));
+        
+        if (selectedDiscount != null) {
+            inv.setDiscountId(selectedDiscount.getDiscountId());
+        } else if (birthdayDiscount != null) {
+            inv.setDiscountId(birthdayDiscount.getDiscountId());
+        }
+        
+        StringBuilder codes = new StringBuilder();
+        if (birthdayDiscount != null) codes.append("Sinh nhật");
+        if (selectedDiscount != null) {
+            if (codes.length() > 0) codes.append(" + ");
+            codes.append(selectedDiscount.getCode());
+        }
+        if (codes.length() > 0) {
+            inv.setDiscountCode(codes.toString());
+        }
         inv.setStatus(status);
         return inv;
     }
@@ -1002,9 +1002,25 @@ public class SalePanel extends JPanel {
 
     private BigDecimal getTotal() {
         BigDecimal subtotal = getSubtotal();
-        BigDecimal disc = selectedDiscount != null ? discountBLL.calculateDiscount(selectedDiscount, subtotal)
-                : BigDecimal.ZERO;
+        BigDecimal disc = getDiscountAmount(subtotal);
         return subtotal.subtract(disc).max(BigDecimal.ZERO);
+    }
+
+    private BigDecimal getDiscountAmount(BigDecimal subtotal) {
+        BigDecimal discountAmt = BigDecimal.ZERO;
+        if (selectedDiscount != null && birthdayDiscount != null) {
+            if (selectedDiscount.isStackable() || birthdayDiscount.isStackable()) {
+                discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal)
+                        .add(discountBLL.calculateDiscount(birthdayDiscount, subtotal));
+            } else {
+                discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
+            }
+        } else if (selectedDiscount != null) {
+            discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
+        } else if (birthdayDiscount != null) {
+            discountAmt = discountBLL.calculateDiscount(birthdayDiscount, subtotal);
+        }
+        return discountAmt;
     }
 
     private void exportPdf() {
