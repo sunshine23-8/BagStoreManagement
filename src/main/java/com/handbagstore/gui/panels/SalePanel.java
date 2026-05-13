@@ -30,7 +30,7 @@ public class SalePanel extends JPanel {
     private JComboBox<String> cmbPaymentMethod;
     private JSpinner spnQuantity;
     private JButton btnAddToCart, btnRemoveFromCart, btnApplyDiscount;
-    private JButton btnPayNow, btnPending, btnExportPdf;
+    private JButton btnPayNow, btnPending;
 
     private final ProductBLL productBLL = new ProductBLL();
     private final CustomerBLL customerBLL = new CustomerBLL();
@@ -310,10 +310,6 @@ public class SalePanel extends JPanel {
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());
 
-        btnExportPdf = new JButton("📄 Xuất PDF");
-        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnExportPdf.addActionListener(e -> exportPdf());
-
         actionRow.add(btnPayNow);
         actionRow.add(btnPending);
         actionRow.add(btnExportPdf);
@@ -576,7 +572,7 @@ public class SalePanel extends JPanel {
             lblCustomerInfo.setText("Lỗi: " + ex.getMessage());
             lblCustomerInfo.setForeground(new Color(220, 53, 69)); // Red for error
         }
-        
+
         Container parent = lblCustomerInfo.getParent();
         if (parent != null) {
             parent.revalidate();

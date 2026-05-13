@@ -1,14 +1,9 @@
 package com.handbagstore.gui.panels;
 
-import com.handbagstore.bll.AccountBLL;
-import com.handbagstore.bll.InventoryBLL;
-import com.handbagstore.bll.ProductBLL;
-import com.handbagstore.dto.*;
-import com.handbagstore.utils.CurrencyUtils;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -21,11 +16,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.RowFilter;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
 
 import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.bll.InventoryBLL;
@@ -37,9 +30,8 @@ import com.handbagstore.dto.ProductDTO;
 public class InventoryPanel extends JPanel {
     private JTable stockTable, importTable;
     private DefaultTableModel stockModel, importModel;
-    private TableRowSorter<DefaultTableModel> stockSorter, importSorter;
-    private JTextField txtQty, txtCostPrice, txtNote, txtSearchStock, txtSearchImport;
     private JComboBox<ProductDTO> cmbProduct;
+    private JTextField txtQty, txtCostPrice, txtNote;
     private JLabel lblLowStockWarning;
     private final InventoryBLL inventoryBLL = new InventoryBLL();
     private final ProductBLL productBLL = new ProductBLL();
@@ -63,21 +55,10 @@ public class InventoryPanel extends JPanel {
 
         // Tab 1: Tồn kho
         JPanel stockPanel = new JPanel(new BorderLayout(5, 5));
-
-        // Search & Warning Panel
-        JPanel stockTopPanel = new JPanel(new BorderLayout(5, 5));
         lblLowStockWarning = new JLabel(" ");
         lblLowStockWarning.setForeground(new Color(220, 53, 69));
         lblLowStockWarning.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        stockTopPanel.add(lblLowStockWarning, BorderLayout.NORTH);
-
-        JPanel stockSearchPanel = new JPanel(new BorderLayout(10, 0));
-        stockSearchPanel.add(new JLabel("🔍 Tìm kiếm tên SP "), BorderLayout.WEST);
-        txtSearchStock = new JTextField();
-        stockSearchPanel.add(txtSearchStock, BorderLayout.CENTER);
-        stockTopPanel.add(stockSearchPanel, BorderLayout.CENTER);
-
-        stockPanel.add(stockTopPanel, BorderLayout.NORTH);
+        stockPanel.add(lblLowStockWarning, BorderLayout.NORTH);
 
         String[] stockCols = { "Mã SP", "Tên SP", "Thương hiệu", "Tổng kho", "Đang giữ", "Khả dụng", "Giá vốn",
                 "Giá bán" };
@@ -90,21 +71,6 @@ public class InventoryPanel extends JPanel {
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
         stockTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-
-        stockSorter = new TableRowSorter<>(stockModel);
-        stockTable.setRowSorter(stockSorter);
-
-        txtSearchStock.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                String text = txtSearchStock.getText();
-                if (text.trim().length() == 0) {
-                    stockSorter.setRowFilter(null);
-                } else {
-                    stockSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 1)); // Column 1 is ProductName
-                }
-            }
-        });
-
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
         tabs.addTab("📊 Tồn kho", stockPanel);
 
@@ -145,20 +111,12 @@ public class InventoryPanel extends JPanel {
         btnImport.setForeground(Color.WHITE);
         btnImport.addActionListener(e -> importStock());
 
-        JPanel importTop = new JPanel(new BorderLayout(5, 5));
+        JPanel importTop = new JPanel(new BorderLayout());
         importTop.add(importForm, BorderLayout.CENTER);
         importTop.add(btnImport, BorderLayout.EAST);
-
-        JPanel importSearchPanel = new JPanel(new BorderLayout(10, 0));
-        importSearchPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        importSearchPanel.add(new JLabel("🔍 Tìm kiếm tên SP "), BorderLayout.WEST);
-        txtSearchImport = new JTextField();
-        importSearchPanel.add(txtSearchImport, BorderLayout.CENTER);
-        importTop.add(importSearchPanel, BorderLayout.SOUTH);
-
         importPanel.add(importTop, BorderLayout.NORTH);
 
-        String[] importCols = { "Mã SP", "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
+        String[] importCols = { "Mã SP","Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
         importModel = new DefaultTableModel(importCols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -168,21 +126,6 @@ public class InventoryPanel extends JPanel {
         importTable = new JTable(importModel);
         importTable.setRowHeight(28);
         importTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
-
-        importSorter = new TableRowSorter<>(importModel);
-        importTable.setRowSorter(importSorter);
-
-        txtSearchImport.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                String text = txtSearchImport.getText();
-                if (text.trim().length() == 0) {
-                    importSorter.setRowFilter(null);
-                } else {
-                    importSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 1)); // Column 1 is ProductName
-                }
-            }
-        });
-
         importPanel.add(new JScrollPane(importTable), BorderLayout.CENTER);
         tabs.addTab("📥 Nhập kho", importPanel);
 
@@ -198,7 +141,7 @@ public class InventoryPanel extends JPanel {
                 stockModel.addRow(new Object[] {
                         s.getProductCode(), s.getProductName(), s.getBrand(),
                         s.getQuantity(), s.getReservedQty(), s.getAvailableQty(),
-                        CurrencyUtils.format(s.getCostPrice()), CurrencyUtils.format(s.getSellPrice())
+                        s.getCostPrice(), s.getSellPrice()
                 });
             }
 
@@ -234,7 +177,8 @@ public class InventoryPanel extends JPanel {
                     formattedDate = b.getImportDate().format(formatter);
                 }
                 importModel.addRow(new Object[] {
-                        b.getProductName(), b.getQuantity(), CurrencyUtils.format(b.getCostPrice()),
+                        b.getProductId(),
+                        b.getProductName(), b.getQuantity(), b.getCostPrice(),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }
