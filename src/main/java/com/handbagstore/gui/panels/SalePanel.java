@@ -196,7 +196,7 @@ public class SalePanel extends JPanel {
         gbcP.weightx = 0;
         paymentPanel.add(new JLabel("SĐT Khách:"), gbcP);
 
-        JPanel customerInputPanel = new JPanel(new BorderLayout(5, 0));
+        JPanel customerInputPanel = new JPanel(new BorderLayout(0, 2));
         txtCustomerPhone = new JTextField(12);
         txtCustomerPhone.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
@@ -211,10 +211,10 @@ public class SalePanel extends JPanel {
                 lookupCustomer();
             }
         });
-        customerInputPanel.add(txtCustomerPhone, BorderLayout.WEST);
+        customerInputPanel.add(txtCustomerPhone, BorderLayout.NORTH);
         lblCustomerInfo = new JLabel(" ");
         lblCustomerInfo.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        customerInputPanel.add(lblCustomerInfo, BorderLayout.CENTER);
+        customerInputPanel.add(lblCustomerInfo, BorderLayout.SOUTH);
 
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
