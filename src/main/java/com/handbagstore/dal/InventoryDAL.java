@@ -164,7 +164,8 @@ public class InventoryDAL {
     }
 
     public List<ImportBatchDTO> getImportHistory() throws SQLException {
-        String sql = "SELECT ib.*, p.name AS product_name, s.name AS supplier_name, a.full_name AS created_by_name " +
+        String sql = "SELECT ib.*, p.product_code,p.name AS product_name, s.name AS supplier_name, a.full_name AS created_by_name "
+                +
                 "FROM import_batches ib LEFT JOIN products p ON ib.product_id = p.product_id " +
                 "LEFT JOIN suppliers s ON ib.supplier_id = s.supplier_id " +
                 "LEFT JOIN accounts a ON ib.created_by = a.account_id ORDER BY ib.import_date DESC";
@@ -172,6 +173,7 @@ public class InventoryDAL {
         try (PreparedStatement ps = getConnection().prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 ImportBatchDTO b = new ImportBatchDTO();
+                b.setProductCode(rs.getString("product_code"));
                 b.setBatchId(rs.getInt("batch_id"));
                 b.setProductId(rs.getInt("product_id"));
                 b.setSupplierId(rs.getObject("supplier_id") != null ? rs.getInt("supplier_id") : null);

@@ -1,31 +1,16 @@
 package com.handbagstore.gui.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.List;
-
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
-
 import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
-import com.handbagstore.dto.ImportBatchDTO;
-import com.handbagstore.dto.InventoryLogDTO;
-import com.handbagstore.dto.ProductDTO;
+import com.handbagstore.dto.*;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 
 public class InventoryPanel extends JPanel {
     private JTable stockTable, importTable;
@@ -116,7 +101,7 @@ public class InventoryPanel extends JPanel {
         importTop.add(btnImport, BorderLayout.EAST);
         importPanel.add(importTop, BorderLayout.NORTH);
 
-        String[] importCols = { "Mã SP", "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
+        String[] importCols = { "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
         importModel = new DefaultTableModel(importCols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
@@ -177,7 +162,6 @@ public class InventoryPanel extends JPanel {
                     formattedDate = b.getImportDate().format(formatter);
                 }
                 importModel.addRow(new Object[] {
-                        b.getProductCode(),
                         b.getProductName(), b.getQuantity(), b.getCostPrice(),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });

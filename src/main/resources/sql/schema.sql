@@ -93,7 +93,7 @@ BEGIN
         supplier_id  INT,
         quantity     INT NOT NULL,
         cost_price   DECIMAL(15,0),
-        import_date  DATE NOT NULL,
+        import_date  DATETIME NOT NULL,
         note         NVARCHAR(MAX),
         created_by   INT,
         CONSTRAINT FK_batch_product FOREIGN KEY (product_id) REFERENCES products(product_id),

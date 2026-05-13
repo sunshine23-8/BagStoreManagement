@@ -1,0 +1,12 @@
+# Chặn toàn bộ thư mục build rác của Maven
+src/main/resources/application.properties
+target/
+
+# Chặn tất cả các file class lẻ tẻ do Java tự biên dịch
+*.class
+
+# Chặn các file cấu hình riêng của VS Code (nếu có)
+.settings/
+.factorypath
+.project
+.classpath
