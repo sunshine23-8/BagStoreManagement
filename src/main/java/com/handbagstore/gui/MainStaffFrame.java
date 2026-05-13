@@ -18,6 +18,7 @@ public class MainStaffFrame extends JFrame {
     private SalePanel salePanel;
     private CustomerManagerPanel customerPanel;
     private InvoiceHistoryPanel invoicePanel;
+    private ProfilePanel profilePanel;
     private java.util.List<JButton> menuButtons = new java.util.ArrayList<>();
     private JButton currentActiveButton;
     private final Color NORMAL_COLOR = new Color(45, 45, 65);
@@ -68,7 +69,8 @@ public class MainStaffFrame extends JFrame {
         String[][] menuItems = {
             {"🛒 Bán hàng", "SALE"},
             {"👤 Khách hàng", "CUSTOMER"},
-            {"🧾 Hóa đơn", "INVOICE"}
+            {"🧾 Hóa đơn", "INVOICE"},
+            {"👤 Cá nhân", "PROFILE"}
         };
 
         for (String[] item : menuItems) {
@@ -99,10 +101,12 @@ public class MainStaffFrame extends JFrame {
         salePanel = new SalePanel();
         customerPanel = new CustomerManagerPanel();
         invoicePanel = new InvoiceHistoryPanel();
+        profilePanel = new ProfilePanel();
 
         contentPanel.add(salePanel, "SALE");
         contentPanel.add(customerPanel, "CUSTOMER");
         contentPanel.add(invoicePanel, "INVOICE");
+        contentPanel.add(profilePanel, "PROFILE");
 
         add(contentPanel, BorderLayout.CENTER);
         cardLayout.show(contentPanel, "SALE");
@@ -171,6 +175,11 @@ public class MainStaffFrame extends JFrame {
     public void refreshCustomerPanel() {
         if (customerPanel != null) {
             customerPanel.refreshData();
+        }
+    }
+    public void refreshInvoicePanel() {
+        if (invoicePanel != null) {
+            invoicePanel.refreshData();
         }
     }
 }

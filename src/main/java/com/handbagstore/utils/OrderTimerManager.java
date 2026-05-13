@@ -78,5 +78,8 @@ public class OrderTimerManager {
     public void shutdown() {
         scheduler.shutdownNow();
         pendingTasks.clear();
+        synchronized (OrderTimerManager.class) {
+            instance = null;
+        }
     }
 }

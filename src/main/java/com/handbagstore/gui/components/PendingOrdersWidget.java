@@ -29,6 +29,7 @@ import com.handbagstore.dto.InvoiceDTO;
 import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.utils.PdfExporter;
+import com.handbagstore.utils.CurrencyUtils;
 
 /**
  * Widget hiển thị các đơn hàng PENDING với countdown timer.
@@ -40,7 +41,12 @@ public class PendingOrdersWidget extends JPanel {
     private Timer countdownTimer;
     private final OrderBLL orderBLL = new OrderBLL();
 
-    public PendingOrdersWidget() {
+    private java.util.function.Consumer<InvoiceDTO> onSelectOrder;
+    private Runnable onDataChange;
+
+    public PendingOrdersWidget(Runnable onDataChange, java.util.function.Consumer<InvoiceDTO> onSelectOrder) {
+        this.onDataChange = onDataChange;
+        this.onSelectOrder = onSelectOrder;
         initComponents();
         startAutoRefresh();
     }
@@ -160,7 +166,7 @@ public class PendingOrdersWidget extends JPanel {
         btnPay.setBackground(new Color(40, 167, 69));
         btnPay.setForeground(Color.WHITE);
         btnPay.setFont(new Font("Segoe UI", Font.BOLD, 11));
-        btnPay.addActionListener(e -> payOrder(inv));
+        btnPay.addActionListener(e -> selectOrder(inv));
 
         JButton btnCancel = new JButton("❌ Hủy");
         btnCancel.setBackground(new Color(220, 53, 69));
@@ -217,56 +223,9 @@ public class PendingOrdersWidget extends JPanel {
         }
     }
 
-    private void payOrder(InvoiceDTO inv) {
-        // Ask payment method
-        String[] options = { "Tiền mặt", "Chuyển khoản" };
-        int choice = JOptionPane.showOptionDialog(this, "Chọn phương thức thanh toán:",
-                "Thanh toán " + inv.getInvoiceCode(), JOptionPane.DEFAULT_OPTION,
-                JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        if (choice < 0)
-            return;
-
-        try {
-            BigDecimal received = BigDecimal.ZERO;
-            BigDecimal change = BigDecimal.ZERO;
-            String method = choice == 0 ? "CASH" : "TRANSFER";
-
-            if ("CASH".equals(method)) {
-                String input = JOptionPane.showInputDialog(this,
-                        "Tổng tiền: " + inv.getTotal() + "đ\nNhập số tiền khách đưa:");
-                if (input == null)
-                    return;
-                received = new BigDecimal(input.trim());
-                if (received.compareTo(inv.getTotal()) < 0) {
-                    JOptionPane.showMessageDialog(this, "Tiền chưa đủ!");
-                    return;
-                }
-                change = received.subtract(inv.getTotal());
-            }
-
-            orderBLL.payPendingOrder(inv.getInvoiceId(), method, received, change);
-
-            String msg = "✅ Thanh toán thành công!";
-            if ("CASH".equals(method))
-                msg += "\nTiền thối: " + change + "đ";
-
-            Object[] optionsPopup = { "Đóng", "📄 Xuất PDF" };
-            int choicePopup = JOptionPane.showOptionDialog(this,
-                    msg,
-                    "Thanh toán",
-                    JOptionPane.YES_NO_OPTION,
-                    JOptionPane.INFORMATION_MESSAGE,
-                    null,
-                    optionsPopup,
-                    optionsPopup[0]);
-
-            refreshData();
-
-            if (choicePopup == 1) {
-                exportPdf(inv.getInvoiceId());
-            }
-        } catch (Exception ex) {
-            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+    private void selectOrder(InvoiceDTO inv) {
+        if (onSelectOrder != null) {
+            onSelectOrder.accept(inv);
         }
     }
 
@@ -308,6 +267,9 @@ public class PendingOrdersWidget extends JPanel {
             orderBLL.cancelPendingOrder(inv.getInvoiceId());
             JOptionPane.showMessageDialog(this, "Đã hủy đơn thành công!");
             refreshData();
+            if (onDataChange != null) {
+                onDataChange.run();
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }

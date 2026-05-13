@@ -191,6 +191,27 @@ public class OrderBLL {
                 "Mã HĐ: " + invoice.getInvoiceCode() + " - Hết thời gian pending"));
     }
 
+    /**
+     * Xóa đơn PENDING (dùng khi load lại vào giỏ hàng để tránh trạng thái CANCELLED).
+     */
+    public void deletePendingOrder(int invoiceId) throws SQLException {
+        InvoiceDTO invoice = invoiceDAL.getById(invoiceId);
+        if (invoice == null) return;
+
+        // Cancel timer
+        OrderTimerManager.getInstance().cancelTask(invoiceId);
+
+        // Release reserve
+        List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
+        for (InvoiceDetailDTO d : details) {
+            inventoryDAL.releaseReserve(d.getProductId(), d.getQuantity());
+        }
+
+        // Delete
+        detailDAL.deleteByInvoiceId(invoiceId);
+        invoiceDAL.delete(invoiceId);
+    }
+
     /** Lấy danh sách đơn PENDING đang chờ */
     public List<InvoiceDTO> getPendingOrders() throws SQLException {
         return invoiceDAL.getPendingOrders();

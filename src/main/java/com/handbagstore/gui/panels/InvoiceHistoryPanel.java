@@ -97,7 +97,7 @@ public class InvoiceHistoryPanel extends JPanel {
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
                     inv.getStaffName(),
                     CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
-                    "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
+                    inv.getPaymentMethod() == null ? "—" : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
                     inv.getStatus()
                 });
             }
@@ -117,7 +117,7 @@ public class InvoiceHistoryPanel extends JPanel {
                     inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
                     inv.getStaffName(), CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
-                    "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
+                    inv.getPaymentMethod() == null ? "—" : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
                     inv.getStatus()
                 });
             }

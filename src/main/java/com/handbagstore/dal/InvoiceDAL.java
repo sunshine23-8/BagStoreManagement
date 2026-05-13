@@ -12,8 +12,8 @@ public class InvoiceDAL {
 
     public int insert(InvoiceDTO inv) throws SQLException {
         String sql = "INSERT INTO invoices (invoice_code, customer_id, staff_id, discount_id, subtotal, " +
-                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                     "discount_amount, total, payment_method, payment_received, change_amount, status, expires_at, paid_at) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, inv.getInvoiceCode());
             if (inv.getCustomerId() != null) ps.setInt(2, inv.getCustomerId());
@@ -30,6 +30,8 @@ public class InvoiceDAL {
             ps.setString(11, inv.getStatus());
             if (inv.getExpiresAt() != null) ps.setTimestamp(12, Timestamp.valueOf(inv.getExpiresAt()));
             else ps.setNull(12, Types.TIMESTAMP);
+            if (inv.getPaidAt() != null) ps.setTimestamp(13, Timestamp.valueOf(inv.getPaidAt()));
+            else ps.setNull(13, Types.TIMESTAMP);
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) return rs.getInt(1);
@@ -57,6 +59,14 @@ public class InvoiceDAL {
             ps.setBigDecimal(2, received);
             ps.setBigDecimal(3, change);
             ps.setInt(4, invoiceId);
+            ps.executeUpdate();
+        }
+    }
+
+    public void delete(int invoiceId) throws SQLException {
+        String sql = "DELETE FROM invoices WHERE invoice_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, invoiceId);
             ps.executeUpdate();
         }
     }

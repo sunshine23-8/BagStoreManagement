@@ -47,4 +47,12 @@ public class InvoiceDetailDAL {
         }
         return list;
     }
+
+    public void deleteByInvoiceId(int invoiceId) throws SQLException {
+        String sql = "DELETE FROM invoice_details WHERE invoice_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, invoiceId);
+            ps.executeUpdate();
+        }
+    }
 }
