@@ -26,8 +26,8 @@ public class MainStaffFrame extends JFrame {
     private Color normalColor = new Color(45, 45, 65);
     private Color activeColor = new Color(64, 133, 240);
     private JPanel sidebar;
-    private JLabel lblLogo;
-    private JLabel lblRole;
+    private JLabel lblLogo, lblLogoIcon;
+    private JLabel lblRole, lblRoleIcon;
     private JButton btnToggleTheme;
 
     public MainStaffFrame() {
@@ -57,50 +57,77 @@ public class MainStaffFrame extends JFrame {
         sidebar.setBackground(new Color(30, 30, 46));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
-        lblLogo = new JLabel("<html><font face='Segoe UI Emoji'>🛍</font> BAG STORE</html>", SwingConstants.CENTER);
+        JPanel logoPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        logoPanel.setOpaque(false);
+        lblLogoIcon = new JLabel("🛍");
+        lblLogoIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        lblLogo = new JLabel("BAG STORE");
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblLogo.setForeground(Color.WHITE);
-        lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
-        sidebar.add(lblLogo);
-        sidebar.add(Box.createVerticalStrut(10));
+        logoPanel.add(lblLogoIcon);
+        logoPanel.add(lblLogo);
+        logoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(logoPanel);
+        sidebar.add(Box.createVerticalStrut(5)); // Minimal space after logo
 
-        lblRole = new JLabel("<html><font face='Segoe UI Emoji'>👤</font> Nhân viên</html>", SwingConstants.CENTER);
+        JPanel rolePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        rolePanel.setOpaque(false);
+        lblRoleIcon = new JLabel("👤");
+        lblRoleIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        lblRole = new JLabel("Nhân viên");
         lblRole.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblRole.setForeground(new Color(166, 173, 186));
-        lblRole.setAlignmentX(Component.CENTER_ALIGNMENT);
-        sidebar.add(lblRole);
-        sidebar.add(Box.createVerticalStrut(30));
+        rolePanel.add(lblRoleIcon);
+        rolePanel.add(lblRole);
+        rolePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        sidebar.add(rolePanel);
+        sidebar.add(Box.createVerticalStrut(5)); // Minimal space before menu
+
+        // Menu items container (Top)
+        JPanel menuContainer = new JPanel();
+        menuContainer.setLayout(new BoxLayout(menuContainer, BoxLayout.Y_AXIS));
+        menuContainer.setOpaque(false);
 
         // Staff menu items
         String[][] menuItems = {
-            {"<html><font face='Segoe UI Emoji'>🛒</font>&nbsp;Bán&nbsp;hàng</html>", "SALE"},
-            {"<html><font face='Segoe UI Emoji'>👤</font>&nbsp;Khách&nbsp;hàng</html>", "CUSTOMER"},
-            {"<html><font face='Segoe UI Emoji'>🧾</font>&nbsp;Hóa&nbsp;đơn</html>", "INVOICE"}
+                { "🛒", "Bán hàng", "SALE" },
+                { "👤", "Khách hàng", "CUSTOMER" },
+                { "🧾", "Hóa đơn", "INVOICE" }
         };
 
         for (String[] item : menuItems) {
-            JButton btn = createMenuButton(item[0], item[1]);
-            sidebar.add(btn);
-            sidebar.add(Box.createVerticalStrut(5));
+            JButton btn = createMenuButton(item[0], item[1], item[2]);
+            menuContainer.add(btn);
+            menuContainer.add(Box.createVerticalStrut(5));
             menuButtons.add(btn);
         }
+        sidebar.add(menuContainer);
+
+        sidebar.add(Box.createVerticalGlue()); // Pushes items to bottom
+
+        // System items container (Bottom)
+        JPanel systemContainer = new JPanel();
+        systemContainer.setLayout(new BoxLayout(systemContainer, BoxLayout.Y_AXIS));
+        systemContainer.setOpaque(false);
+
+        String themeText = FlatLaf.isLafDark() ? "Giao diện sáng" : "Giao diện tối";
+        String themeIcon = FlatLaf.isLafDark() ? "☀️" : "🌙";
+        btnToggleTheme = createMenuButton(themeIcon, themeText, "TOGGLE_THEME");
+        systemContainer.add(btnToggleTheme);
+        systemContainer.add(Box.createVerticalStrut(5));
+        menuButtons.add(btnToggleTheme);
+
+        JButton btnLogout = createMenuButton("🚪", "Đăng xuất", "LOGOUT");
+        btnLogout.setBackground(new Color(220, 53, 69));
+        systemContainer.add(btnLogout);
+
+        sidebar.add(systemContainer);
 
         // Highlight first button by default
         if (!menuButtons.isEmpty()) {
             currentActiveButton = menuButtons.get(0);
             currentActiveButton.setBackground(activeColor);
         }
-
-        sidebar.add(Box.createVerticalGlue());
-
-        btnToggleTheme = createMenuButton(FlatLaf.isLafDark() ? "<html><font face='Segoe UI Emoji'>☀️</font> Giao diện sáng</html>" : "<html><font face='Segoe UI Emoji'>🌙</font> Giao diện tối</html>", "TOGGLE_THEME");
-        sidebar.add(btnToggleTheme);
-        sidebar.add(Box.createVerticalStrut(5));
-        menuButtons.add(btnToggleTheme);
-
-        JButton btnLogout = createMenuButton("<html><font face='Segoe UI Emoji'>🚪</font> Đăng xuất</html>", "LOGOUT");
-        btnLogout.setBackground(new Color(220, 53, 69));
-        sidebar.add(btnLogout);
 
         add(sidebar, BorderLayout.WEST);
 
@@ -118,33 +145,52 @@ public class MainStaffFrame extends JFrame {
 
         add(contentPanel, BorderLayout.CENTER);
         cardLayout.show(contentPanel, "SALE");
-        
+
         // Apply theme colors to sidebar on startup
         updateSidebarColors();
     }
 
-    private JButton createMenuButton(String text, String command) {
-        String htmlText = text;
-        if (text.startsWith("<html>") && text.endsWith("</html>")) {
-            htmlText = "<html><table width='180'><tr><td nowrap>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
-        }
-        JButton btn = new JButton(htmlText);
+    private JButton createMenuButton(String icon, String text, String command) {
+        JButton btn = new JButton();
+        btn.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        
+        JLabel lblIcon = new JLabel(icon);
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        lblIcon.setForeground(Color.WHITE);
+        lblIcon.setPreferredSize(new Dimension(25, 25)); // Fixed width for icons
+        lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
+        
+        JLabel lblText = new JLabel(text);
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        lblText.setForeground(Color.WHITE);
+        
+        // Use a wrapper panel to align to the left with padding
+        gbc.weightx = 1.0;
+        gbc.anchor = GridBagConstraints.WEST;
+        gbc.insets = new java.awt.Insets(0, 40, 0, 0); // 40px padding from left
+        
+        JPanel content = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        content.setOpaque(false);
+        content.add(lblIcon);
+        content.add(lblText);
+        
+        btn.add(content, gbc);
+
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(230, 40));
-        btn.setPreferredSize(new Dimension(230, 40));
-        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        btn.setForeground(Color.WHITE);
+        btn.setMaximumSize(new Dimension(250, 40)); // Full width
+        btn.setPreferredSize(new Dimension(250, 40));
         btn.setBackground(normalColor);
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-        btn.setHorizontalAlignment(SwingConstants.LEFT);
-        btn.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
+        btn.setBorder(null);
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
                 btn.setBackground(activeColor);
             }
+
             public void mouseExited(java.awt.event.MouseEvent evt) {
                 if (btn != currentActiveButton) {
                     if ("LOGOUT".equals(command))
@@ -185,10 +231,10 @@ public class MainStaffFrame extends JFrame {
                 UIManager.setLookAndFeel(new FlatDarkLaf());
             }
             FlatLaf.updateUI();
-            
+
             // Update colors
             updateSidebarColors();
-            
+
             // Save preference
             saveThemePreference(!wasDark);
         } catch (Exception ex) {
@@ -200,23 +246,51 @@ public class MainStaffFrame extends JFrame {
         boolean isDark = FlatLaf.isLafDark();
         sidebar.setBackground(isDark ? new Color(30, 30, 46) : new Color(210, 225, 240));
         lblLogo.setForeground(isDark ? Color.WHITE : Color.BLACK);
+        lblLogoIcon.setForeground(isDark ? Color.WHITE : Color.BLACK);
         lblRole.setForeground(isDark ? new Color(166, 173, 186) : new Color(100, 100, 100));
-        
+        lblRoleIcon.setForeground(isDark ? new Color(166, 173, 186) : new Color(100, 100, 100));
+
         normalColor = isDark ? new Color(45, 45, 65) : new Color(230, 230, 230);
         activeColor = new Color(64, 133, 240); // Keep blue
-        
+
         for (JButton btn : menuButtons) {
-            btn.setForeground(isDark ? Color.WHITE : Color.BLACK);
+            for (Component c : btn.getComponents()) {
+                if (c instanceof JPanel) {
+                    for (Component inner : ((JPanel) c).getComponents()) {
+                        if (inner instanceof JLabel) {
+                            inner.setForeground(isDark ? Color.WHITE : Color.BLACK);
+                        }
+                    }
+                }
+            }
             if (btn == currentActiveButton) {
                 btn.setBackground(activeColor);
             } else {
                 btn.setBackground(normalColor);
             }
         }
-        
-        // Update toggle button text
+
+        // Update toggle button text/icon
         if (btnToggleTheme != null) {
-            btnToggleTheme.setText(isDark ? "<html><font face='Segoe UI Emoji'>☀️</font> Giao diện sáng</html>" : "<html><font face='Segoe UI Emoji'>🌙</font> Giao diện tối</html>");
+            JLabel lblIcon = null;
+            JLabel lblText = null;
+            for (Component c : btnToggleTheme.getComponents()) {
+                if (c instanceof JPanel) {
+                    for (Component inner : ((JPanel) c).getComponents()) {
+                        if (inner instanceof JLabel) {
+                            JLabel lbl = (JLabel) inner;
+                            if (lbl.getText().length() <= 2)
+                                lblIcon = lbl; // Likely emoji
+                            else
+                                lblText = lbl;
+                        }
+                    }
+                }
+            }
+            if (lblIcon != null)
+                lblIcon.setText(isDark ? "☀️" : "🌙");
+            if (lblText != null)
+                lblText.setText(isDark ? "Giao diện sáng" : "Giao diện tối");
         }
     }
 
@@ -234,7 +308,10 @@ public class MainStaffFrame extends JFrame {
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Bạn có chắc muốn đăng xuất?", "Xác nhận", JOptionPane.YES_NO_OPTION);
         if (confirm == JOptionPane.YES_OPTION) {
-            try { new AccountBLL().logout(); } catch (Exception ignored) {}
+            try {
+                new AccountBLL().logout();
+            } catch (Exception ignored) {
+            }
             OrderTimerManager.getInstance().shutdown();
             dispose();
             new LoginFrame().setVisible(true);
@@ -251,6 +328,7 @@ public class MainStaffFrame extends JFrame {
             customerPanel.refreshData();
         }
     }
+
     public void refreshInvoicePanel() {
         if (invoicePanel != null) {
             invoicePanel.refreshData();

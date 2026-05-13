@@ -22,7 +22,7 @@ public class Main {
             } catch (java.io.IOException ignored) {
                 // File might not exist yet, default to dark
             }
-            
+
             String theme = props.getProperty("theme", "dark");
             if ("light".equals(theme)) {
                 UIManager.setLookAndFeel(new FlatIntelliJLaf());

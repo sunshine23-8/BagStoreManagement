@@ -5,6 +5,7 @@ import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.*;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -13,26 +14,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.RowFilter;
-import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableRowSorter;
-
-import com.handbagstore.bll.AccountBLL;
-import com.handbagstore.bll.InventoryBLL;
-import com.handbagstore.bll.ProductBLL;
-import com.handbagstore.dto.ImportBatchDTO;
-import com.handbagstore.dto.InventoryLogDTO;
-import com.handbagstore.dto.ProductDTO;
 
 public class InventoryPanel extends JPanel {
     private JTable stockTable, importTable;
@@ -53,9 +35,14 @@ public class InventoryPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🏭</font> Quản lý Kho hàng</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        add(lblTitle, BorderLayout.NORTH);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("🏭");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Quản lý Kho hàng");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        add(titlePanel, BorderLayout.NORTH);
 
         // Tabs: Tồn kho + Nhập kho
         JTabbedPane tabs = new JTabbedPane();
@@ -71,10 +58,26 @@ public class InventoryPanel extends JPanel {
         lblLowStockWarning.setFont(new Font("Segoe UI", Font.BOLD, 13));
         stockTopPanel.add(lblLowStockWarning, BorderLayout.NORTH);
 
-        JPanel stockSearchPanel = new JPanel(new BorderLayout(10, 0));
-        stockSearchPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm kiếm tên SP </html>"), BorderLayout.WEST);
+        JPanel stockSearchPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints gbcSearch = new GridBagConstraints();
+        gbcSearch.fill = GridBagConstraints.HORIZONTAL;
+        gbcSearch.insets = new Insets(0, 0, 0, 0);
+
+        gbcSearch.weightx = 0;
+        JLabel lblSearchIcon1 = new JLabel("🔍");
+        lblSearchIcon1.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        stockSearchPanel.add(lblSearchIcon1, gbcSearch);
+
+        JLabel lblSearchText1 = new JLabel(" Tìm kiếm tên SP:  ");
+        lblSearchText1.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        gbcSearch.gridx = 1;
+        stockSearchPanel.add(lblSearchText1, gbcSearch);
+
+        gbcSearch.gridx = 2;
+        gbcSearch.weightx = 1.0;
         txtSearchStock = new JTextField();
-        stockSearchPanel.add(txtSearchStock, BorderLayout.CENTER);
+        stockSearchPanel.add(txtSearchStock, gbcSearch);
+
         stockTopPanel.add(stockSearchPanel, BorderLayout.CENTER);
 
         stockPanel.add(stockTopPanel, BorderLayout.NORTH);
@@ -94,6 +97,11 @@ public class InventoryPanel extends JPanel {
         stockSorter = new TableRowSorter<>(stockModel);
         stockTable.setRowSorter(stockSorter);
 
+        // Align columns
+        TableUtils.alignCenter(stockTable, 0, 2);
+        TableUtils.alignLeft(stockTable, 1);
+        TableUtils.alignRight(stockTable, 3, 4, 5, 6, 7);
+
         txtSearchStock.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent e) {
                 String text = txtSearchStock.getText();
@@ -106,7 +114,8 @@ public class InventoryPanel extends JPanel {
         });
 
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
-        tabs.addTab("<html><font face='Segoe UI Emoji'>📊</font> Tồn kho</html>", stockPanel);
+        tabs.addTab("Tồn kho", stockPanel);
+        setupTabHeader(tabs, 0, "📊", "Tồn kho");
 
         // Tab 2: Nhập kho
         JPanel importPanel = new JPanel(new BorderLayout(5, 5));
@@ -139,7 +148,19 @@ public class InventoryPanel extends JPanel {
         importForm.add(new JLabel("Ghi chú:"));
         importForm.add(txtNote);
 
-        JButton btnImport = new JButton("<html><font face='Segoe UI Emoji'>📥</font> Nhập kho</html>");
+        JButton btnImport = new JButton();
+        btnImport.setLayout(new GridBagLayout());
+        JPanel innerImp = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        innerImp.setOpaque(false);
+        JLabel iconImp = new JLabel("📥");
+        iconImp.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel textImp = new JLabel("Nhập kho");
+        textImp.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        textImp.setForeground(Color.WHITE);
+        innerImp.add(iconImp);
+        innerImp.add(textImp);
+        btnImport.add(innerImp);
+        btnImport.setPreferredSize(new Dimension(120, 35));
         btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnImport.setBackground(new Color(40, 167, 69));
         btnImport.setForeground(Color.WHITE);
@@ -149,11 +170,26 @@ public class InventoryPanel extends JPanel {
         importTop.add(importForm, BorderLayout.CENTER);
         importTop.add(btnImport, BorderLayout.EAST);
 
-        JPanel importSearchPanel = new JPanel(new BorderLayout(10, 0));
+        JPanel importSearchPanel = new JPanel(new GridBagLayout());
         importSearchPanel.setBorder(BorderFactory.createEmptyBorder(5, 0, 5, 0));
-        importSearchPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm kiếm tên SP </html>"), BorderLayout.WEST);
+        GridBagConstraints gbcImport = new GridBagConstraints();
+        gbcImport.fill = GridBagConstraints.HORIZONTAL;
+
+        gbcImport.weightx = 0;
+        JLabel lblSearchIcon2 = new JLabel("🔍");
+        lblSearchIcon2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        importSearchPanel.add(lblSearchIcon2, gbcImport);
+
+        JLabel lblSearchText2 = new JLabel(" Tìm kiếm tên SP:  ");
+        lblSearchText2.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        gbcImport.gridx = 1;
+        importSearchPanel.add(lblSearchText2, gbcImport);
+
+        gbcImport.gridx = 2;
+        gbcImport.weightx = 1.0;
         txtSearchImport = new JTextField();
-        importSearchPanel.add(txtSearchImport, BorderLayout.CENTER);
+        importSearchPanel.add(txtSearchImport, gbcImport);
+
         importTop.add(importSearchPanel, BorderLayout.SOUTH);
 
         importPanel.add(importTop, BorderLayout.NORTH);
@@ -173,6 +209,11 @@ public class InventoryPanel extends JPanel {
         importSorter = new TableRowSorter<>(importModel);
         importTable.setRowSorter(importSorter);
 
+        // Align columns
+        TableUtils.alignCenter(importTable, 0, 5, 6, 7);
+        TableUtils.alignLeft(importTable, 1);
+        TableUtils.alignRight(importTable, 2, 3, 4);
+
         txtSearchImport.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyReleased(java.awt.event.KeyEvent e) {
                 String text = txtSearchImport.getText();
@@ -185,9 +226,22 @@ public class InventoryPanel extends JPanel {
         });
 
         importPanel.add(new JScrollPane(importTable), BorderLayout.CENTER);
-        tabs.addTab("<html><font face='Segoe UI Emoji'>📥</font> Nhập kho</html>", importPanel);
+        tabs.addTab("Nhập kho", importPanel);
+        setupTabHeader(tabs, 1, "📥", "Nhập kho");
 
         add(tabs, BorderLayout.CENTER);
+    }
+
+    private void setupTabHeader(JTabbedPane tabs, int index, String icon, String title) {
+        JPanel pnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        pnl.setOpaque(false);
+        JLabel lblIcon = new JLabel(icon);
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel lblText = new JLabel(title);
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        pnl.add(lblIcon);
+        pnl.add(lblText);
+        tabs.setTabComponentAt(index, pnl);
     }
 
     public void refreshData() {
@@ -213,7 +267,8 @@ public class InventoryPanel extends JPanel {
                 warn.append("</html>");
                 lblLowStockWarning.setText(warn.toString());
             } else {
-                lblLowStockWarning.setText("<html><font face='Segoe UI Emoji'>✅</font> Tất cả sản phẩm đều đủ hàng</html>");
+                lblLowStockWarning
+                        .setText("<html><font face='Segoe UI Emoji'>✅</font> Tất cả sản phẩm đều đủ hàng</html>");
                 lblLowStockWarning.setForeground(new Color(40, 167, 69));
             }
 

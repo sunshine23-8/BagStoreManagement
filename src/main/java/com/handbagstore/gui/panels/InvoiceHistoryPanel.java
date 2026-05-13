@@ -8,6 +8,7 @@ import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.bll.CustomerBLL;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -38,18 +39,25 @@ public class InvoiceHistoryPanel extends JPanel {
 
         // Top
         JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🧾</font> Quản lý Hóa đơn</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        topPanel.add(lblTitle, BorderLayout.WEST);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("🧾");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Quản lý Hóa đơn");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        topPanel.add(titlePanel, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm mã hóa đơn...");
-        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
+        JButton btnSearch = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</td></tr></table></html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchInvoices());
 
-        JButton btnFilter = new JButton("<html><font face='Segoe UI Emoji'>⏳</font> Bộ lọc</html>");
+        JButton btnFilter = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>⏳</font>&nbsp;Bộ&nbsp;lọc</td></tr></table></html>");
         btnFilter.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnFilter.addActionListener(e -> showFilterDialog());
 
@@ -88,6 +96,12 @@ public class InvoiceHistoryPanel extends JPanel {
         invoiceTable = new JTable(invoiceModel);
         invoiceTable.setRowHeight(28);
         invoiceTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(invoiceTable, 0, 1, 7, 8);
+        TableUtils.alignLeft(invoiceTable, 2, 3);
+        TableUtils.alignRight(invoiceTable, 4, 5, 6);
+
         invoiceTable.getSelectionModel().addListSelectionListener(e -> loadInvoiceDetails());
         splitPane.setTopComponent(new JScrollPane(invoiceTable));
 
@@ -101,6 +115,11 @@ public class InvoiceHistoryPanel extends JPanel {
         detailTable = new JTable(detailModel);
         detailTable.setRowHeight(28);
         detailTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(detailTable, 0);
+        TableUtils.alignLeft(detailTable, 1);
+        TableUtils.alignRight(detailTable, 2, 3, 4);
         JPanel detailPanel = new JPanel(new BorderLayout());
         JPanel detailHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         detailHeaderPanel.add(new JLabel("  Chi tiết hóa đơn:"));

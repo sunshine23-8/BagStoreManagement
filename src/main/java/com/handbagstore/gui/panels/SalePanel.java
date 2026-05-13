@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import com.handbagstore.utils.TableUtils;
 
 /**
  * Panel bán hàng chính cho Staff — chọn SP, nhập KH, apply voucher, thanh
@@ -77,9 +78,14 @@ public class SalePanel extends JPanel {
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(450, 0));
 
-        JLabel lblProducts = new JLabel("<html><font face='Segoe UI Emoji'>📦</font> Danh sách sản phẩm</html>");
-        lblProducts.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        leftPanel.add(lblProducts, BorderLayout.NORTH);
+        JPanel prodTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel pIcon = new JLabel("📦");
+        pIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel pText = new JLabel("Danh sách sản phẩm");
+        pText.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        prodTitlePanel.add(pIcon);
+        prodTitlePanel.add(pText);
+        leftPanel.add(prodTitlePanel, BorderLayout.NORTH);
 
         // Search
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
@@ -100,13 +106,14 @@ public class SalePanel extends JPanel {
             }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
-        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
+        JButton btnSearch = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</td></tr></table></html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
 
         JPanel topLeft = new JPanel(new BorderLayout(0, 5));
-        topLeft.add(lblProducts, BorderLayout.NORTH);
+        topLeft.add(prodTitlePanel, BorderLayout.NORTH);
         topLeft.add(searchPanel, BorderLayout.SOUTH);
         leftPanel.add(topLeft, BorderLayout.NORTH);
 
@@ -121,6 +128,12 @@ public class SalePanel extends JPanel {
         productTable = new JTable(productModel);
         productTable.setRowHeight(28);
         productTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(productTable, 0, 2);
+        TableUtils.alignLeft(productTable, 1);
+        TableUtils.alignRight(productTable, 3); // Changed from 3,4 to 3 because productCols only has 4 cols
+
         productTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -145,7 +158,8 @@ public class SalePanel extends JPanel {
             }
         });
 
-        btnAddToCart = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm vào đơn</html>");
+        btnAddToCart = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Thêm&nbsp;vào&nbsp;đơn</td></tr></table></html>");
         btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
         btnAddToCart.setForeground(Color.WHITE);
@@ -159,9 +173,14 @@ public class SalePanel extends JPanel {
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
 
         JPanel cartHeaderPanel = new JPanel(new BorderLayout());
-        JLabel lblCart = new JLabel("<html><font face='Segoe UI Emoji'>🛒</font> Đơn hàng hiện tại</html>");
-        lblCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
-        cartHeaderPanel.add(lblCart, BorderLayout.WEST);
+        JPanel cartTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel cIcon = new JLabel("🛒");
+        cIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel cText = new JLabel("Đơn hàng hiện tại");
+        cText.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        cartTitlePanel.add(cIcon);
+        cartTitlePanel.add(cText);
+        cartHeaderPanel.add(cartTitlePanel, BorderLayout.WEST);
 
         btnRemoveFromCart = new JButton("Xóa sản phẩm");
         btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
@@ -183,6 +202,12 @@ public class SalePanel extends JPanel {
         cartTable = new JTable(cartModel);
         cartTable.setRowHeight(28);
         cartTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(cartTable, 0);
+        TableUtils.alignLeft(cartTable, 1);
+        TableUtils.alignRight(cartTable, 2, 3, 4);
+
         centerPanel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
 
         // Payment section
@@ -197,7 +222,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 0;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("SĐT Khách:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>SĐT&nbsp;Khách:</nobr></html>"), gbcP);
 
         JPanel customerInputPanel = new JPanel(new BorderLayout(0, 2));
         txtCustomerPhone = new JTextField(12);
@@ -227,7 +252,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 1;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("Mã giảm giá:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>Mã&nbsp;giảm&nbsp;giá:</nobr></html>"), gbcP);
 
         JPanel discountInputPanel = new JPanel(new BorderLayout(5, 0));
         cmbDiscount = new JComboBox<>();
@@ -276,7 +301,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 2;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("Tạm tính:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>Tạm&nbsp;tính:</nobr></html>"), gbcP);
         lblSubtotal = new JLabel("0đ");
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
@@ -286,7 +311,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 3;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("Giảm giá:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>Giảm&nbsp;giá:</nobr></html>"), gbcP);
         lblDiscount = new JLabel("0đ");
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
@@ -296,7 +321,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 4;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("TỔNG CỘNG:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>TỔNG&nbsp;CỘNG:</nobr></html>"), gbcP);
         lblTotal = new JLabel("0đ");
         lblTotal.setFont(new Font("Segoe UI", Font.BOLD, 16));
         gbcP.gridx = 1;
@@ -307,7 +332,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 5;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("Thanh toán:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>Thanh&nbsp;toán:</nobr></html>"), gbcP);
         cmbPaymentMethod = new JComboBox<>(new String[] { "Tiền mặt", "Chuyển khoản" });
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
@@ -317,7 +342,7 @@ public class SalePanel extends JPanel {
         gbcP.gridx = 0;
         gbcP.gridy = 6;
         gbcP.weightx = 0;
-        paymentPanel.add(new JLabel("Tiền nhận:"), gbcP);
+        paymentPanel.add(new JLabel("<html><nobr>Tiền&nbsp;nhận:</nobr></html>"), gbcP);
 
         txtPaymentReceived = new JTextField();
         txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
@@ -363,13 +388,35 @@ public class SalePanel extends JPanel {
         JPanel actionRow = new JPanel(new GridLayout(1, 2, 5, 5));
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        btnPayNow = new JButton("<html><font face='Segoe UI Emoji'>💰</font> Thanh toán ngay</html>");
+        btnPayNow = new JButton();
+        btnPayNow.setLayout(new GridBagLayout());
+        JPanel innerPay = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        innerPay.setOpaque(false);
+        JLabel iconPay = new JLabel("💰");
+        iconPay.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel textPay = new JLabel("Thanh toán ngay");
+        textPay.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        textPay.setForeground(Color.WHITE);
+        innerPay.add(iconPay);
+        innerPay.add(textPay);
+        btnPayNow.add(innerPay);
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
         btnPayNow.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPayNow.addActionListener(e -> payNow());
 
-        btnPending = new JButton("<html><font face='Segoe UI Emoji'>⏳</font> Giữ đơn (Pending)</html>");
+        btnPending = new JButton();
+        btnPending.setLayout(new GridBagLayout());
+        JPanel innerPend = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        innerPend.setOpaque(false);
+        JLabel iconPend = new JLabel("⏳");
+        iconPend.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel textPend = new JLabel("Giữ đơn (Pending)");
+        textPend.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        textPend.setForeground(Color.WHITE);
+        innerPend.add(iconPend);
+        innerPend.add(textPend);
+        btnPending.add(innerPend);
         btnPending.setBackground(new Color(13, 110, 253));
         btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));

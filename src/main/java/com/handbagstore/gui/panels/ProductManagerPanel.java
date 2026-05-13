@@ -5,6 +5,7 @@ import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.InventoryLogDTO;
 import com.handbagstore.dto.ProductDTO;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -35,21 +36,34 @@ public class ProductManagerPanel extends JPanel {
 
         // === TOP: Title + Search ===
         JPanel topPanel = new JPanel(new BorderLayout(10, 0));
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>📦</font> Quản lý Sản phẩm</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        topPanel.add(lblTitle, BorderLayout.WEST);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("📦");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Quản lý Sản phẩm");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        topPanel.add(titlePanel, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
-        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
+        JButton btnSearch = new JButton("<html><nobr><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</nobr></html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchProducts(); }
-            public void removeUpdate(DocumentEvent e) { searchProducts(); }
-            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchProducts();
+            }
         });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
@@ -72,6 +86,11 @@ public class ProductManagerPanel extends JPanel {
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
 
+        // Align columns
+        TableUtils.alignCenter(table, 0, 2, 4, 5, 6, 8);
+        TableUtils.alignLeft(table, 1);
+        TableUtils.alignRight(table, 3, 7);
+
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -88,7 +107,8 @@ public class ProductManagerPanel extends JPanel {
         txtPrice = new JTextField();
         txtPrice.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+                if (!Character.isDigit(evt.getKeyChar()))
+                    evt.consume();
             }
         });
         txtColor = new JTextField();
@@ -118,13 +138,17 @@ public class ProductManagerPanel extends JPanel {
 
         // Button panel
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        btnAdd = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm</html>");
+        btnAdd = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Thêm</td></tr></table></html>");
         btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
+        btnUpdate = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>✏️</font>&nbsp;Cập&nbsp;nhật</td></tr></table></html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnDelete = new JButton("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
+        btnDelete = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🗑</font>&nbsp;Ngừng&nbsp;kinh&nbsp;doanh</td></tr></table></html>");
         btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnClear = new JButton("<html><font face='Segoe UI Emoji'>🔄</font> Làm mới</html>");
+        btnClear = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔄</font>&nbsp;Làm&nbsp;mới</td></tr></table></html>");
         btnClear.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         btnAdd.setBackground(new Color(40, 167, 69));

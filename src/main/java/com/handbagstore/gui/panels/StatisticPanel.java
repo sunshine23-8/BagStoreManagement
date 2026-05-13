@@ -2,6 +2,7 @@ package com.handbagstore.gui.panels;
 
 import com.handbagstore.bll.StatisticBLL;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.TableUtils;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -56,10 +57,14 @@ public class StatisticPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel(
-                "<html><nobr><font face='Segoe UI Emoji'>📊</font> Thống kê Doanh thu</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        add(lblTitle, BorderLayout.NORTH);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("📊");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Thống kê Doanh thu");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        add(titlePanel, BorderLayout.NORTH);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -72,7 +77,8 @@ public class StatisticPanel extends JPanel {
         revenueCards.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         // Card doanh thu ngày
-        JPanel dailyCard = createRevenueCard("<html><font face='Segoe UI Emoji'>💰</font> Doanh thu hôm nay</html>");
+        JPanel dailyCard = createRevenueCard(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>💰</font>&nbsp;Doanh&nbsp;thu&nbsp;hôm&nbsp;nay</td></tr></table></html>");
         dailyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
         dailyCard.addMouseListener(new MouseAdapter() {
             @Override
@@ -88,7 +94,7 @@ public class StatisticPanel extends JPanel {
 
         // Card doanh thu tháng
         JPanel monthlyCard = createRevenueCard(
-                "<html><font face='Segoe UI Emoji'>📅</font> Doanh thu tháng này</html>");
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>📅</font>&nbsp;Doanh&nbsp;thu&nbsp;tháng&nbsp;này</td></tr></table></html>");
         monthlyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
         monthlyCard.addMouseListener(new MouseAdapter() {
             @Override
@@ -152,7 +158,7 @@ public class StatisticPanel extends JPanel {
         spnChartYear.setEditor(new JSpinner.NumberEditor(spnChartYear, "#"));
         chartControls.add(spnChartYear);
 
-        JButton btnUpdateChart = new JButton("<html><font face='Segoe UI Emoji'>⚡</font> Xem</html>");
+        JButton btnUpdateChart = new JButton("<html><nobr><font face='Segoe UI Emoji'>⚡</font>&nbsp;Xem</nobr></html>");
         btnUpdateChart.addActionListener(e -> updateChart());
         chartControls.add(btnUpdateChart);
 
@@ -162,7 +168,8 @@ public class StatisticPanel extends JPanel {
 
         revenuePanel.add(chartSection, BorderLayout.CENTER);
 
-        tabs.addTab("<html><font face='Segoe UI Emoji'>💰</font> Doanh thu</html>", revenuePanel);
+        tabs.addTab("Doanh thu", revenuePanel);
+        setupTabHeader(tabs, 0, "💰", "Doanh thu");
 
         toggleChartFilters();
 
@@ -178,8 +185,15 @@ public class StatisticPanel extends JPanel {
         topProductsTable = new JTable(topModel);
         topProductsTable.setRowHeight(28);
         topProductsTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(topProductsTable, 0);
+        TableUtils.alignLeft(topProductsTable, 1);
+        TableUtils.alignRight(topProductsTable, 2, 3);
+
         topPanel.add(new JScrollPane(topProductsTable), BorderLayout.CENTER);
-        tabs.addTab("<html><font face='Segoe UI Emoji'>🏆</font> Top bán chạy</html>", topPanel);
+        tabs.addTab("Top bán chạy", topPanel);
+        setupTabHeader(tabs, 1, "🏆", "Top bán chạy");
 
         // Tab 3: Tồn kho
         JPanel stockPanel = new JPanel(new BorderLayout());
@@ -193,10 +207,29 @@ public class StatisticPanel extends JPanel {
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
         stockTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(stockTable, 0);
+        TableUtils.alignLeft(stockTable, 1);
+        TableUtils.alignRight(stockTable, 2, 3, 4, 5, 6);
+
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
-        tabs.addTab("<html><font face='Segoe UI Emoji'>📦</font> Tồn kho</html>", stockPanel);
+        tabs.addTab("Tồn kho", stockPanel);
+        setupTabHeader(tabs, 2, "📦", "Tồn kho");
 
         add(tabs, BorderLayout.CENTER);
+    }
+
+    private void setupTabHeader(JTabbedPane tabs, int index, String icon, String title) {
+        JPanel pnl = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        pnl.setOpaque(false);
+        JLabel lblIcon = new JLabel(icon);
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel lblText = new JLabel(title);
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        pnl.add(lblIcon);
+        pnl.add(lblText);
+        tabs.setTabComponentAt(index, pnl);
     }
 
     private JPanel createRevenueCard(String title) {

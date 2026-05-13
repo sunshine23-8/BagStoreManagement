@@ -8,6 +8,7 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.table.TableRowSorter;
 import javax.swing.RowFilter;
+import com.handbagstore.utils.TableUtils;
 
 public class StaffManagerPanel extends JPanel {
     private JTable table;
@@ -27,9 +28,14 @@ public class StaffManagerPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>👥</font> Quản lý Nhân viên</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
-        add(lblTitle, BorderLayout.NORTH);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("👥");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Quản lý Nhân viên");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        add(titlePanel, BorderLayout.NORTH);
 
         String[] cols = { "ID", "Username", "Họ tên", "Trạng thái", "Ngày tạo" };
         tableModel = new DefaultTableModel(cols, 0) {
@@ -45,12 +51,18 @@ public class StaffManagerPanel extends JPanel {
         sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
 
+        // Align columns
+        TableUtils.alignCenter(table, 0, 1, 3, 4);
+        TableUtils.alignLeft(table, 2); // Họ tên
+
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Filter panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        filterPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm tên:</html>"));
+        filterPanel
+                .add(new JLabel(
+                        "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm&nbsp;tên:</td></tr></table></html>"));
         txtSearch = new JTextField(15);
         filterPanel.add(txtSearch);
 
@@ -72,7 +84,7 @@ public class StaffManagerPanel extends JPanel {
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 5));
         formPanel = new JPanel(new GridLayout(2, 3, 10, 5));
         formPanel.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
-        
+
         txtFullName = new JTextField();
         txtUsername = new JTextField();
         txtPassword = new JPasswordField(); // Use password field for security
@@ -80,31 +92,35 @@ public class StaffManagerPanel extends JPanel {
         formPanel.add(new JLabel("Họ tên nhân viên:"));
         formPanel.add(new JLabel("Tên tài khoản:"));
         formPanel.add(new JLabel("Mật khẩu:"));
-        
+
         formPanel.add(txtFullName);
         formPanel.add(txtUsername);
         formPanel.add(txtPassword);
-        
+
         bottomPanel.add(formPanel, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnCreate = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Tạo tài khoản</html>");
+        JButton btnCreate = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Tạo&nbsp;tài&nbsp;khoản</td></tr></table></html>");
         btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69));
         btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
-        JButton btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
+        JButton btnUpdate = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>✏️</font>&nbsp;Cập&nbsp;nhật</td></tr></table></html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate.setBackground(new Color(13, 110, 253)); // Blue
         btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateAccount());
 
-        JButton btnReset = new JButton("<html><font face='Segoe UI Emoji'>🔑</font> Reset mật khẩu</html>");
+        JButton btnReset = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔑</font>&nbsp;Reset&nbsp;mật&nbsp;khẩu</td></tr></table></html>");
         btnReset.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnReset.addActionListener(e -> resetPassword());
 
-        JButton btnToggle = new JButton("<html><font face='Segoe UI Emoji'>🔒</font> Khóa/Mở khóa</html>");
+        JButton btnToggle = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔒</font>&nbsp;Khóa/Mở&nbsp;khóa</td></tr></table></html>");
         btnToggle.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnToggle.setBackground(new Color(220, 53, 69)); // Red
         btnToggle.setForeground(Color.WHITE);
@@ -203,7 +219,8 @@ public class StaffManagerPanel extends JPanel {
             txtPassword.setText("");
             formPanel.setBorder(BorderFactory.createTitledBorder("Cập nhật tài khoản Staff"));
             formPanel.repaint();
-        } catch (Exception ignored) {}
+        } catch (Exception ignored) {
+        }
     }
 
     private void clearForm() {

@@ -8,6 +8,7 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -34,26 +35,41 @@ public class CustomerManagerPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>👤</font> Quản lý Khách hàng</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("👤");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 18));
+        JLabel lblText = new JLabel("Quản lý Khách hàng");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 18));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        // Removed redundant add(titlePanel, BorderLayout.NORTH);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm tên hoặc SĐT...");
-        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font></html>");
+        JButton btnSearch = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font></td></tr></table></html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchCustomers());
         txtSearch.addActionListener(e -> searchCustomers());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchCustomers(); }
-            public void removeUpdate(DocumentEvent e) { searchCustomers(); }
-            public void changedUpdate(DocumentEvent e) { searchCustomers(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchCustomers();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchCustomers();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchCustomers();
+            }
         });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
 
         JPanel topPanel = new JPanel(new BorderLayout());
-        topPanel.add(lblTitle, BorderLayout.WEST);
+        topPanel.add(titlePanel, BorderLayout.WEST);
         topPanel.add(searchPanel, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);
 
@@ -71,6 +87,11 @@ public class CustomerManagerPanel extends JPanel {
         customerTable = new JTable(customerModel);
         customerTable.setRowHeight(28);
         customerTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(customerTable, 0, 2, 3);
+        TableUtils.alignLeft(customerTable, 1);
+
         customerTable.setFillsViewportHeight(true);
         customerTable.getSelectionModel().addListSelectionListener(e -> loadHistory());
         customerTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -96,16 +117,28 @@ public class CustomerManagerPanel extends JPanel {
         historyTable = new JTable(historyModel);
         historyTable.setRowHeight(28);
         historyTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // Align columns
+        TableUtils.alignCenter(historyTable, 0, 1, 3);
+        TableUtils.alignRight(historyTable, 2);
         JPanel historyPanel = new JPanel(new BorderLayout());
-        
+
         JPanel historyHeader = new JPanel(new BorderLayout());
-        historyHeader.add(new JLabel("<html>&nbsp;&nbsp;<font face='Segoe UI Emoji'>📜</font> Lịch sử mua hàng:</html>"), BorderLayout.WEST);
-        
-        JButton btnExportPdf = new JButton("<html><font face='Segoe UI Emoji'>📄</font> In PDF</html>");
+        JPanel historyTitlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel histIcon = new JLabel("📜");
+        histIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        JLabel histText = new JLabel("Lịch sử mua hàng:");
+        histText.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        historyTitlePanel.add(histIcon);
+        historyTitlePanel.add(histText);
+        historyHeader.add(historyTitlePanel, BorderLayout.WEST);
+
+        JButton btnExportPdf = new JButton(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>📄</font>&nbsp;In&nbsp;PDF</td></tr></table></html>");
         btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnExportPdf.addActionListener(e -> exportPdf());
         historyHeader.add(btnExportPdf, BorderLayout.EAST);
-        
+
         historyPanel.add(historyHeader, BorderLayout.NORTH);
         historyPanel.add(new JScrollPane(historyTable), BorderLayout.CENTER);
         split.setBottomComponent(historyPanel);
@@ -280,7 +313,7 @@ public class CustomerManagerPanel extends JPanel {
         try {
             InvoiceDTO inv = currentHistory.get(row);
             java.util.List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
-            
+
             CustomerDTO customer = null;
             if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
                 customer = customerBLL.getById(inv.getCustomerId());
@@ -289,14 +322,14 @@ public class CustomerManagerPanel extends JPanel {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Lưu Hóa Đơn PDF");
             fileChooser.setSelectedFile(new java.io.File(inv.getInvoiceCode() + ".pdf"));
-            
+
             if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 java.io.File file = fileChooser.getSelectedFile();
                 String path = file.getAbsolutePath();
                 if (!path.toLowerCase().endsWith(".pdf")) {
                     path += ".pdf";
                 }
-                
+
                 com.handbagstore.utils.PdfExporter.exportInvoice(path, inv, details, customer);
                 JOptionPane.showMessageDialog(this, "Xuất PDF thành công!\n" + path);
             }

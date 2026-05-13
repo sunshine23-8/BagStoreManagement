@@ -19,10 +19,14 @@ public class ProfilePanel extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        JLabel lblTitle = new JLabel(
-                "<html><nobr><font face='Segoe UI Emoji'>👤</font> Thông tin cá nhân</nobr></html>");
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
-        add(lblTitle, BorderLayout.NORTH);
+        JPanel titlePanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+        JLabel lblIcon = new JLabel("👤");
+        lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 22));
+        JLabel lblText = new JLabel("Thông tin cá nhân");
+        lblText.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titlePanel.add(lblIcon);
+        titlePanel.add(lblText);
+        add(titlePanel, BorderLayout.NORTH);
 
         AccountDTO user = AccountBLL.getCurrentUser();
         boolean isStaff = user != null && user.isStaff();
@@ -39,16 +43,25 @@ public class ProfilePanel extends JPanel {
 
         // AccountDTO user = AccountBLL.getCurrentUser(); // Moved up
 
-        addInfoField(infoPanel, "Tên đăng nhập:", txtUsername = new JTextField(user.getUsername()), 0, gbc);
-        addInfoField(infoPanel, "Họ và tên:", txtFullName = new JTextField(user.getFullName()), 1, gbc);
-        addInfoField(infoPanel, "Vai trò:", txtRole = new JTextField(user.getRole()), 2, gbc);
-        addInfoField(infoPanel, "Ngày tham gia:",
+        addInfoField(infoPanel, "<html><nobr>Tên&nbsp;đăng&nbsp;nhập:</nobr></html>",
+                txtUsername = new JTextField(user.getUsername()), 0, gbc);
+        addInfoField(infoPanel, "<html><nobr>Họ&nbsp;và&nbsp;tên:</nobr></html>",
+                txtFullName = new JTextField(user.getFullName()), 1, gbc);
+        addInfoField(infoPanel, "<html><nobr>Vai&nbsp;trò:</nobr></html>", txtRole = new JTextField(user.getRole()), 2,
+                gbc);
+        addInfoField(infoPanel, "<html><nobr>Ngày&nbsp;tham&nbsp;gia:</nobr></html>",
                 txtCreatedAt = new JTextField(user.getCreatedAt().toString().replace("T", " ")), 3, gbc);
 
         txtUsername.setEditable(false);
         txtFullName.setEditable(false);
         txtRole.setEditable(false);
         txtCreatedAt.setEditable(false);
+
+        // Ngăn chặn hoàn toàn việc nhấp chuột/focus vào các ô này
+        txtUsername.setFocusable(false);
+        txtFullName.setFocusable(false);
+        txtRole.setFocusable(false);
+        txtCreatedAt.setFocusable(false);
 
         mainContent.add(infoPanel);
 
