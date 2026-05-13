@@ -10,6 +10,8 @@ import com.handbagstore.utils.CurrencyUtils;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -135,6 +137,13 @@ public class SalePanel extends JPanel {
         addPanel.add(new JLabel("SL:"));
         spnQuantity = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         addPanel.add(spnQuantity);
+
+        productTable.getSelectionModel().addListSelectionListener(e -> {
+            if (!e.getValueIsAdjusting()) {
+                spnQuantity.setValue(1);
+            }
+        });
+
         btnAddToCart = new JButton("➕ Thêm vào đơn");
         btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
@@ -298,6 +307,7 @@ public class SalePanel extends JPanel {
         // Action buttons
         JPanel actionRow = new JPanel(new GridLayout(1, 3, 5, 5));
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
+        
         btnPayNow = new JButton("💰 Thanh toán ngay");
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
@@ -309,6 +319,10 @@ public class SalePanel extends JPanel {
         btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());
+
+        JButton btnExportPdf = new JButton("📄 Xuất PDF");
+        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnExportPdf.addActionListener(e -> exportPdf());
 
         actionRow.add(btnPayNow);
         actionRow.add(btnPending);
