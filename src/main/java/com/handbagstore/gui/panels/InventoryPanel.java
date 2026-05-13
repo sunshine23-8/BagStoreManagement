@@ -66,21 +66,19 @@ public class InventoryPanel extends JPanel {
 
         cmbProduct = new JComboBox<>();
         txtQty = new JTextField();
-<<<<<<< HEAD
-        txtCostPrice = new JTextField();
-=======
         txtQty.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+                if (!Character.isDigit(evt.getKeyChar()))
+                    evt.consume();
             }
         });
         txtCostPrice = new JTextField();
         txtCostPrice.addKeyListener(new java.awt.event.KeyAdapter() {
             public void keyTyped(java.awt.event.KeyEvent evt) {
-                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+                if (!Character.isDigit(evt.getKeyChar()))
+                    evt.consume();
             }
         });
->>>>>>> 3c1bb8d1a92203226a01382d45b4c2da7057f783
         txtNote = new JTextField();
 
         importForm.add(new JLabel("Sản phẩm:"));
@@ -93,13 +91,9 @@ public class InventoryPanel extends JPanel {
         importForm.add(txtNote);
 
         JButton btnImport = new JButton("📥 Nhập kho");
-<<<<<<< HEAD
+        btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnImport.setBackground(new Color(40, 167, 69));
         btnImport.setForeground(Color.WHITE);
-=======
-        btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnImport.setBackground(new Color(40, 167, 69)); btnImport.setForeground(Color.WHITE);
->>>>>>> 3c1bb8d1a92203226a01382d45b4c2da7057f783
         btnImport.addActionListener(e -> importStock());
 
         JPanel importTop = new JPanel(new BorderLayout());
