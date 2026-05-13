@@ -3,6 +3,7 @@ package com.handbagstore.gui.panels;
 import com.handbagstore.bll.CustomerBLL;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.dto.InvoiceDTO;
+import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
@@ -71,8 +72,16 @@ public class CustomerManagerPanel extends JPanel {
         JPanel form = new JPanel(new GridLayout(1, 6, 10, 5));
         form.setBorder(BorderFactory.createTitledBorder("Thông tin khách hàng"));
         txtName = new JTextField(); txtPhone = new JTextField();
-        txtBirthday = new JTextField();
-        txtBirthday.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
+        txtBirthday = new JTextField(); txtBirthday.setEditable(false);
+        txtBirthday.putClientProperty("JTextField.placeholderText", "Chọn ngày sinh...");
+        txtBirthday.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        txtBirthday.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                LocalDate current = DateUtils.parseDate(txtBirthday.getText());
+                LocalDate picked = DateChooser.showDialog(CustomerManagerPanel.this, current);
+                if (picked != null) txtBirthday.setText(DateUtils.formatDate(picked));
+            }
+        });
         form.add(new JLabel("Họ tên:")); form.add(txtName);
         form.add(new JLabel("SĐT:")); form.add(txtPhone);
         form.add(new JLabel("Sinh nhật:")); form.add(txtBirthday);
