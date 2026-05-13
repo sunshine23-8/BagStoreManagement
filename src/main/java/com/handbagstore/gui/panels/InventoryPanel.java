@@ -9,7 +9,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class InventoryPanel extends JPanel {
@@ -44,9 +44,13 @@ public class InventoryPanel extends JPanel {
         lblLowStockWarning.setFont(new Font("Segoe UI", Font.BOLD, 13));
         stockPanel.add(lblLowStockWarning, BorderLayout.NORTH);
 
-        String[] stockCols = {"Mã SP", "Tên SP", "Thương hiệu", "Tổng kho", "Đang giữ", "Khả dụng", "Giá vốn", "Giá bán"};
+        String[] stockCols = { "Mã SP", "Tên SP", "Thương hiệu", "Tổng kho", "Đang giữ", "Khả dụng", "Giá vốn",
+                "Giá bán" };
         stockModel = new DefaultTableModel(stockCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
@@ -59,15 +63,22 @@ public class InventoryPanel extends JPanel {
         importForm.setBorder(BorderFactory.createTitledBorder("Nhập kho mới"));
 
         cmbProduct = new JComboBox<>();
-        txtQty = new JTextField(); txtCostPrice = new JTextField(); txtNote = new JTextField();
+        txtQty = new JTextField();
+        txtCostPrice = new JTextField();
+        txtNote = new JTextField();
 
-        importForm.add(new JLabel("Sản phẩm:")); importForm.add(cmbProduct);
-        importForm.add(new JLabel("Số lượng:")); importForm.add(txtQty);
-        importForm.add(new JLabel("Giá vốn:")); importForm.add(txtCostPrice);
-        importForm.add(new JLabel("Ghi chú:")); importForm.add(txtNote);
+        importForm.add(new JLabel("Sản phẩm:"));
+        importForm.add(cmbProduct);
+        importForm.add(new JLabel("Số lượng:"));
+        importForm.add(txtQty);
+        importForm.add(new JLabel("Giá vốn:"));
+        importForm.add(txtCostPrice);
+        importForm.add(new JLabel("Ghi chú:"));
+        importForm.add(txtNote);
 
         JButton btnImport = new JButton("📥 Nhập kho");
-        btnImport.setBackground(new Color(40, 167, 69)); btnImport.setForeground(Color.WHITE);
+        btnImport.setBackground(new Color(40, 167, 69));
+        btnImport.setForeground(Color.WHITE);
         btnImport.addActionListener(e -> importStock());
 
         JPanel importTop = new JPanel(new BorderLayout());
@@ -75,9 +86,12 @@ public class InventoryPanel extends JPanel {
         importTop.add(btnImport, BorderLayout.EAST);
         importPanel.add(importTop, BorderLayout.NORTH);
 
-        String[] importCols = {"Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú"};
+        String[] importCols = { "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
         importModel = new DefaultTableModel(importCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         importTable = new JTable(importModel);
         importTable.setRowHeight(28);
@@ -93,10 +107,10 @@ public class InventoryPanel extends JPanel {
             stockModel.setRowCount(0);
             List<InventoryLogDTO> stocks = inventoryBLL.getAll();
             for (InventoryLogDTO s : stocks) {
-                stockModel.addRow(new Object[]{
-                    s.getProductCode(), s.getProductName(), s.getBrand(),
-                    s.getQuantity(), s.getReservedQty(), s.getAvailableQty(),
-                    s.getCostPrice(), s.getSellPrice()
+                stockModel.addRow(new Object[] {
+                        s.getProductCode(), s.getProductName(), s.getBrand(),
+                        s.getQuantity(), s.getReservedQty(), s.getAvailableQty(),
+                        s.getCostPrice(), s.getSellPrice()
                 });
             }
 
@@ -116,15 +130,24 @@ public class InventoryPanel extends JPanel {
             // Load product combo
             cmbProduct.removeAllItems();
             List<ProductDTO> products = productBLL.getAll(false);
-            for (ProductDTO p : products) cmbProduct.addItem(p);
+            for (ProductDTO p : products)
+                cmbProduct.addItem(p);
 
             // Import history
             importModel.setRowCount(0);
             List<ImportBatchDTO> imports = inventoryBLL.getImportHistory();
+
+            java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter
+                    .ofPattern("dd/MM/yyyy HH:mm:ss");
+
             for (ImportBatchDTO b : imports) {
-                importModel.addRow(new Object[]{
-                    b.getProductName(), b.getQuantity(), b.getCostPrice(),
-                    b.getImportDate(), b.getCreatedByName(), b.getNote()
+                String formattedDate = "";
+                if (b.getImportDate() != null) {
+                    formattedDate = b.getImportDate().format(formatter);
+                }
+                importModel.addRow(new Object[] {
+                        b.getProductName(), b.getQuantity(), b.getCostPrice(),
+                        formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }
         } catch (Exception ex) {
@@ -133,8 +156,10 @@ public class InventoryPanel extends JPanel {
     }
 
     private void importStock() {
-        if (cmbProduct.getSelectedItem() == null || txtQty.getText().trim().isEmpty() || txtCostPrice.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin nhập kho.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (cmbProduct.getSelectedItem() == null || txtQty.getText().trim().isEmpty()
+                || txtCostPrice.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin nhập kho.", "Thông báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
@@ -144,13 +169,15 @@ public class InventoryPanel extends JPanel {
             batch.setProductId(selected.getProductId());
             batch.setQuantity(Integer.parseInt(txtQty.getText().trim()));
             batch.setCostPrice(new BigDecimal(txtCostPrice.getText().trim()));
-            batch.setImportDate(LocalDate.now());
+            batch.setImportDate(LocalDateTime.now());
             batch.setNote(txtNote.getText().trim());
             batch.setCreatedBy(AccountBLL.getCurrentUser().getAccountId());
 
             inventoryBLL.importStock(batch);
             JOptionPane.showMessageDialog(this, "Nhập kho thành công!");
-            txtQty.setText(""); txtCostPrice.setText(""); txtNote.setText("");
+            txtQty.setText("");
+            txtCostPrice.setText("");
+            txtNote.setText("");
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
