@@ -48,10 +48,13 @@ public class ProductManagerPanel extends JPanel {
         add(topPanel, BorderLayout.NORTH);
 
         // === CENTER: Table ===
-        String[] columns = {"Mã SP", "Tên sản phẩm", "Thương hiệu", "Đơn giá", "Kiểu dáng",
-                            "Chất liệu", "Màu sắc", "Tồn kho", "Trạng thái"};
+        String[] columns = { "Mã SP", "Tên sản phẩm", "Thương hiệu", "Đơn giá", "Kiểu dáng",
+                "Chất liệu", "Màu sắc", "Tồn kho", "Trạng thái" };
         tableModel = new DefaultTableModel(columns, 0) {
-            @Override public boolean isCellEditable(int row, int col) { return false; }
+            @Override
+            public boolean isCellEditable(int row, int col) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(30);
@@ -70,21 +73,32 @@ public class ProductManagerPanel extends JPanel {
         JPanel formPanel = new JPanel(new GridLayout(4, 4, 10, 8));
         formPanel.setBorder(BorderFactory.createTitledBorder("Thông tin sản phẩm"));
 
-        txtCode = new JTextField(); txtName = new JTextField();
-        txtBrand = new JTextField(); txtPrice = new JTextField();
+        txtCode = new JTextField();
+        txtName = new JTextField();
+        txtBrand = new JTextField();
+        txtPrice = new JTextField();
         txtColor = new JTextField();
-        cmbStyle = new JComboBox<>(new String[]{"Tote", "Crossbody", "Backpack", "Clutch"});
-        cmbMaterial = new JComboBox<>(new String[]{"Da thật", "PU", "Canvas"});
-        cmbStatus = new JComboBox<>(new String[]{"ACTIVE", "INACTIVE"});
+        cmbStyle = new JComboBox<>(new String[] { "Tote", "Crossbody", "Backpack", "Clutch" });
+        cmbMaterial = new JComboBox<>(new String[] { "Da thật", "PU", "Canvas" });
+        cmbStatus = new JComboBox<>(new String[] { "ACTIVE", "INACTIVE" });
+        cmbStatus.setEnabled(false);
 
-        formPanel.add(new JLabel("Mã SP:")); formPanel.add(txtCode);
-        formPanel.add(new JLabel("Tên:")); formPanel.add(txtName);
-        formPanel.add(new JLabel("Thương hiệu:")); formPanel.add(txtBrand);
-        formPanel.add(new JLabel("Đơn giá:")); formPanel.add(txtPrice);
-        formPanel.add(new JLabel("Kiểu dáng:")); formPanel.add(cmbStyle);
-        formPanel.add(new JLabel("Chất liệu:")); formPanel.add(cmbMaterial);
-        formPanel.add(new JLabel("Màu sắc:")); formPanel.add(txtColor);
-        formPanel.add(new JLabel("Trạng thái:")); formPanel.add(cmbStatus);
+        formPanel.add(new JLabel("Mã SP:"));
+        formPanel.add(txtCode);
+        formPanel.add(new JLabel("Tên:"));
+        formPanel.add(txtName);
+        formPanel.add(new JLabel("Thương hiệu:"));
+        formPanel.add(txtBrand);
+        formPanel.add(new JLabel("Đơn giá:"));
+        formPanel.add(txtPrice);
+        formPanel.add(new JLabel("Kiểu dáng:"));
+        formPanel.add(cmbStyle);
+        formPanel.add(new JLabel("Chất liệu:"));
+        formPanel.add(cmbMaterial);
+        formPanel.add(new JLabel("Màu sắc:"));
+        formPanel.add(txtColor);
+        formPanel.add(new JLabel("Trạng thái:"));
+        formPanel.add(cmbStatus);
 
         bottomPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -92,20 +106,25 @@ public class ProductManagerPanel extends JPanel {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         btnAdd = new JButton("➕ Thêm");
         btnUpdate = new JButton("✏️ Sửa");
-        btnDelete = new JButton("🗑 Ngừng KD");
+        btnDelete = new JButton("🗑 Ngừng kinh doanh");
         btnClear = new JButton("🔄 Làm mới");
 
-        btnAdd.setBackground(new Color(40, 167, 69)); btnAdd.setForeground(Color.WHITE);
-        btnUpdate.setBackground(new Color(255, 193, 7)); btnUpdate.setForeground(Color.BLACK);
-        btnDelete.setBackground(new Color(220, 53, 69)); btnDelete.setForeground(Color.WHITE);
+        btnAdd.setBackground(new Color(40, 167, 69));
+        btnAdd.setForeground(Color.WHITE);
+        btnUpdate.setBackground(new Color(255, 193, 7));
+        btnUpdate.setForeground(Color.BLACK);
+        btnDelete.setBackground(new Color(220, 53, 69));
+        btnDelete.setForeground(Color.WHITE);
 
         btnAdd.addActionListener(e -> addProduct());
         btnUpdate.addActionListener(e -> updateProduct());
         btnDelete.addActionListener(e -> deleteProduct());
         btnClear.addActionListener(e -> clearForm());
 
-        btnPanel.add(btnAdd); btnPanel.add(btnUpdate);
-        btnPanel.add(btnDelete); btnPanel.add(btnClear);
+        btnPanel.add(btnAdd);
+        btnPanel.add(btnUpdate);
+        btnPanel.add(btnDelete);
+        btnPanel.add(btnClear);
         bottomPanel.add(btnPanel, BorderLayout.SOUTH);
 
         add(bottomPanel, BorderLayout.SOUTH);
@@ -119,12 +138,13 @@ public class ProductManagerPanel extends JPanel {
                 int stock = 0;
                 try {
                     stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                } catch (Exception ignored) {}
+                } catch (Exception ignored) {
+                }
 
-                tableModel.addRow(new Object[]{
-                    p.getProductCode(), p.getName(), p.getBrand(),
-                    p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
-                    stock, p.getStatus()
+                tableModel.addRow(new Object[] {
+                        p.getProductCode(), p.getName(), p.getBrand(),
+                        p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
+                        stock, p.getStatus()
                 });
             }
         } catch (Exception ex) {
@@ -134,16 +154,19 @@ public class ProductManagerPanel extends JPanel {
 
     private void searchProducts() {
         String keyword = txtSearch.getText().trim();
-        if (keyword.isEmpty()) { refreshData(); return; }
+        if (keyword.isEmpty()) {
+            refreshData();
+            return;
+        }
         try {
             tableModel.setRowCount(0);
             List<ProductDTO> products = productBLL.search(keyword);
             for (ProductDTO p : products) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                tableModel.addRow(new Object[]{
-                    p.getProductCode(), p.getName(), p.getBrand(),
-                    p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
-                    stock, p.getStatus()
+                tableModel.addRow(new Object[] {
+                        p.getProductCode(), p.getName(), p.getBrand(),
+                        p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
+                        stock, p.getStatus()
                 });
             }
         } catch (Exception ex) {
@@ -153,7 +176,8 @@ public class ProductManagerPanel extends JPanel {
 
     private void loadSelectedRow() {
         int row = table.getSelectedRow();
-        if (row < 0) return;
+        if (row < 0)
+            return;
         txtCode.setText((String) tableModel.getValueAt(row, 0));
         txtName.setText((String) tableModel.getValueAt(row, 1));
         txtBrand.setText((String) tableModel.getValueAt(row, 2));
@@ -161,14 +185,24 @@ public class ProductManagerPanel extends JPanel {
         cmbStyle.setSelectedItem(tableModel.getValueAt(row, 4));
         cmbMaterial.setSelectedItem(tableModel.getValueAt(row, 5));
         txtColor.setText((String) tableModel.getValueAt(row, 6));
-        cmbStatus.setSelectedItem(tableModel.getValueAt(row, 8));
+        String status = (String) tableModel.getValueAt(row, 8);
+        cmbStatus.setSelectedItem(status);
+
+        if ("INACTIVE".equals(status)) {
+            btnDelete.setText("🔄 Kinh doanh tiếp");
+            btnDelete.setBackground(new Color(40, 167, 69));
+        } else {
+            btnDelete.setText("🗑 Ngừng kinh doanh");
+            btnDelete.setBackground(new Color(220, 53, 69));
+        }
     }
 
     private void addProduct() {
         if (txtCode.getText().trim().isEmpty() || txtName.getText().trim().isEmpty() ||
-            txtBrand.getText().trim().isEmpty() || txtPrice.getText().trim().isEmpty() ||
-            txtColor.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin sản phẩm.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                txtBrand.getText().trim().isEmpty() || txtPrice.getText().trim().isEmpty() ||
+                txtColor.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin sản phẩm.", "Thông báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
@@ -184,11 +218,15 @@ public class ProductManagerPanel extends JPanel {
 
     private void updateProduct() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm!"); return; }
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm!");
+            return;
+        }
         try {
             String code = (String) tableModel.getValueAt(row, 0);
             ProductDTO existing = productBLL.getByCode(code);
-            if (existing == null) return;
+            if (existing == null)
+                return;
 
             ProductDTO p = getFormData();
             p.setProductId(existing.getProductId());
@@ -202,14 +240,28 @@ public class ProductManagerPanel extends JPanel {
 
     private void deleteProduct() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm!"); return; }
-        int confirm = JOptionPane.showConfirmDialog(this,
-                "Ngừng kinh doanh sản phẩm này?", "Xác nhận", JOptionPane.YES_NO_OPTION);
-        if (confirm != JOptionPane.YES_OPTION) return;
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn sản phẩm!");
+            return;
+        }
+
+        String status = (String) tableModel.getValueAt(row, 8);
+        String msg = "ACTIVE".equals(status) ? "Ngừng kinh doanh sản phẩm này?" : "Tiếp tục kinh doanh sản phẩm này?";
+
+        int confirm = JOptionPane.showConfirmDialog(this, msg, "Xác nhận", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION)
+            return;
+
         try {
             String code = (String) tableModel.getValueAt(row, 0);
             ProductDTO existing = productBLL.getByCode(code);
-            if (existing != null) productBLL.softDelete(existing.getProductId());
+            if (existing != null) {
+                if ("ACTIVE".equals(status)) {
+                    productBLL.softDelete(existing.getProductId());
+                } else {
+                    productBLL.restore(existing.getProductId());
+                }
+            }
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -230,10 +282,16 @@ public class ProductManagerPanel extends JPanel {
     }
 
     private void clearForm() {
-        txtCode.setText(""); txtName.setText(""); txtBrand.setText("");
-        txtPrice.setText(""); txtColor.setText("");
-        cmbStyle.setSelectedIndex(0); cmbMaterial.setSelectedIndex(0);
+        txtCode.setText("");
+        txtName.setText("");
+        txtBrand.setText("");
+        txtPrice.setText("");
+        txtColor.setText("");
+        cmbStyle.setSelectedIndex(0);
+        cmbMaterial.setSelectedIndex(0);
         cmbStatus.setSelectedIndex(0);
+        btnDelete.setText("🗑 Ngừng kinh doanh");
+        btnDelete.setBackground(new Color(220, 53, 69));
         table.clearSelection();
     }
 }
