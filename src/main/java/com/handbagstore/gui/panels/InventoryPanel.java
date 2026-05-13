@@ -133,9 +133,12 @@ public class InventoryPanel extends JPanel {
     }
 
     private void importStock() {
+        if (cmbProduct.getSelectedItem() == null || txtQty.getText().trim().isEmpty() || txtCostPrice.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin nhập kho.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
             ProductDTO selected = (ProductDTO) cmbProduct.getSelectedItem();
-            if (selected == null) { JOptionPane.showMessageDialog(this, "Chọn sản phẩm!"); return; }
 
             ImportBatchDTO batch = new ImportBatchDTO();
             batch.setProductId(selected.getProductId());

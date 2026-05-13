@@ -1,17 +1,10 @@
 package com.handbagstore.dal;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
-
 import com.handbagstore.dto.ImportBatchDTO;
 import com.handbagstore.dto.InventoryLogDTO;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class InventoryDAL {
     private Connection getConnection() throws SQLException {
@@ -44,7 +37,7 @@ public class InventoryDAL {
     public List<InventoryLogDTO> getAll() throws SQLException {
         String sql = "SELECT i.*, p.product_code, p.name AS product_name, p.brand, p.price AS sell_price " +
                      "FROM inventory i JOIN products p ON i.product_id = p.product_id " +
-                     "WHERE p.status = 'ACTIVE' ORDER BY p.product_code ASC";
+                     "WHERE p.status = 'ACTIVE' ORDER BY p.name";
         List<InventoryLogDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {

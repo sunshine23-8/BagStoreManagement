@@ -76,6 +76,10 @@ public class StaffManagerPanel extends JPanel {
     }
 
     private void createAccount() {
+        if (txtUsername.getText().trim().isEmpty() || txtPassword.getText().trim().isEmpty() || txtFullName.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin tài khoản!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
             accountBLL.createStaffAccount(txtUsername.getText().trim(),
                     txtPassword.getText().trim(), txtFullName.getText().trim());
