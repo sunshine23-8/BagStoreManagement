@@ -48,6 +48,13 @@
             <version>0.4</version>
         </dependency>
 
+        <!-- JFreeChart - Statistics Charts -->
+        <dependency>
+            <groupId>org.jfree</groupId>
+            <artifactId>jfreechart</artifactId>
+            <version>1.5.4</version>
+        </dependency>
+
         <!-- JUnit 5 - Testing -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>

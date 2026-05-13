@@ -15,6 +15,7 @@ public class StaffManagerPanel extends JPanel {
     private JTextField txtUsername, txtFullName, txtPassword, txtSearch;
     private JComboBox<String> cmbStatusFilter;
     private TableRowSorter<DefaultTableModel> sorter;
+    private JPanel formPanel;
     private final AccountBLL accountBLL = new AccountBLL();
 
     public StaffManagerPanel() {
@@ -44,6 +45,7 @@ public class StaffManagerPanel extends JPanel {
         sorter = new TableRowSorter<>(tableModel);
         table.setRowSorter(sorter);
 
+        table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Filter panel
@@ -68,22 +70,22 @@ public class StaffManagerPanel extends JPanel {
 
         // Form
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 5));
-        JPanel form = new JPanel(new GridLayout(2, 3, 10, 5));
-        form.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
+        formPanel = new JPanel(new GridLayout(2, 3, 10, 5));
+        formPanel.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
         
         txtFullName = new JTextField();
         txtUsername = new JTextField();
         txtPassword = new JPasswordField(); // Use password field for security
 
-        form.add(new JLabel("Họ tên nhân viên:"));
-        form.add(new JLabel("Tên tài khoản:"));
-        form.add(new JLabel("Mật khẩu:"));
+        formPanel.add(new JLabel("Họ tên nhân viên:"));
+        formPanel.add(new JLabel("Tên tài khoản:"));
+        formPanel.add(new JLabel("Mật khẩu:"));
         
-        form.add(txtFullName);
-        form.add(txtUsername);
-        form.add(txtPassword);
+        formPanel.add(txtFullName);
+        formPanel.add(txtUsername);
+        formPanel.add(txtPassword);
         
-        bottomPanel.add(form, BorderLayout.CENTER);
+        bottomPanel.add(formPanel, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnCreate = new JButton("➕ Tạo tài khoản");
@@ -92,17 +94,24 @@ public class StaffManagerPanel extends JPanel {
         btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
+        JButton btnUpdate = new JButton("✏️ Cập nhật");
+        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnUpdate.setBackground(new Color(13, 110, 253)); // Blue
+        btnUpdate.setForeground(Color.WHITE);
+        btnUpdate.addActionListener(e -> updateAccount());
+
         JButton btnReset = new JButton("🔑 Reset mật khẩu");
         btnReset.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnReset.addActionListener(e -> resetPassword());
 
         JButton btnToggle = new JButton("🔒 Khóa/Mở khóa");
         btnToggle.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnToggle.setBackground(new Color(13, 110, 253));
+        btnToggle.setBackground(new Color(220, 53, 69)); // Red
         btnToggle.setForeground(Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 
         btnPanel.add(btnCreate);
+        btnPanel.add(btnUpdate);
         btnPanel.add(btnReset);
         btnPanel.add(btnToggle);
         bottomPanel.add(btnPanel, BorderLayout.SOUTH);
@@ -176,6 +185,56 @@ public class StaffManagerPanel extends JPanel {
             String status = (String) tableModel.getValueAt(row, 3);
             boolean newActive = "Đã khóa".equals(status);
             accountBLL.toggleActive(id, newActive);
+            refreshData();
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void loadSelectedRow() {
+        int row = table.getSelectedRow();
+        if (row < 0) {
+            clearForm();
+            return;
+        }
+        try {
+            txtUsername.setText((String) tableModel.getValueAt(row, 1));
+            txtFullName.setText((String) tableModel.getValueAt(row, 2));
+            txtPassword.setText("");
+            formPanel.setBorder(BorderFactory.createTitledBorder("Cập nhật tài khoản Staff"));
+            formPanel.repaint();
+        } catch (Exception ignored) {}
+    }
+
+    private void clearForm() {
+        txtUsername.setText("");
+        txtFullName.setText("");
+        txtPassword.setText("");
+        if (formPanel != null) {
+            formPanel.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
+            formPanel.repaint();
+        }
+    }
+
+    private void updateAccount() {
+        int row = table.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Chọn nhân viên cần cập nhật!");
+            return;
+        }
+
+        String fullName = txtFullName.getText().trim();
+        String username = txtUsername.getText().trim();
+
+        if (fullName.isEmpty() || username.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Họ tên và Tên tài khoản không được để trống!");
+            return;
+        }
+
+        try {
+            int id = (int) tableModel.getValueAt(row, 0);
+            accountBLL.updateStaffAccount(id, username, fullName);
+            JOptionPane.showMessageDialog(this, "Cập nhật tài khoản thành công!");
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);

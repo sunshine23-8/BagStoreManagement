@@ -25,6 +25,18 @@ public class StatisticBLL {
         return statisticDAL.getTopProducts(from, to, limit);
     }
 
+    public Map<String, BigDecimal> getRevenueByDateRange(java.sql.Date from, java.sql.Date to) throws SQLException {
+        return statisticDAL.getRevenueByDateRange(from, to);
+    }
+
+    public Map<Integer, BigDecimal> getRevenueByMonthsInYear(int year) throws SQLException {
+        return statisticDAL.getRevenueByMonthsInYear(year);
+    }
+
+    public Map<Integer, BigDecimal> getRevenueByRecentYears(int limit) throws SQLException {
+        return statisticDAL.getRevenueByRecentYears(limit);
+    }
+
     public List<Object[]> getInventoryStock() throws SQLException {
         return statisticDAL.getInventoryStock();
     }

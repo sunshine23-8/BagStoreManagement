@@ -142,6 +142,19 @@ public class AccountDAL {
     }
 
     /**
+     * Cập nhật thông tin nhân viên.
+     */
+    public void updateStaffInfo(int accountId, String fullName, String username) throws SQLException {
+        String sql = "UPDATE accounts SET full_name = ?, username = ? WHERE account_id = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, fullName);
+            ps.setString(2, username);
+            ps.setInt(3, accountId);
+            ps.executeUpdate();
+        }
+    }
+
+    /**
      * Map ResultSet → AccountDTO.
      */
     private AccountDTO mapResultSet(ResultSet rs) throws SQLException {

@@ -86,7 +86,9 @@ public class ProfilePanel extends JPanel {
         passPanel.add(btnChange, gbc);
 
         mainContent.add(passPanel);
-        add(mainContent, BorderLayout.CENTER);
+        JPanel wrapper = new JPanel(new BorderLayout());
+        wrapper.add(mainContent, BorderLayout.NORTH);
+        add(wrapper, BorderLayout.CENTER);
     }
 
     private void addInfoField(JPanel panel, String label, JTextField field, int y, GridBagConstraints gbc) {
