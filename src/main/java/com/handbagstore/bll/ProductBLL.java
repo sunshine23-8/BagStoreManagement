@@ -20,6 +20,10 @@ public class ProductBLL {
         return productDAL.getAll(includeInactive);
     }
 
+    public String getNextProductCode() throws SQLException {
+        return productDAL.getNextProductCode();
+    }
+
     public ProductDTO getByCode(String code) throws SQLException {
         return productDAL.getByCode(code);
     }
