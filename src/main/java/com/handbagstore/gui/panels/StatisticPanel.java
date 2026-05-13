@@ -25,6 +25,16 @@ import org.jfree.chart.renderer.category.StandardBarPainter;
 import org.jfree.chart.axis.NumberTickUnit;
 import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import org.jfree.data.general.DefaultPieDataset;
+import org.jfree.chart.plot.PiePlot;
+import org.jfree.chart.labels.StandardPieSectionLabelGenerator;
+import org.jfree.chart.labels.StandardPieToolTipGenerator;
+import org.jfree.chart.ChartMouseEvent;
+import org.jfree.chart.ChartMouseListener;
+import org.jfree.chart.entity.ChartEntity;
+import org.jfree.chart.entity.PieSectionEntity;
 
 public class StatisticPanel extends JPanel {
     private JLabel lblDailyRevenue, lblMonthlyRevenue;
@@ -58,6 +68,13 @@ public class StatisticPanel extends JPanel {
 
         // Card doanh thu ngày
         JPanel dailyCard = createRevenueCard("💰 Doanh thu hôm nay");
+        dailyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        dailyCard.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showDailyRevenueDetails();
+            }
+        });
         lblDailyRevenue = new JLabel("0đ");
         lblDailyRevenue.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblDailyRevenue.setForeground(new Color(40, 167, 69));
@@ -66,6 +83,13 @@ public class StatisticPanel extends JPanel {
 
         // Card doanh thu tháng
         JPanel monthlyCard = createRevenueCard("📅 Doanh thu tháng này");
+        monthlyCard.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        monthlyCard.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                showMonthlyRevenueDetails();
+            }
+        });
         lblMonthlyRevenue = new JLabel("0đ");
         lblMonthlyRevenue.setFont(new Font("Segoe UI", Font.BOLD, 24));
         lblMonthlyRevenue.setForeground(new Color(64, 133, 240));
@@ -322,6 +346,113 @@ public class StatisticPanel extends JPanel {
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void showDailyRevenueDetails() {
+        LocalDate today = LocalDate.now();
+        showProductRevenuePieChart(today, today, "Phân bổ doanh thu theo sản phẩm hôm nay", "Chi tiết doanh thu hôm nay");
+    }
+
+    private void showMonthlyRevenueDetails() {
+        LocalDate now = LocalDate.now();
+        LocalDate from = now.withDayOfMonth(1);
+        LocalDate to = now.withDayOfMonth(now.lengthOfMonth());
+        showProductRevenuePieChart(from, to, "Phân bổ doanh thu theo sản phẩm tháng này", "Chi tiết doanh thu tháng này");
+    }
+
+    private void showProductRevenuePieChart(LocalDate from, LocalDate to, String chartTitle, String dialogTitle) {
+        try {
+            List<Object[]> productRevenue = statisticBLL.getTopProducts(Date.valueOf(from), Date.valueOf(to), Integer.MAX_VALUE);
+            
+            if (productRevenue == null || productRevenue.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không có doanh thu trong khoảng thời gian này để hiển thị biểu đồ.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            final DefaultPieDataset dataset = new DefaultPieDataset();
+            for (Object[] row : productRevenue) {
+                String productName = (String) row[1];
+                BigDecimal revenue = (BigDecimal) row[3];
+                if (revenue != null && revenue.compareTo(BigDecimal.ZERO) > 0) {
+                    dataset.setValue(productName, revenue);
+                }
+            }
+
+            if (dataset.getItemCount() == 0) {
+                JOptionPane.showMessageDialog(this, "Không có doanh thu trong khoảng thời gian này để hiển thị biểu đồ.", "Thông báo", JOptionPane.INFORMATION_MESSAGE);
+                return;
+            }
+
+            JFreeChart chart = ChartFactory.createPieChart(
+                chartTitle,
+                dataset,
+                false, // Legend
+                true,  // Tooltips
+                false  // URLs
+            );
+
+            chart.setBackgroundPaint(Color.WHITE);
+            chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 18));
+
+            PiePlot plot = (PiePlot) chart.getPlot();
+            plot.setBackgroundPaint(Color.WHITE);
+            plot.setOutlineVisible(false);
+            plot.setShadowPaint(null);
+            plot.setLabelGenerator(null);
+            
+            plot.setToolTipGenerator(new StandardPieToolTipGenerator(
+                "{0}: {1}đ ({2})",
+                new DecimalFormat("#,###"),
+                new DecimalFormat("0.0%")
+            ));
+
+            JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), dialogTitle, true);
+            dialog.setLayout(new BorderLayout(10, 10));
+            
+            JLabel lblInfo = new JLabel("Di chuột vào từng phần của biểu đồ để xem chi tiết", SwingConstants.CENTER);
+            lblInfo.setFont(new Font("Segoe UI", Font.BOLD, 15));
+            lblInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+            lblInfo.setForeground(new Color(100, 100, 100));
+            dialog.add(lblInfo, BorderLayout.SOUTH);
+
+            ChartPanel chartPanel = new ChartPanel(chart);
+            chartPanel.setDisplayToolTips(true); 
+            chartPanel.setInitialDelay(0);
+            
+            chartPanel.addChartMouseListener(new ChartMouseListener() {
+                @Override
+                public void chartMouseMoved(ChartMouseEvent event) {
+                    ChartEntity entity = event.getEntity();
+                    if (entity instanceof PieSectionEntity) {
+                        PieSectionEntity pieEntity = (PieSectionEntity) entity;
+                        String key = (String) pieEntity.getSectionKey();
+                        Number value = dataset.getValue(key);
+                        double total = 0;
+                        for (int i = 0; i < dataset.getItemCount(); i++) {
+                            total += dataset.getValue(i).doubleValue();
+                        }
+                        double percent = (value.doubleValue() / total) * 100;
+                        
+                        lblInfo.setText(String.format("📦 %s: %sđ (%.1f%%)", 
+                            key, new DecimalFormat("#,###").format(value), percent));
+                        lblInfo.setForeground(new Color(13, 110, 253));
+                    } else {
+                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết");
+                        lblInfo.setForeground(new Color(100, 100, 100));
+                    }
+                }
+                @Override public void chartMouseClicked(ChartMouseEvent event) {}
+            });
+
+            chartPanel.setPreferredSize(new Dimension(800, 600));
+            dialog.add(chartPanel, BorderLayout.CENTER);
+            dialog.pack();
+            dialog.setLocationRelativeTo(this);
+            dialog.setVisible(true);
+            
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi khi tải dữ liệu biểu đồ: " + ex.getMessage());
         }
     }
 }
