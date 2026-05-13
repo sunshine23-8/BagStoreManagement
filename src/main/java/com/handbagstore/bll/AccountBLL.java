@@ -17,15 +17,23 @@ public class AccountBLL {
     // Tài khoản đang đăng nhập (session)
     private static AccountDTO currentUser;
 
-    public static AccountDTO getCurrentUser() { return currentUser; }
-    public static void setCurrentUser(AccountDTO user) { currentUser = user; }
+    public static AccountDTO getCurrentUser() {
+        return currentUser;
+    }
+
+    public static void setCurrentUser(AccountDTO user) {
+        currentUser = user;
+    }
 
     /** Đăng nhập — trả về AccountDTO nếu thành công, null nếu thất bại */
     public AccountDTO login(String username, String password) throws SQLException {
         AccountDTO account = accountDAL.getByUsername(username);
-        if (account == null) return null;
-        if (!account.isActive()) throw new RuntimeException("Tài khoản đã bị khóa!");
-        if (!PasswordUtils.verify(password, account.getPasswordHash())) return null;
+        if (account == null)
+            return null;
+        if (!account.isActive())
+            throw new RuntimeException("Tài khoản đã bị khóa!");
+        if (!PasswordUtils.verify(password, account.getPasswordHash()))
+            return null;
 
         currentUser = account;
         logDAL.insert(new SystemLogDTO(account.getAccountId(), "ĐĂNG NHẬP", "Đăng nhập thành công"));
@@ -40,26 +48,44 @@ public class AccountBLL {
         }
     }
 
-    /** Tạo tài khoản staff (chỉ admin) */
-    public int createStaffAccount(String username, String password, String fullName) throws SQLException {
-        if (!Validation.isValidUsername(username))
-            throw new RuntimeException("Username không hợp lệ (3-50 ký tự, chữ + số)!");
-        if (!Validation.isValidPassword(password))
-            throw new RuntimeException("Mật khẩu phải có ít nhất 6 ký tự!");
-        if (accountDAL.getByUsername(username) != null)
-            throw new RuntimeException("Username đã tồn tại!");
+    /** Tạo tài khoản staff (chỉ admin) - Tự động sinh username và password */
+    public int createStaffAccount(String fullName) throws SQLException {
+        if (fullName == null || fullName.trim().isEmpty())
+            throw new RuntimeException("Họ tên không được để trống!");
 
         AccountDTO staff = new AccountDTO();
-        staff.setUsername(username);
-        staff.setPasswordHash(PasswordUtils.hash(password));
+        staff.setUsername("temp_" + System.currentTimeMillis()); // Tạm thời
+        staff.setPasswordHash("temp");
         staff.setFullName(fullName);
         staff.setRole("STAFF");
         staff.setActive(true);
+        staff.setMustChangePassword(true);
 
         int id = accountDAL.insert(staff);
-        logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "TẠO TÀI KHOẢN",
-                "Tạo tài khoản staff: " + username));
+        if (id > 0) {
+            String username = "staff" + String.format("%02d", id);
+            accountDAL.updateStaffCredentials(id, username, PasswordUtils.hash(username));
+            logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "TẠO TÀI KHOẢN",
+                    "Tạo tài khoản staff: " + username));
+        }
         return id;
+    }
+
+    /** Đổi mật khẩu chủ động */
+    public void changePassword(String oldPassword, String newPassword, String confirmPassword) throws SQLException {
+        if (!PasswordUtils.verify(oldPassword, currentUser.getPasswordHash()))
+            throw new RuntimeException("Mật khẩu cũ không chính xác!");
+        if (!Validation.isValidPassword(newPassword))
+            throw new RuntimeException("Mật khẩu mới phải có ít nhất 6 ký tự!");
+        if (!newPassword.equals(confirmPassword))
+            throw new RuntimeException("Xác nhận mật khẩu mới không khớp!");
+
+        accountDAL.changePassword(currentUser.getAccountId(), PasswordUtils.hash(newPassword));
+        // Cập nhật session hiện tại
+        currentUser.setPasswordHash(PasswordUtils.hash(newPassword));
+        currentUser.setMustChangePassword(false);
+
+        logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "ĐỔI MẬT KHẨU", "Đổi mật khẩu thành công"));
     }
 
     /** Reset mật khẩu staff */

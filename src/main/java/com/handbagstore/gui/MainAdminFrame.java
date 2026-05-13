@@ -24,6 +24,7 @@ public class MainAdminFrame extends JFrame {
     private DiscountManagerPanel discountPanel;
     private StatisticPanel statisticPanel;
     private SystemLogPanel systemLogPanel;
+    private ProfilePanel profilePanel;
     
     private java.util.List<JButton> menuButtons = new java.util.ArrayList<>();
     private JButton currentActiveButton;
@@ -67,6 +68,7 @@ public class MainAdminFrame extends JFrame {
         discountPanel = new DiscountManagerPanel();
         statisticPanel = new StatisticPanel();
         systemLogPanel = new SystemLogPanel();
+        profilePanel = new ProfilePanel();
 
         contentPanel.add(productPanel, "PRODUCT");
         contentPanel.add(inventoryPanel, "INVENTORY");
@@ -75,6 +77,7 @@ public class MainAdminFrame extends JFrame {
         contentPanel.add(discountPanel, "DISCOUNT");
         contentPanel.add(statisticPanel, "STATISTIC");
         contentPanel.add(systemLogPanel, "LOG");
+        contentPanel.add(profilePanel, "PROFILE");
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -112,7 +115,8 @@ public class MainAdminFrame extends JFrame {
             {"🧾 Hóa đơn", "INVOICE"},
             {"🎫 Giảm giá", "DISCOUNT"},
             {"📊 Thống kê", "STATISTIC"},
-            {"📋 Nhật ký", "LOG"}
+            {"📋 Nhật ký", "LOG"},
+            {"👤 Cá nhân", "PROFILE"}
         };
 
         for (String[] item : menuItems) {

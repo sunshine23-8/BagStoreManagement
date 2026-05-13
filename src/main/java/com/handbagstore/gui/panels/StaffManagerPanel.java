@@ -13,7 +13,10 @@ public class StaffManagerPanel extends JPanel {
     private JTextField txtUsername, txtFullName, txtPassword;
     private final AccountBLL accountBLL = new AccountBLL();
 
-    public StaffManagerPanel() { initComponents(); refreshData(); }
+    public StaffManagerPanel() {
+        initComponents();
+        refreshData();
+    }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
@@ -23,9 +26,12 @@ public class StaffManagerPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
-        String[] cols = {"ID", "Username", "Họ tên", "Trạng thái", "Ngày tạo"};
+        String[] cols = { "ID", "Username", "Họ tên", "Trạng thái", "Ngày tạo" };
         tableModel = new DefaultTableModel(cols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(30);
@@ -36,17 +42,22 @@ public class StaffManagerPanel extends JPanel {
         JPanel bottomPanel = new JPanel(new BorderLayout(10, 5));
         JPanel form = new JPanel(new GridLayout(2, 4, 10, 5));
         form.setBorder(BorderFactory.createTitledBorder("Tạo tài khoản Staff mới"));
-        txtUsername = new JTextField(); txtFullName = new JTextField(); txtPassword = new JTextField();
-        form.add(new JLabel("Username:")); form.add(txtUsername);
-        form.add(new JLabel("Họ tên:")); form.add(txtFullName);
-        form.add(new JLabel("Mật khẩu:")); form.add(txtPassword);
-        form.add(new JLabel("")); form.add(new JLabel(""));
+        txtFullName = new JTextField();
+        form.add(new JLabel("Họ tên nhân viên"));
+        form.add(txtFullName);
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
+        form.add(new JLabel(""));
         bottomPanel.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnCreate = new JButton("➕ Tạo tài khoản");
         btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
+        btnCreate.setBackground(new Color(40, 167, 69));
+        btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
         JButton btnReset = new JButton("🔑 Reset mật khẩu");
@@ -59,7 +70,9 @@ public class StaffManagerPanel extends JPanel {
         btnToggle.setForeground(Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 
-        btnPanel.add(btnCreate); btnPanel.add(btnReset); btnPanel.add(btnToggle);
+        btnPanel.add(btnCreate);
+        btnPanel.add(btnReset);
+        btnPanel.add(btnToggle);
         bottomPanel.add(btnPanel, BorderLayout.SOUTH);
         add(bottomPanel, BorderLayout.SOUTH);
     }
@@ -69,10 +82,10 @@ public class StaffManagerPanel extends JPanel {
             tableModel.setRowCount(0);
             List<AccountDTO> staffList = accountBLL.getAllStaff();
             for (AccountDTO a : staffList) {
-                tableModel.addRow(new Object[]{
-                    a.getAccountId(), a.getUsername(), a.getFullName(),
-                    a.isActive() ? "Hoạt động" : "Đã khóa",
-                    a.getCreatedAt() != null ? a.getCreatedAt().toLocalDate() : ""
+                tableModel.addRow(new Object[] {
+                        a.getAccountId(), a.getUsername(), a.getFullName(),
+                        a.isActive() ? "Hoạt động" : "Đã khóa",
+                        a.getCreatedAt() != null ? a.getCreatedAt().toLocalDate() : ""
                 });
             }
         } catch (Exception ex) {
@@ -81,15 +94,16 @@ public class StaffManagerPanel extends JPanel {
     }
 
     private void createAccount() {
-        if (txtUsername.getText().trim().isEmpty() || txtPassword.getText().trim().isEmpty() || txtFullName.getText().trim().isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Vui lòng nhập đầy đủ thông tin tài khoản!", "Thông báo", JOptionPane.WARNING_MESSAGE);
+        if (txtFullName.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng nhập họ tên nhân viên!", "Thông báo",
+                    JOptionPane.WARNING_MESSAGE);
             return;
         }
         try {
-            accountBLL.createStaffAccount(txtUsername.getText().trim(),
-                    txtPassword.getText().trim(), txtFullName.getText().trim());
-            JOptionPane.showMessageDialog(this, "Tạo tài khoản thành công!");
-            txtUsername.setText(""); txtFullName.setText(""); txtPassword.setText("");
+            accountBLL.createStaffAccount(txtFullName.getText().trim());
+            JOptionPane.showMessageDialog(this,
+                    "Tạo tài khoản thành công!");
+            txtFullName.setText("");
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -98,9 +112,13 @@ public class StaffManagerPanel extends JPanel {
 
     private void resetPassword() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Chọn nhân viên!"); return; }
-        String newPass = JOptionPane.showInputDialog(this, "Nhập mật khẩu mới:");
-        if (newPass == null || newPass.isEmpty()) return;
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Chọn nhân viên!");
+            return;
+        }
+        String newPass = JOptionPane.showInputDialog(this, "Nhập mật khẩu mới");
+        if (newPass == null || newPass.isEmpty())
+            return;
         try {
             int id = (int) tableModel.getValueAt(row, 0);
             accountBLL.resetPassword(id, newPass);
@@ -112,7 +130,10 @@ public class StaffManagerPanel extends JPanel {
 
     private void toggleActive() {
         int row = table.getSelectedRow();
-        if (row < 0) { JOptionPane.showMessageDialog(this, "Chọn nhân viên!"); return; }
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Chọn nhân viên!");
+            return;
+        }
         try {
             int id = (int) tableModel.getValueAt(row, 0);
             String status = (String) tableModel.getValueAt(row, 3);
