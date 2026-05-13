@@ -9,7 +9,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM accounts WHERE username = 'admin')
 BEGIN
     INSERT INTO accounts (username, password_hash, full_name, role, is_active)
-    VALUES ('admin', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'Quản trị viên', 'ADMIN', 1);
+    VALUES ('admin', '$2a$10$0HXLpdyxdHQI0PxWAM3SF.0N5QFJiKRiG1ZxdF9JvccAaMHZLribG', N'Quản trị viên', 'ADMIN', 1);
 END
 GO
 
@@ -18,7 +18,7 @@ GO
 IF NOT EXISTS (SELECT 1 FROM accounts WHERE username = 'staff01')
 BEGIN
     INSERT INTO accounts (username, password_hash, full_name, role, is_active)
-    VALUES ('staff01', '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy', N'Nguyễn Văn A', 'STAFF', 1);
+    VALUES ('staff01', '$2a$10$y9vXxAWR1CyZKlyMDLJg7.Q5ykswa5ANpUVRbX3IscsCebqD6jy2.', N'Nguyễn Văn A', 'STAFF', 1);
 END
 GO
 
@@ -64,3 +64,15 @@ GO
 
 PRINT N'Seed data inserted successfully!';
 GO
+
+
+--------------------------
+USE BagStoreDB;
+UPDATE accounts 
+SET password_hash = '$2a$10$0HXLpdyxdHQI0PxWAM3SF.0N5QFJiKRiG1ZxdF9JvccAaMHZLribG' 
+WHERE username = 'admin';
+
+USE BagStoreDB;
+UPDATE accounts 
+SET password_hash = '$2a$10$y9vXxAWR1CyZKlyMDLJg7.Q5ykswa5ANpUVRbX3IscsCebqD6jy2.' 
+WHERE username = 'staff01';

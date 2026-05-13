@@ -21,4 +21,9 @@ public class PasswordUtils {
             return false;
         }
     }
+
+    public static void main(String[] args) {
+        System.out.println("Mã hash chuẩn của staff123 là:");
+        System.out.println(hash("staff123"));
+    }
 }
