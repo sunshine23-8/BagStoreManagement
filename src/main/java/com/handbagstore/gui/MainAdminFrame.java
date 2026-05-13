@@ -103,14 +103,14 @@ public class MainAdminFrame extends JFrame {
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
         // Logo / Title
-        lblLogo = new JLabel("🛍 BAG STORE", SwingConstants.CENTER);
+        lblLogo = new JLabel("<html><font face='Segoe UI Emoji'>🛍</font> BAG STORE</html>", SwingConstants.CENTER);
         lblLogo.setFont(new Font("Segoe UI", Font.BOLD, 16));
         lblLogo.setForeground(Color.WHITE);
         lblLogo.setAlignmentX(Component.CENTER_ALIGNMENT);
         sidebar.add(lblLogo);
         sidebar.add(Box.createVerticalStrut(10));
 
-        lblRole = new JLabel("👤 Admin", SwingConstants.CENTER);
+        lblRole = new JLabel("<html><font face='Segoe UI Emoji'>👤</font> Admin</html>", SwingConstants.CENTER);
         lblRole.setFont(new Font("Segoe UI", Font.PLAIN, 12));
         lblRole.setForeground(new Color(166, 173, 186));
         lblRole.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -119,14 +119,14 @@ public class MainAdminFrame extends JFrame {
 
         // Menu buttons
         String[][] menuItems = {
-            {"📦 Sản phẩm", "PRODUCT"},
-            {"🏭 Kho hàng", "INVENTORY"},
-            {"👥 Nhân viên", "STAFF"},
-            {"🧾 Hóa đơn", "INVOICE"},
-            {"🎫 Giảm giá", "DISCOUNT"},
-            {"📊 Thống kê", "STATISTIC"},
-            {"📋 Nhật ký", "LOG"},
-            {"👤 Cá nhân", "PROFILE"}
+            {"<html><font face='Segoe UI Emoji'>📦</font> Sản phẩm</html>", "PRODUCT"},
+            {"<html><font face='Segoe UI Emoji'>🏭</font> Kho hàng</html>", "INVENTORY"},
+            {"<html><font face='Segoe UI Emoji'>👥</font> Nhân viên</html>", "STAFF"},
+            {"<html><font face='Segoe UI Emoji'>🧾</font> Hóa đơn</html>", "INVOICE"},
+            {"<html><font face='Segoe UI Emoji'>🎫</font> Giảm giá</html>", "DISCOUNT"},
+            {"<html><font face='Segoe UI Emoji'>📊</font> Thống kê</html>", "STATISTIC"},
+            {"<html><font face='Segoe UI Emoji'>📋</font> Nhật ký</html>", "LOG"},
+            {"<html><font face='Segoe UI Emoji'>👤</font> Cá nhân</html>", "PROFILE"}
         };
 
         for (String[] item : menuItems) {
@@ -144,13 +144,13 @@ public class MainAdminFrame extends JFrame {
 
         sidebar.add(Box.createVerticalGlue());
 
-        btnToggleTheme = createMenuButton(FlatLaf.isLafDark() ? "☀️ Giao diện sáng" : "🌙 Giao diện tối", "TOGGLE_THEME");
+        btnToggleTheme = createMenuButton(FlatLaf.isLafDark() ? "<html><font face='Segoe UI Emoji'>☀️</font> Giao diện sáng</html>" : "<html><font face='Segoe UI Emoji'>🌙</font> Giao diện tối</html>", "TOGGLE_THEME");
         sidebar.add(btnToggleTheme);
         sidebar.add(Box.createVerticalStrut(5));
         menuButtons.add(btnToggleTheme);
 
         // Logout button
-        JButton btnLogout = createMenuButton("🚪 Đăng xuất", "LOGOUT");
+        JButton btnLogout = createMenuButton("<html><font face='Segoe UI Emoji'>🚪</font> Đăng xuất</html>", "LOGOUT");
         btnLogout.setBackground(new Color(220, 53, 69));
         sidebar.add(btnLogout);
 
@@ -158,7 +158,11 @@ public class MainAdminFrame extends JFrame {
     }
 
     private JButton createMenuButton(String text, String command) {
-        JButton btn = new JButton(text);
+        String htmlText = text;
+        if (text.startsWith("<html>") && text.endsWith("</html>")) {
+            htmlText = "<html><table nowrap><tr><td>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
+        }
+        JButton btn = new JButton(htmlText);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setMaximumSize(new Dimension(200, 40));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
@@ -167,6 +171,8 @@ public class MainAdminFrame extends JFrame {
         btn.setBorderPainted(false);
         btn.setFocusPainted(false);
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btn.setHorizontalAlignment(SwingConstants.LEFT);
+        btn.setBorder(BorderFactory.createEmptyBorder(0, 30, 0, 0));
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
@@ -244,7 +250,7 @@ public class MainAdminFrame extends JFrame {
         
         // Update toggle button text
         if (btnToggleTheme != null) {
-            btnToggleTheme.setText(isDark ? "☀️ Giao diện sáng" : "🌙 Giao diện tối");
+            btnToggleTheme.setText(isDark ? "<html><font face='Segoe UI Emoji'>☀️</font> Giao diện sáng</html>" : "<html><font face='Segoe UI Emoji'>🌙</font> Giao diện tối</html>");
         }
     }
 

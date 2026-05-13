@@ -38,18 +38,18 @@ public class InvoiceHistoryPanel extends JPanel {
 
         // Top
         JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel lblTitle = new JLabel("🧾 Quản lý Hóa đơn");
+        JLabel lblTitle = new JLabel("<html><font face='Segoe UI Emoji'>🧾</font> Quản lý Hóa đơn</html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         topPanel.add(lblTitle, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm mã hóa đơn...");
-        JButton btnSearch = new JButton("🔍 Tìm");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchInvoices());
 
-        JButton btnFilter = new JButton("⏳ Bộ lọc");
+        JButton btnFilter = new JButton("<html><font face='Segoe UI Emoji'>⏳</font> Bộ lọc</html>");
         btnFilter.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnFilter.addActionListener(e -> showFilterDialog());
 
@@ -104,7 +104,7 @@ public class InvoiceHistoryPanel extends JPanel {
         JPanel detailPanel = new JPanel(new BorderLayout());
         JPanel detailHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         detailHeaderPanel.add(new JLabel("  Chi tiết hóa đơn:"));
-        JButton btnExportPdf = new JButton("📄 Xuất PDF");
+        JButton btnExportPdf = new JButton("<html><font face='Segoe UI Emoji'>📄</font> Xuất PDF</html>");
         btnExportPdf.addActionListener(e -> exportSelectedInvoicePdf());
         detailHeaderPanel.add(btnExportPdf);
         detailPanel.add(detailHeaderPanel, BorderLayout.NORTH);

@@ -77,7 +77,7 @@ public class SalePanel extends JPanel {
         JPanel leftPanel = new JPanel(new BorderLayout(5, 5));
         leftPanel.setPreferredSize(new Dimension(450, 0));
 
-        JLabel lblProducts = new JLabel("📦 Danh sách sản phẩm");
+        JLabel lblProducts = new JLabel("<html><font face='Segoe UI Emoji'>📦</font> Danh sách sản phẩm</html>");
         lblProducts.setFont(new Font("Segoe UI", Font.BOLD, 14));
         leftPanel.add(lblProducts, BorderLayout.NORTH);
 
@@ -100,7 +100,7 @@ public class SalePanel extends JPanel {
             }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
-        JButton btnSearch = new JButton("🔍 Tìm");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
@@ -145,7 +145,7 @@ public class SalePanel extends JPanel {
             }
         });
 
-        btnAddToCart = new JButton("➕ Thêm vào đơn");
+        btnAddToCart = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm vào đơn</html>");
         btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
         btnAddToCart.setForeground(Color.WHITE);
@@ -159,7 +159,7 @@ public class SalePanel extends JPanel {
         JPanel centerPanel = new JPanel(new BorderLayout(5, 5));
 
         JPanel cartHeaderPanel = new JPanel(new BorderLayout());
-        JLabel lblCart = new JLabel("🛒 Đơn hàng hiện tại");
+        JLabel lblCart = new JLabel("<html><font face='Segoe UI Emoji'>🛒</font> Đơn hàng hiện tại</html>");
         lblCart.setFont(new Font("Segoe UI", Font.BOLD, 14));
         cartHeaderPanel.add(lblCart, BorderLayout.WEST);
 
@@ -363,13 +363,13 @@ public class SalePanel extends JPanel {
         JPanel actionRow = new JPanel(new GridLayout(1, 2, 5, 5));
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
-        btnPayNow = new JButton("💰 Thanh toán ngay");
+        btnPayNow = new JButton("<html><font face='Segoe UI Emoji'>💰</font> Thanh toán ngay</html>");
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
         btnPayNow.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPayNow.addActionListener(e -> payNow());
 
-        btnPending = new JButton("⏳ Giữ đơn (Pending)");
+        btnPending = new JButton("<html><font face='Segoe UI Emoji'>⏳</font> Giữ đơn (Pending)</html>");
         btnPending.setBackground(new Color(13, 110, 253));
         btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
