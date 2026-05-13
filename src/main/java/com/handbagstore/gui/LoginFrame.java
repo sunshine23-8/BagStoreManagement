@@ -93,25 +93,53 @@ public class LoginFrame extends JFrame {
             return;
         }
 
-        try {
-            AccountDTO account = accountBLL.login(username, password);
-            if (account == null) {
-                lblError.setText("Sai tên đăng nhập hoặc mật khẩu!");
-                txtPassword.setText("");
-                return;
+        // Disable input and button while logging in
+        btnLogin.setEnabled(false);
+        txtUsername.setEnabled(false);
+        txtPassword.setEnabled(false);
+        lblError.setText("Đang kết nối database...");
+        btnLogin.setText("Đang xử lý...");
+
+        SwingWorker<AccountDTO, Void> worker = new SwingWorker<>() {
+            @Override
+            protected AccountDTO doInBackground() throws Exception {
+                return accountBLL.login(username, password);
             }
 
-            // Chuyển sang màn hình chính theo role
-            dispose();
-            if (account.isAdmin()) {
-                new MainAdminFrame().setVisible(true);
-            } else {
-                new MainStaffFrame().setVisible(true);
+            @Override
+            protected void done() {
+                // Re-enable input
+                btnLogin.setEnabled(true);
+                txtUsername.setEnabled(true);
+                txtPassword.setEnabled(true);
+                btnLogin.setText("Đăng nhập");
+
+                try {
+                    AccountDTO account = get();
+                    if (account == null) {
+                        lblError.setText("Sai tên đăng nhập hoặc mật khẩu!");
+                        txtPassword.setText("");
+                        return;
+                    }
+
+                    // Chuyển sang màn hình chính theo role
+                    dispose();
+                    if (account.isAdmin()) {
+                        new MainAdminFrame().setVisible(true);
+                    } else {
+                        new MainStaffFrame().setVisible(true);
+                    }
+                } catch (Exception ex) {
+                    // Extract root cause message
+                    Throwable cause = ex.getCause() != null ? ex.getCause() : ex;
+                    if (cause instanceof RuntimeException) {
+                        lblError.setText(cause.getMessage());
+                    } else {
+                        lblError.setText("Lỗi kết nối: " + cause.getMessage());
+                    }
+                }
             }
-        } catch (RuntimeException ex) {
-            lblError.setText(ex.getMessage());
-        } catch (Exception ex) {
-            lblError.setText("Lỗi kết nối: " + ex.getMessage());
-        }
+        };
+        worker.execute();
     }
 }
