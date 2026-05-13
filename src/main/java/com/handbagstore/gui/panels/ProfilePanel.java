@@ -23,7 +23,10 @@ public class ProfilePanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         add(lblTitle, BorderLayout.NORTH);
 
-        JPanel mainContent = new JPanel(new GridLayout(1, 2, 40, 0));
+        AccountDTO user = AccountBLL.getCurrentUser();
+        boolean isStaff = user != null && user.isStaff();
+
+        JPanel mainContent = new JPanel(new GridLayout(1, isStaff ? 1 : 2, 40, 0));
 
         // Left: User Info
         JPanel infoPanel = new JPanel(new GridBagLayout());
@@ -33,7 +36,7 @@ public class ProfilePanel extends JPanel {
         gbc.fill = GridBagConstraints.HORIZONTAL;
         gbc.anchor = GridBagConstraints.WEST;
 
-        AccountDTO user = AccountBLL.getCurrentUser();
+        // AccountDTO user = AccountBLL.getCurrentUser(); // Moved up
 
         addInfoField(infoPanel, "Tên đăng nhập:", txtUsername = new JTextField(user.getUsername()), 0, gbc);
         addInfoField(infoPanel, "Họ và tên:", txtFullName = new JTextField(user.getFullName()), 1, gbc);
@@ -85,7 +88,9 @@ public class ProfilePanel extends JPanel {
         gbc.anchor = GridBagConstraints.CENTER;
         passPanel.add(btnChange, gbc);
 
-        mainContent.add(passPanel);
+        if (!isStaff) {
+            mainContent.add(passPanel);
+        }
         add(mainContent, BorderLayout.CENTER);
     }
 

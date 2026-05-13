@@ -4,10 +4,10 @@ import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.dto.AccountDTO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableRowSorter;
-import javax.swing.RowFilter;
 import java.awt.*;
 import java.util.List;
+import javax.swing.table.TableRowSorter;
+import javax.swing.RowFilter;
 
 public class StaffManagerPanel extends JPanel {
     private JTable table;
@@ -176,17 +176,17 @@ public class StaffManagerPanel extends JPanel {
     private void applyFilter() {
         String text = txtSearch.getText().trim();
         String status = (String) cmbStatusFilter.getSelectedItem();
-        
+
         java.util.List<RowFilter<Object, Object>> filters = new java.util.ArrayList<>();
-        
+
         if (!text.isEmpty()) {
             filters.add(RowFilter.regexFilter("(?i)" + text, 2)); // Column 2 is Name
         }
-        
+
         if (!"Tất cả".equals(status)) {
             filters.add(RowFilter.regexFilter("^" + status + "$", 3)); // Column 3 is Status
         }
-        
+
         if (filters.isEmpty()) {
             sorter.setRowFilter(null);
         } else {

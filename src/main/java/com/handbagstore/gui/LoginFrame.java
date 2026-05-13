@@ -110,7 +110,7 @@ public class LoginFrame extends JFrame {
             }
 
             // Chuyển sang màn hình chính theo role
-            if (account.isMustChangePassword()) {
+            if (account.isAdmin() && account.isMustChangePassword()) {
                 ChangePasswordDialog dialog = new ChangePasswordDialog(this);
                 dialog.setVisible(true);
                 if (!dialog.isSuccess()) {

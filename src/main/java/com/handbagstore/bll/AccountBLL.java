@@ -59,7 +59,7 @@ public class AccountBLL {
         staff.setFullName(fullName);
         staff.setRole("STAFF");
         staff.setActive(true);
-        staff.setMustChangePassword(true);
+        staff.setMustChangePassword(false);
 
         int id = accountDAL.insert(staff);
         if (id > 0) {
