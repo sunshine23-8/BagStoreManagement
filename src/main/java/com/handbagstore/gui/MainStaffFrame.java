@@ -97,7 +97,7 @@ public class MainStaffFrame extends JFrame {
         JButton btn = new JButton(text);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
         btn.setMaximumSize(new Dimension(200, 40));
-        btn.setFont(new Font("Segoe UI", Font.PLAIN, 13));
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setForeground(Color.WHITE);
         btn.setBackground(new Color(45, 45, 65));
         btn.setBorderPainted(false);

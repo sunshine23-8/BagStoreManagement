@@ -6,6 +6,8 @@ import com.handbagstore.dto.InventoryLogDTO;
 import com.handbagstore.dto.ProductDTO;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -40,8 +42,14 @@ public class ProductManagerPanel extends JPanel {
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
         JButton btnSearch = new JButton("🔍 Tìm");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchProducts(); }
+            public void removeUpdate(DocumentEvent e) { searchProducts(); }
+            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+        });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
         topPanel.add(searchPanel, BorderLayout.EAST);
@@ -77,6 +85,11 @@ public class ProductManagerPanel extends JPanel {
         txtName = new JTextField();
         txtBrand = new JTextField();
         txtPrice = new JTextField();
+        txtPrice.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
         txtColor = new JTextField();
         cmbStyle = new JComboBox<>(new String[] { "Tote", "Crossbody", "Backpack", "Clutch" });
         cmbMaterial = new JComboBox<>(new String[] { "Da thật", "PU", "Canvas" });
@@ -105,14 +118,18 @@ public class ProductManagerPanel extends JPanel {
         // Button panel
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         btnAdd = new JButton("➕ Thêm");
+        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate = new JButton("✏️ Sửa");
+        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDelete = new JButton("🗑 Ngừng kinh doanh");
+        btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnClear = new JButton("🔄 Làm mới");
+        btnClear.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         btnAdd.setBackground(new Color(40, 167, 69));
         btnAdd.setForeground(Color.WHITE);
-        btnUpdate.setBackground(new Color(255, 193, 7));
-        btnUpdate.setForeground(Color.BLACK);
+        btnUpdate.setBackground(new Color(13, 110, 253));
+        btnUpdate.setForeground(Color.WHITE);
         btnDelete.setBackground(new Color(220, 53, 69));
         btnDelete.setForeground(Color.WHITE);
 

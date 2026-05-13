@@ -1,10 +1,12 @@
 package com.handbagstore.dal;
 
 import com.handbagstore.dto.ProductDTO;
+import com.handbagstore.utils.StringUtils;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Data Access Layer cho bảng products.
@@ -21,8 +23,8 @@ public class ProductDAL {
      */
     public List<ProductDTO> getAll(boolean includeInactive) throws SQLException {
         String sql = includeInactive
-                ? "SELECT * FROM products ORDER BY created_at DESC"
-                : "SELECT * FROM products WHERE status = 'ACTIVE' ORDER BY created_at DESC";
+                ? "SELECT * FROM products ORDER BY product_code ASC"
+                : "SELECT * FROM products WHERE status = 'ACTIVE' ORDER BY product_code ASC";
         List<ProductDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -69,22 +71,17 @@ public class ProductDAL {
      * Tìm kiếm sản phẩm theo từ khóa (tên, mã, thương hiệu).
      */
     public List<ProductDTO> search(String keyword) throws SQLException {
-        String sql = "SELECT * FROM products WHERE " +
-                     "(product_code LIKE ? OR name LIKE ? OR brand LIKE ?) " +
-                     "AND status = 'ACTIVE' ORDER BY name";
-        String searchTerm = "%" + keyword + "%";
-        List<ProductDTO> list = new ArrayList<>();
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, searchTerm);
-            ps.setString(2, searchTerm);
-            ps.setString(3, searchTerm);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapResultSet(rs));
-                }
-            }
-        }
-        return list;
+        List<ProductDTO> list = getAll(false);
+        if (keyword == null || keyword.trim().isEmpty()) return list;
+
+        return list.stream()
+                .filter(p -> StringUtils.containsIgnoreCase(p.getProductCode(), keyword) ||
+                        StringUtils.containsIgnoreCase(p.getName(), keyword) ||
+                        StringUtils.containsIgnoreCase(p.getBrand(), keyword) ||
+                        StringUtils.containsIgnoreCase(p.getStyle(), keyword) ||
+                        StringUtils.containsIgnoreCase(p.getMaterial(), keyword) ||
+                        StringUtils.containsIgnoreCase(p.getColor(), keyword))
+                .collect(Collectors.toList());
     }
 
     /**

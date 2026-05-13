@@ -36,6 +36,7 @@ public class InventoryPanel extends JPanel {
 
         // Tabs: Tồn kho + Nhập kho
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         // Tab 1: Tồn kho
         JPanel stockPanel = new JPanel(new BorderLayout(5, 5));
@@ -54,6 +55,7 @@ public class InventoryPanel extends JPanel {
         };
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
+        stockTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
         tabs.addTab("📊 Tồn kho", stockPanel);
 
@@ -64,7 +66,21 @@ public class InventoryPanel extends JPanel {
 
         cmbProduct = new JComboBox<>();
         txtQty = new JTextField();
+<<<<<<< HEAD
         txtCostPrice = new JTextField();
+=======
+        txtQty.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
+        txtCostPrice = new JTextField();
+        txtCostPrice.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
+>>>>>>> 3c1bb8d1a92203226a01382d45b4c2da7057f783
         txtNote = new JTextField();
 
         importForm.add(new JLabel("Sản phẩm:"));
@@ -77,8 +93,13 @@ public class InventoryPanel extends JPanel {
         importForm.add(txtNote);
 
         JButton btnImport = new JButton("📥 Nhập kho");
+<<<<<<< HEAD
         btnImport.setBackground(new Color(40, 167, 69));
         btnImport.setForeground(Color.WHITE);
+=======
+        btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnImport.setBackground(new Color(40, 167, 69)); btnImport.setForeground(Color.WHITE);
+>>>>>>> 3c1bb8d1a92203226a01382d45b4c2da7057f783
         btnImport.addActionListener(e -> importStock());
 
         JPanel importTop = new JPanel(new BorderLayout());
@@ -95,6 +116,7 @@ public class InventoryPanel extends JPanel {
         };
         importTable = new JTable(importModel);
         importTable.setRowHeight(28);
+        importTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         importPanel.add(new JScrollPane(importTable), BorderLayout.CENTER);
         tabs.addTab("📥 Nhập kho", importPanel);
 

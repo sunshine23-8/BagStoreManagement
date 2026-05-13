@@ -1,9 +1,11 @@
 package com.handbagstore.dal;
 
 import com.handbagstore.dto.CustomerDTO;
+import com.handbagstore.utils.StringUtils;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class CustomerDAL {
     private Connection getConnection() throws SQLException {
@@ -33,7 +35,7 @@ public class CustomerDAL {
     }
 
     public List<CustomerDTO> getAll() throws SQLException {
-        String sql = "SELECT * FROM customers ORDER BY full_name";
+        String sql = "SELECT * FROM customers ORDER BY customer_id ASC";
         List<CustomerDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -43,17 +45,12 @@ public class CustomerDAL {
     }
 
     public List<CustomerDTO> search(String keyword) throws SQLException {
-        String sql = "SELECT * FROM customers WHERE full_name LIKE ? OR phone LIKE ? ORDER BY full_name";
-        String term = "%" + keyword + "%";
-        List<CustomerDTO> list = new ArrayList<>();
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, term);
-            ps.setString(2, term);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapResultSet(rs));
-            }
-        }
-        return list;
+        List<CustomerDTO> list = getAll();
+        if (keyword == null || keyword.trim().isEmpty()) return list;
+        return list.stream()
+                .filter(c -> StringUtils.containsIgnoreCase(c.getFullName(), keyword) ||
+                             StringUtils.containsIgnoreCase(c.getPhone(), keyword))
+                .collect(Collectors.toList());
     }
 
     public int insert(CustomerDTO c) throws SQLException {

@@ -29,6 +29,7 @@ public class StaffManagerPanel extends JPanel {
         };
         table = new JTable(tableModel);
         table.setRowHeight(30);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Form
@@ -44,14 +45,18 @@ public class StaffManagerPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnCreate = new JButton("➕ Tạo tài khoản");
+        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
         JButton btnReset = new JButton("🔑 Reset mật khẩu");
+        btnReset.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnReset.addActionListener(e -> resetPassword());
 
         JButton btnToggle = new JButton("🔒 Khóa/Mở khóa");
-        btnToggle.setBackground(new Color(255, 193, 7));
+        btnToggle.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnToggle.setBackground(new Color(13, 110, 253));
+        btnToggle.setForeground(Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 
         btnPanel.add(btnCreate); btnPanel.add(btnReset); btnPanel.add(btnToggle);
