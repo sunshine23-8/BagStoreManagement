@@ -118,6 +118,9 @@ public class MainStaffFrame extends JFrame {
 
         add(contentPanel, BorderLayout.CENTER);
         cardLayout.show(contentPanel, "SALE");
+        
+        // Apply theme colors to sidebar on startup
+        updateSidebarColors();
     }
 
     private JButton createMenuButton(String text, String command) {

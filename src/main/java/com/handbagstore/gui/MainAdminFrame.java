@@ -90,6 +90,9 @@ public class MainAdminFrame extends JFrame {
 
         // Hiển thị panel đầu tiên
         cardLayout.show(contentPanel, "PRODUCT");
+        
+        // Apply theme colors to sidebar on startup
+        updateSidebarColors();
     }
 
     private JPanel createSidebar() {
