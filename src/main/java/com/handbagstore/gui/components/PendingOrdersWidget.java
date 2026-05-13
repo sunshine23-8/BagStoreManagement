@@ -2,6 +2,7 @@ package com.handbagstore.gui.components;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.GridLayout;
@@ -31,6 +32,7 @@ import com.handbagstore.dto.InvoiceDTO;
 public class PendingOrdersWidget extends JPanel {
     private JPanel ordersListPanel;
     private Timer refreshTimer;
+    private Timer countdownTimer;
     private final OrderBLL orderBLL = new OrderBLL();
 
     public PendingOrdersWidget() {
@@ -98,6 +100,10 @@ public class PendingOrdersWidget extends JPanel {
         infoPanel.add(lblCountdown);
         card.add(infoPanel, BorderLayout.CENTER);
 
+        // Store data for real-time update
+        card.putClientProperty("expiresAt", inv.getExpiresAt());
+        card.putClientProperty("lblCountdown", lblCountdown);
+
         // Buttons
         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 3));
         JButton btnPay = new JButton("💰 TT");
@@ -126,6 +132,19 @@ public class PendingOrdersWidget extends JPanel {
         long minutes = remaining.toMinutes();
         long seconds = remaining.getSeconds() % 60;
         return String.format("%d:%02d", minutes, seconds);
+    }
+
+    private void updateTimers() {
+        for (Component comp : ordersListPanel.getComponents()) {
+            if (comp instanceof JPanel) {
+                JPanel card = (JPanel) comp;
+                LocalDateTime expiresAt = (LocalDateTime) card.getClientProperty("expiresAt");
+                JLabel lblCountdown = (JLabel) card.getClientProperty("lblCountdown");
+                if (expiresAt != null && lblCountdown != null) {
+                    lblCountdown.setText("⏱ " + getCountdownText(expiresAt));
+                }
+            }
+        }
     }
 
     private void payOrder(InvoiceDTO inv) {
@@ -179,7 +198,12 @@ public class PendingOrdersWidget extends JPanel {
     }
 
     private void startAutoRefresh() {
-        refreshTimer = new Timer(10_000, e -> refreshData()); // Refresh mỗi 10s
+        // Countdown timer mỗi 1s
+        countdownTimer = new Timer(1000, e -> updateTimers());
+        countdownTimer.start();
+
+        // Refresh DB mỗi 10s
+        refreshTimer = new Timer(10000, e -> refreshData());
         refreshTimer.start();
     }
 }

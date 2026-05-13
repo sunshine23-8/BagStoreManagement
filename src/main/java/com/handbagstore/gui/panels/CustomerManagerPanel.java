@@ -242,4 +242,12 @@ public class CustomerManagerPanel extends JPanel {
         txtPhone.setText("");
         txtBirthday.setText("");
     }
+
+    public void prefillForNewCustomer(String phone) {
+        txtPhone.setText(phone);
+        txtName.setText("");
+        txtBirthday.setText("");
+        customerTable.clearSelection();
+        txtName.requestFocus();
+    }
 }

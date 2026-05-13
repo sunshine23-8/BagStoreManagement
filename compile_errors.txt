@@ -1,0 +1,330 @@
+src\main\java\com\handbagstore\utils\PdfExporter.java:12: error: package com.itextpdf.kernel.pdf does not exist
+import com.itextpdf.kernel.pdf.PdfDocument;
+                              ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:13: error: package com.itextpdf.kernel.pdf does not exist
+import com.itextpdf.kernel.pdf.PdfWriter;
+                              ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:14: error: package com.itextpdf.layout does not exist
+import com.itextpdf.layout.Document;
+                          ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:15: error: package com.itextpdf.layout.element does not exist
+import com.itextpdf.layout.element.Cell;
+                                  ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:16: error: package com.itextpdf.layout.element does not exist
+import com.itextpdf.layout.element.Paragraph;
+                                  ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:17: error: package com.itextpdf.layout.element does not exist
+import com.itextpdf.layout.element.Table;
+                                  ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:18: error: package com.itextpdf.layout.properties does not exist
+import com.itextpdf.layout.properties.TextAlignment;
+                                     ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:19: error: package com.itextpdf.layout.properties does not exist
+import com.itextpdf.layout.properties.UnitValue;
+                                     ^
+src\main\java\com\handbagstore\utils\PasswordUtils.java:3: error: package org.mindrot.jbcrypt does not exist
+import org.mindrot.jbcrypt.BCrypt;
+                          ^
+src\main\java\com\handbagstore\utils\PdfExporter.java:41: error: cannot find symbol
+        PdfWriter writer = new PdfWriter(outputPath);
+        ^
+  symbol:   class PdfWriter
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:41: error: cannot find symbol
+        PdfWriter writer = new PdfWriter(outputPath);
+                               ^
+  symbol:   class PdfWriter
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:42: error: cannot find symbol
+        PdfDocument pdf = new PdfDocument(writer);
+        ^
+  symbol:   class PdfDocument
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:42: error: cannot find symbol
+        PdfDocument pdf = new PdfDocument(writer);
+                              ^
+  symbol:   class PdfDocument
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:43: error: cannot find symbol
+        Document doc = new Document(pdf);
+        ^
+  symbol:   class Document
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:43: error: cannot find symbol
+        Document doc = new Document(pdf);
+                           ^
+  symbol:   class Document
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:48: error: cannot find symbol
+                .setTextAlignment(TextAlignment.CENTER)
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:47: error: cannot find symbol
+        doc.add(new Paragraph("C?A HÀNG TÚI XÁCH")
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:51: error: cannot find symbol
+                .setTextAlignment(TextAlignment.CENTER)
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:50: error: cannot find symbol
+        doc.add(new Paragraph("HÓA ??N BÁN HÀNG")
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:53: error: cannot find symbol
+        doc.add(new Paragraph("\n"));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:56: error: cannot find symbol
+        doc.add(new Paragraph("Mã hóa ??n: " + invoice.getInvoiceCode()));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:57: error: cannot find symbol
+        doc.add(new Paragraph("Ngày: " + DateUtils.formatDateTime(invoice.getCreatedAt())));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:58: error: cannot find symbol
+        doc.add(new Paragraph("Nhân viên: " + (invoice.getStaffName() != null ? invoice.getStaffName() : "")));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:61: error: cannot find symbol
+            doc.add(new Paragraph("Khách hàng: " + customer.getFullName() + " - " + customer.getPhone()));
+                        ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:63: error: cannot find symbol
+            doc.add(new Paragraph("Khách hàng: Khách vãng lai"));
+                        ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:65: error: cannot find symbol
+        doc.add(new Paragraph("\n"));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:68: error: cannot find symbol
+        Table table = new Table(UnitValue.createPercentArray(new float[]{1, 3, 2, 1, 2}));
+        ^
+  symbol:   class Table
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:68: error: cannot find symbol
+        Table table = new Table(UnitValue.createPercentArray(new float[]{1, 3, 2, 1, 2}));
+                          ^
+  symbol:   class Table
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:68: error: cannot find symbol
+        Table table = new Table(UnitValue.createPercentArray(new float[]{1, 3, 2, 1, 2}));
+                                ^
+  symbol:   variable UnitValue
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:69: error: cannot find symbol
+        table.setWidth(UnitValue.createPercentValue(100));
+                       ^
+  symbol:   variable UnitValue
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:72: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("STT").setBold()));
+                                ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:72: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("STT").setBold()));
+                                               ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:73: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("S?n ph?m").setBold()));
+                                ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:73: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("S?n ph?m").setBold()));
+                                               ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:74: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("??n giá").setBold()));
+                                ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:74: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("??n giá").setBold()));
+                                               ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:75: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("SL").setBold()));
+                                ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:75: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("SL").setBold()));
+                                               ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:76: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("Thành ti?n").setBold()));
+                                ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:76: error: cannot find symbol
+        table.addHeaderCell(new Cell().add(new Paragraph("Thành ti?n").setBold()));
+                                               ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:80: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))));
+                                             ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:80: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(stt++))));
+                              ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:81: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(d.getProductName() != null ? d.getProductName() : "")));
+                                             ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:81: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(d.getProductName() != null ? d.getProductName() : "")));
+                              ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:82: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(formatMoney(d.getUnitPrice()))));
+                                             ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:82: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(formatMoney(d.getUnitPrice()))));
+                              ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:83: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(d.getQuantity()))));
+                                             ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:83: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(String.valueOf(d.getQuantity()))));
+                              ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:84: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(formatMoney(d.getLineTotal()))));
+                                             ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:84: error: cannot find symbol
+            table.addCell(new Cell().add(new Paragraph(formatMoney(d.getLineTotal()))));
+                              ^
+  symbol:   class Cell
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:87: error: cannot find symbol
+        doc.add(new Paragraph("\n"));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:91: error: cannot find symbol
+                .setTextAlignment(TextAlignment.RIGHT));
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:90: error: cannot find symbol
+        doc.add(new Paragraph("T?m tính: " + formatMoney(invoice.getSubtotal()))
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:97: error: cannot find symbol
+                    .setTextAlignment(TextAlignment.RIGHT));
+                                      ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:94: error: cannot find symbol
+            doc.add(new Paragraph("Gi?m giá" +
+                        ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:101: error: cannot find symbol
+                .setTextAlignment(TextAlignment.RIGHT)
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:100: error: cannot find symbol
+        doc.add(new Paragraph("T?NG C?NG: " + formatMoney(invoice.getTotal()))
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:107: error: cannot find symbol
+                .setTextAlignment(TextAlignment.RIGHT));
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:106: error: cannot find symbol
+        doc.add(new Paragraph("Ph??ng th?c: " + pm)
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:111: error: cannot find symbol
+                    .setTextAlignment(TextAlignment.RIGHT));
+                                      ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:110: error: cannot find symbol
+            doc.add(new Paragraph("Ti?n nh?n: " + formatMoney(invoice.getPaymentReceived()))
+                        ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:113: error: cannot find symbol
+                    .setTextAlignment(TextAlignment.RIGHT));
+                                      ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:112: error: cannot find symbol
+            doc.add(new Paragraph("Ti?n th?i: " + formatMoney(invoice.getChangeAmount()))
+                        ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:116: error: cannot find symbol
+        doc.add(new Paragraph("\n"));
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:118: error: cannot find symbol
+                .setTextAlignment(TextAlignment.CENTER).setItalic());
+                                  ^
+  symbol:   variable TextAlignment
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PdfExporter.java:117: error: cannot find symbol
+        doc.add(new Paragraph("C?m ?n quý khách!")
+                    ^
+  symbol:   class Paragraph
+  location: class PdfExporter
+src\main\java\com\handbagstore\utils\PasswordUtils.java:13: error: cannot find symbol
+        return BCrypt.hashpw(plainPassword, BCrypt.gensalt(BCRYPT_ROUNDS));
+               ^
+  symbol:   variable BCrypt
+  location: class PasswordUtils
+src\main\java\com\handbagstore\utils\PasswordUtils.java:13: error: cannot find symbol
+        return BCrypt.hashpw(plainPassword, BCrypt.gensalt(BCRYPT_ROUNDS));
+                                            ^
+  symbol:   variable BCrypt
+  location: class PasswordUtils
+src\main\java\com\handbagstore\utils\PasswordUtils.java:19: error: cannot find symbol
+            return BCrypt.checkpw(plainPassword, hashedPassword);
+                   ^
+  symbol:   variable BCrypt
+  location: class PasswordUtils
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+69 errors
