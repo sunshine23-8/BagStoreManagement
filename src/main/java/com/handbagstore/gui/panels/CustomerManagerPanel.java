@@ -7,6 +7,8 @@ import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.time.LocalDate;
@@ -36,6 +38,11 @@ public class CustomerManagerPanel extends JPanel {
         JButton btnSearch = new JButton("🔍");
         btnSearch.addActionListener(e -> searchCustomers());
         txtSearch.addActionListener(e -> searchCustomers());
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchCustomers(); }
+            public void removeUpdate(DocumentEvent e) { searchCustomers(); }
+            public void changedUpdate(DocumentEvent e) { searchCustomers(); }
+        });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
 
@@ -116,6 +123,7 @@ public class CustomerManagerPanel extends JPanel {
         btnAdd.addActionListener(e -> addCustomer());
         JButton btnUpdate = new JButton("✏️ Cập nhật");
         btnUpdate.setBackground(new Color(255, 193, 7));
+        btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateCustomer());
         btnPanel.add(btnAdd);
         btnPanel.add(btnUpdate);

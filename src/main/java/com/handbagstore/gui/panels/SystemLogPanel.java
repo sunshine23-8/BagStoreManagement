@@ -5,6 +5,8 @@ import com.handbagstore.dto.SystemLogDTO;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
@@ -32,6 +34,11 @@ public class SystemLogPanel extends JPanel {
         JButton btnSearch = new JButton("🔍 Tìm");
         btnSearch.addActionListener(e -> searchLogs());
         txtSearch.addActionListener(e -> searchLogs());
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchLogs(); }
+            public void removeUpdate(DocumentEvent e) { searchLogs(); }
+            public void changedUpdate(DocumentEvent e) { searchLogs(); }
+        });
         searchPanel.add(txtSearch); searchPanel.add(btnSearch);
         topPanel.add(searchPanel, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);

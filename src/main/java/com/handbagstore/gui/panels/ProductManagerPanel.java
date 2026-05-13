@@ -6,6 +6,8 @@ import com.handbagstore.dto.InventoryLogDTO;
 import com.handbagstore.dto.ProductDTO;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -42,6 +44,11 @@ public class ProductManagerPanel extends JPanel {
         JButton btnSearch = new JButton("🔍 Tìm");
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchProducts(); }
+            public void removeUpdate(DocumentEvent e) { searchProducts(); }
+            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+        });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
         topPanel.add(searchPanel, BorderLayout.EAST);
@@ -117,7 +124,7 @@ public class ProductManagerPanel extends JPanel {
         btnAdd.setBackground(new Color(40, 167, 69));
         btnAdd.setForeground(Color.WHITE);
         btnUpdate.setBackground(new Color(255, 193, 7));
-        btnUpdate.setForeground(Color.BLACK);
+        btnUpdate.setForeground(Color.WHITE);
         btnDelete.setBackground(new Color(220, 53, 69));
         btnDelete.setForeground(Color.WHITE);
 

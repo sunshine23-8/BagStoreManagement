@@ -7,6 +7,8 @@ import com.handbagstore.utils.OrderTimerManager;
 import com.handbagstore.utils.PdfExporter;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -62,6 +64,11 @@ public class SalePanel extends JPanel {
         txtSearchProduct = new JTextField();
         txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm sản phẩm...");
         txtSearchProduct.addActionListener(e -> searchProducts());
+        txtSearchProduct.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchProducts(); }
+            public void removeUpdate(DocumentEvent e) { searchProducts(); }
+            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+        });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
         JButton btnSearch = new JButton("🔍");
         btnSearch.addActionListener(e -> searchProducts());
@@ -206,7 +213,7 @@ public class SalePanel extends JPanel {
 
         btnPending = new JButton("⏳ Giữ đơn (Pending)");
         btnPending.setBackground(new Color(255, 193, 7));
-        btnPending.setForeground(Color.BLACK);
+        btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());
 

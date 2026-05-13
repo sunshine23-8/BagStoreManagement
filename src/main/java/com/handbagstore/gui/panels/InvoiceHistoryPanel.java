@@ -7,6 +7,8 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.util.List;
@@ -36,6 +38,11 @@ public class InvoiceHistoryPanel extends JPanel {
         JButton btnSearch = new JButton("🔍 Tìm");
         btnSearch.addActionListener(e -> searchInvoices());
         txtSearch.addActionListener(e -> searchInvoices());
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { searchInvoices(); }
+            public void removeUpdate(DocumentEvent e) { searchInvoices(); }
+            public void changedUpdate(DocumentEvent e) { searchInvoices(); }
+        });
         searchPanel.add(txtSearch); searchPanel.add(btnSearch);
         topPanel.add(searchPanel, BorderLayout.EAST);
         add(topPanel, BorderLayout.NORTH);

@@ -52,6 +52,7 @@ public class StaffManagerPanel extends JPanel {
 
         JButton btnToggle = new JButton("🔒 Khóa/Mở khóa");
         btnToggle.setBackground(new Color(255, 193, 7));
+        btnToggle.setForeground(Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 
         btnPanel.add(btnCreate); btnPanel.add(btnReset); btnPanel.add(btnToggle);
