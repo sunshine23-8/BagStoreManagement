@@ -5,6 +5,7 @@ import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.dto.InvoiceDTO;
 import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
+import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -146,7 +147,7 @@ public class CustomerManagerPanel extends JPanel {
         add(bottom, BorderLayout.SOUTH);
     }
 
-    private void refreshData() {
+    public void refreshData() {
         try {
             customerModel.setRowCount(0);
             List<CustomerDTO> list = customerBLL.getAll();
@@ -198,7 +199,7 @@ public class CustomerManagerPanel extends JPanel {
             for (InvoiceDTO inv : history) {
                 historyModel.addRow(new Object[] {
                         inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
-                        inv.getTotal(), inv.getStatus()
+                        CurrencyUtils.format(inv.getTotal()), inv.getStatus()
                 });
             }
         } catch (Exception ex) {

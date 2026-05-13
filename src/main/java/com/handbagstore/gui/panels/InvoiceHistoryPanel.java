@@ -7,6 +7,7 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.bll.CustomerBLL;
+import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -84,11 +85,6 @@ public class InvoiceHistoryPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
     }
 
-    private String formatCurrency(java.math.BigDecimal amount) {
-        if (amount == null) return "0đ";
-        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
-        return formatter.format(amount) + "đ";
-    }
 
     public void refreshData() {
         try {
@@ -100,7 +96,7 @@ public class InvoiceHistoryPanel extends JPanel {
                     DateUtils.formatDateTime(inv.getCreatedAt()),
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
                     inv.getStaffName(),
-                    formatCurrency(inv.getSubtotal()), formatCurrency(inv.getDiscountAmount()), formatCurrency(inv.getTotal()),
+                    CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
                     "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
                     inv.getStatus()
                 });
@@ -120,7 +116,7 @@ public class InvoiceHistoryPanel extends JPanel {
                 invoiceModel.addRow(new Object[]{
                     inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
-                    inv.getStaffName(), formatCurrency(inv.getSubtotal()), formatCurrency(inv.getDiscountAmount()), formatCurrency(inv.getTotal()),
+                    inv.getStaffName(), CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
                     "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
                     inv.getStatus()
                 });
@@ -145,7 +141,7 @@ public class InvoiceHistoryPanel extends JPanel {
             for (InvoiceDetailDTO d : details) {
                 detailModel.addRow(new Object[]{
                     d.getProductCode(), d.getProductName(),
-                    formatCurrency(d.getUnitPrice()), d.getQuantity(), formatCurrency(d.getLineTotal())
+                    CurrencyUtils.format(d.getUnitPrice()), d.getQuantity(), CurrencyUtils.format(d.getLineTotal())
                 });
             }
         } catch (Exception ex) {

@@ -5,6 +5,7 @@ import com.handbagstore.bll.DiscountBLL;
 import com.handbagstore.dto.DiscountDTO;
 import com.handbagstore.gui.components.DateChooser;
 import com.handbagstore.utils.DateUtils;
+import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -127,8 +128,8 @@ public class DiscountManagerPanel extends JPanel {
             for (DiscountDTO d : list) {
                 tableModel.addRow(new Object[]{
                     d.getCode(), d.getType(),
-                    d.isPercentType() ? d.getValue() + "%" : d.getValue() + "đ",
-                    d.getMinOrderAmt(), DateUtils.formatDateTime(d.getStartTime()),
+                    d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue()),
+                    CurrencyUtils.format(d.getMinOrderAmt()), DateUtils.formatDateTime(d.getStartTime()),
                     DateUtils.formatDateTime(d.getEndTime()), d.getOccasion(),
                     d.isActive() ? "Hoạt động" : "Đã vô hiệu"
                 });

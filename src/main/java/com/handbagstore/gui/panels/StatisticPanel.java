@@ -1,6 +1,7 @@
 package com.handbagstore.gui.panels;
 
 import com.handbagstore.bll.StatisticBLL;
+import com.handbagstore.utils.CurrencyUtils;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
@@ -118,11 +119,11 @@ public class StatisticPanel extends JPanel {
 
             // Doanh thu ngày
             BigDecimal daily = statisticBLL.getDailyRevenue(Date.valueOf(today));
-            lblDailyRevenue.setText(daily + "đ");
+            lblDailyRevenue.setText(CurrencyUtils.format(daily));
 
             // Doanh thu tháng
             BigDecimal monthly = statisticBLL.getMonthlyRevenue(year, month);
-            lblMonthlyRevenue.setText(monthly + "đ");
+            lblMonthlyRevenue.setText(CurrencyUtils.format(monthly));
 
             // Top sản phẩm tháng
             topModel.setRowCount(0);
@@ -130,6 +131,8 @@ public class StatisticPanel extends JPanel {
             LocalDate to = from.withDayOfMonth(from.lengthOfMonth());
             List<Object[]> topProducts = statisticBLL.getTopProducts(Date.valueOf(from), Date.valueOf(to), 10);
             for (Object[] row : topProducts) {
+                // row[3] is revenue
+                row[3] = CurrencyUtils.format(row[3]);
                 topModel.addRow(row);
             }
 
@@ -137,6 +140,9 @@ public class StatisticPanel extends JPanel {
             stockModel.setRowCount(0);
             List<Object[]> stocks = statisticBLL.getInventoryStock();
             for (Object[] row : stocks) {
+                // row[5] is cost price, row[6] is sell price
+                row[5] = CurrencyUtils.format(row[5]);
+                row[6] = CurrencyUtils.format(row[6]);
                 stockModel.addRow(row);
             }
         } catch (Exception ex) {

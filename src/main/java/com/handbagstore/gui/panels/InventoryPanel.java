@@ -4,6 +4,7 @@ import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.*;
+import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -126,7 +127,7 @@ public class InventoryPanel extends JPanel {
                 stockModel.addRow(new Object[] {
                         s.getProductCode(), s.getProductName(), s.getBrand(),
                         s.getQuantity(), s.getReservedQty(), s.getAvailableQty(),
-                        s.getCostPrice(), s.getSellPrice()
+                        CurrencyUtils.format(s.getCostPrice()), CurrencyUtils.format(s.getSellPrice())
                 });
             }
 
@@ -162,7 +163,7 @@ public class InventoryPanel extends JPanel {
                     formattedDate = b.getImportDate().format(formatter);
                 }
                 importModel.addRow(new Object[] {
-                        b.getProductName(), b.getQuantity(), b.getCostPrice(),
+                        b.getProductName(), b.getQuantity(), CurrencyUtils.format(b.getCostPrice()),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });
             }
