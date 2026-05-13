@@ -27,7 +27,10 @@ public class InvoiceHistoryPanel extends JPanel {
     private java.sql.Date filterFrom = null;
     private java.sql.Date filterTo = null;
 
-    public InvoiceHistoryPanel() { initComponents(); refreshData(); }
+    public InvoiceHistoryPanel() {
+        initComponents();
+        refreshData();
+    }
 
     private void initComponents() {
         setLayout(new BorderLayout(10, 10));
@@ -52,9 +55,17 @@ public class InvoiceHistoryPanel extends JPanel {
 
         txtSearch.addActionListener(e -> searchInvoices());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchInvoices(); }
-            public void removeUpdate(DocumentEvent e) { searchInvoices(); }
-            public void changedUpdate(DocumentEvent e) { searchInvoices(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchInvoices();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchInvoices();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchInvoices();
+            }
         });
         searchPanel.add(txtSearch);
         searchPanel.add(btnSearch);
@@ -66,9 +77,13 @@ public class InvoiceHistoryPanel extends JPanel {
         JSplitPane splitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
         splitPane.setResizeWeight(0.6);
 
-        String[] invCols = {"Mã HĐ", "Ngày", "Khách hàng", "Nhân viên", "Tạm tính", "Giảm giá", "Tổng", "Thanh toán", "Trạng thái"};
+        String[] invCols = { "Mã HĐ", "Ngày", "Khách hàng", "Nhân viên", "Tạm tính", "Giảm giá", "Tổng", "Thanh toán",
+                "Trạng thái" };
         invoiceModel = new DefaultTableModel(invCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         invoiceTable = new JTable(invoiceModel);
         invoiceTable.setRowHeight(28);
@@ -76,9 +91,12 @@ public class InvoiceHistoryPanel extends JPanel {
         invoiceTable.getSelectionModel().addListSelectionListener(e -> loadInvoiceDetails());
         splitPane.setTopComponent(new JScrollPane(invoiceTable));
 
-        String[] detCols = {"Mã SP", "Tên SP", "Đơn giá", "SL", "Thành tiền"};
+        String[] detCols = { "Mã SP", "Tên SP", "Đơn giá", "SL", "Thành tiền" };
         detailModel = new DefaultTableModel(detCols, 0) {
-            @Override public boolean isCellEditable(int r, int c) { return false; }
+            @Override
+            public boolean isCellEditable(int r, int c) {
+                return false;
+            }
         };
         detailTable = new JTable(detailModel);
         detailTable.setRowHeight(28);
@@ -96,20 +114,21 @@ public class InvoiceHistoryPanel extends JPanel {
         add(splitPane, BorderLayout.CENTER);
     }
 
-
     public void refreshData() {
         try {
             invoiceModel.setRowCount(0);
             List<InvoiceDTO> invoices = invoiceDAL.getAll();
             for (InvoiceDTO inv : invoices) {
-                invoiceModel.addRow(new Object[]{
-                    inv.getInvoiceCode(),
-                    DateUtils.formatDateTime(inv.getCreatedAt()),
-                    inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
-                    inv.getStaffName(),
-                    CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
-                    inv.getPaymentMethod() == null ? "—" : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
-                    inv.getStatus()
+                invoiceModel.addRow(new Object[] {
+                        inv.getInvoiceCode(),
+                        DateUtils.formatDateTime(inv.getCreatedAt()),
+                        inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
+                        inv.getStaffName(),
+                        CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()),
+                        CurrencyUtils.format(inv.getTotal()),
+                        inv.getPaymentMethod() == null ? "—"
+                                : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
+                        inv.getStatus()
                 });
             }
         } catch (Exception ex) {
@@ -123,12 +142,14 @@ public class InvoiceHistoryPanel extends JPanel {
             invoiceModel.setRowCount(0);
             List<InvoiceDTO> invoices = invoiceDAL.search(keyword, null, filterFrom, filterTo, filterStatus);
             for (InvoiceDTO inv : invoices) {
-                invoiceModel.addRow(new Object[]{
-                    inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
-                    inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
-                    inv.getStaffName(), CurrencyUtils.format(inv.getSubtotal()), CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
-                    inv.getPaymentMethod() == null ? "—" : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
-                    inv.getStatus()
+                invoiceModel.addRow(new Object[] {
+                        inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
+                        inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
+                        inv.getStaffName(), CurrencyUtils.format(inv.getSubtotal()),
+                        CurrencyUtils.format(inv.getDiscountAmount()), CurrencyUtils.format(inv.getTotal()),
+                        inv.getPaymentMethod() == null ? "—"
+                                : ("CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản"),
+                        inv.getStatus()
                 });
             }
         } catch (Exception ex) {
@@ -138,20 +159,22 @@ public class InvoiceHistoryPanel extends JPanel {
 
     private void loadInvoiceDetails() {
         int row = invoiceTable.getSelectedRow();
-        if (row < 0) return;
+        if (row < 0)
+            return;
         try {
             String code = (String) invoiceModel.getValueAt(row, 0);
             // Find invoice by code to get ID — for simplicity, search all
             List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null, null);
-            if (all.isEmpty()) return;
+            if (all.isEmpty())
+                return;
             InvoiceDTO inv = all.get(0);
 
             detailModel.setRowCount(0);
             List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
             for (InvoiceDetailDTO d : details) {
-                detailModel.addRow(new Object[]{
-                    d.getProductCode(), d.getProductName(),
-                    CurrencyUtils.format(d.getUnitPrice()), d.getQuantity(), CurrencyUtils.format(d.getLineTotal())
+                detailModel.addRow(new Object[] {
+                        d.getProductCode(), d.getProductName(),
+                        CurrencyUtils.format(d.getUnitPrice()), d.getQuantity(), CurrencyUtils.format(d.getLineTotal())
                 });
             }
         } catch (Exception ex) {
@@ -168,11 +191,13 @@ public class InvoiceHistoryPanel extends JPanel {
         try {
             String code = (String) invoiceModel.getValueAt(row, 0);
             List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null, "ALL");
-            if (all.isEmpty()) return;
+            if (all.isEmpty())
+                return;
             InvoiceDTO inv = all.get(0);
 
             if ("CANCELLED".equals(inv.getStatus())) {
-                JOptionPane.showMessageDialog(this, "Không thể xuất PDF cho hóa đơn đã bị hủy.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Không thể xuất PDF cho hóa đơn đã bị hủy.", "Thông báo",
+                        JOptionPane.WARNING_MESSAGE);
                 return;
             }
 
@@ -185,13 +210,37 @@ public class InvoiceHistoryPanel extends JPanel {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setDialogTitle("Lưu PDF Hóa Đơn");
             fileChooser.setSelectedFile(new java.io.File("HoaDon_" + inv.getInvoiceCode() + ".pdf"));
-            
+
             if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
                 String path = fileChooser.getSelectedFile().getAbsolutePath();
-                if (!path.toLowerCase().endsWith(".pdf")) path += ".pdf";
-                
+                if (!path.toLowerCase().endsWith(".pdf"))
+                    path += ".pdf";
+
                 PdfExporter.exportInvoice(path, inv, details, customer);
-                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+                Object[] options = { "OK", "In hóa đơn" };
+                int choice = JOptionPane.showOptionDialog(
+                        this,
+                        "Đã xuất PDF thành công: " + path,
+                        "Thông báo",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                if (choice == 1) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Hệ thống không hỗ trợ mở tệp tự động.", "Thông báo",
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Không thể mở tệp: " + ex.getMessage(), "Lỗi",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
@@ -223,12 +272,21 @@ public class InvoiceHistoryPanel extends JPanel {
             }
         }
 
-        gbc.gridx = 0; gbc.gridy = 0; dialog.add(new JLabel("Từ ngày:"), gbc);
-        gbc.gridx = 1; dialog.add(txtFrom, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; dialog.add(new JLabel("Đến ngày:"), gbc);
-        gbc.gridx = 1; dialog.add(txtTo, gbc);
-        gbc.gridx = 0; gbc.gridy = 2; dialog.add(new JLabel("Trạng thái:"), gbc);
-        gbc.gridx = 1; dialog.add(cmbStatus, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        dialog.add(new JLabel("Từ ngày:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(txtFrom, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 1;
+        dialog.add(new JLabel("Đến ngày:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(txtTo, gbc);
+        gbc.gridx = 0;
+        gbc.gridy = 2;
+        dialog.add(new JLabel("Trạng thái:"), gbc);
+        gbc.gridx = 1;
+        dialog.add(cmbStatus, gbc);
 
         JButton btnApply = new JButton("Áp dụng");
         btnApply.addActionListener(e -> {
@@ -247,14 +305,19 @@ public class InvoiceHistoryPanel extends JPanel {
 
         JButton btnReset = new JButton("Đặt lại");
         btnReset.addActionListener(e -> {
-            filterFrom = null; filterTo = null; filterStatus = "ALL";
+            filterFrom = null;
+            filterTo = null;
+            filterStatus = "ALL";
             dialog.dispose();
             searchInvoices();
         });
 
         JPanel btnPanel = new JPanel();
-        btnPanel.add(btnApply); btnPanel.add(btnReset);
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        btnPanel.add(btnApply);
+        btnPanel.add(btnReset);
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
         dialog.add(btnPanel, gbc);
 
         dialog.setVisible(true);

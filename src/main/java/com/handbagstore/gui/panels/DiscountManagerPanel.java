@@ -22,6 +22,7 @@ public class DiscountManagerPanel extends JPanel {
     private JTextField txtCode, txtValue, txtMinOrder;
     private JComboBox<String> cmbType, cmbOccasion;
     private JTextField txtStartDate, txtEndDate;
+    private JCheckBox chkStackable;
     private JButton btnDeactivate;
     private final DiscountBLL discountBLL = new DiscountBLL();
 
@@ -35,23 +36,40 @@ public class DiscountManagerPanel extends JPanel {
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
-        String[] cols = {"Mã", "Loại", "Giá trị", "Tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Trạng thái"};
+        String[] cols = {"Mã", "Loại", "Giá trị", "Đơn tối thiểu", "Bắt đầu", "Kết thúc", "Dịp", "Cộng dồn", "Trạng thái"};
         tableModel = new DefaultTableModel(cols, 0) {
             @Override public boolean isCellEditable(int r, int c) { return false; }
+            
+            @Override
+            public Class<?> getColumnClass(int c) {
+                if (c == 7) return Boolean.class;
+                return super.getColumnClass(c);
+            }
         };
         table = new JTable(tableModel);
         table.setRowHeight(28);
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         table.setFillsViewportHeight(true);
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        
         table.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
-                if (table.rowAtPoint(e.getPoint()) == -1) {
-                    clearForm();
+                int row = table.rowAtPoint(e.getPoint());
+                int col = table.columnAtPoint(e.getPoint());
+                if (row >= 0) {
+                    if (col == 7) {
+                        toggleStackableAt(row);
+                    } else if (col == 8) {
+                        toggleStatusAt(row);
+                    }
                 }
             }
         });
+        
+        table.getColumnModel().getColumn(7).setCellRenderer(new CheckBoxRenderer());
+        table.getColumnModel().getColumn(8).setCellRenderer(new ButtonRenderer());
+        
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Form
@@ -116,6 +134,8 @@ public class DiscountManagerPanel extends JPanel {
         JPanel formWithOccasion = new JPanel(new BorderLayout());
         JPanel occasionRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         occasionRow.add(new JLabel("Dịp:")); occasionRow.add(cmbOccasion);
+        chkStackable = new JCheckBox("Cộng dồn");
+        occasionRow.add(chkStackable);
         formWithOccasion.add(form, BorderLayout.CENTER);
         formWithOccasion.add(occasionRow, BorderLayout.SOUTH);
         bottom.add(formWithOccasion, BorderLayout.CENTER);
@@ -133,6 +153,7 @@ public class DiscountManagerPanel extends JPanel {
                     d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue()),
                     CurrencyUtils.format(d.getMinOrderAmt()), DateUtils.formatDateTime(d.getStartTime()),
                     DateUtils.formatDateTime(d.getEndTime()), d.getOccasion(),
+                    d.isStackable(),
                     d.isActive() ? "Hoạt động" : "Đã vô hiệu"
                 });
             }
@@ -201,6 +222,7 @@ public class DiscountManagerPanel extends JPanel {
         d.setEndTime(end.atTime(23, 59, 59));
         
         d.setOccasion((String) cmbOccasion.getSelectedItem());
+        d.setStackable(chkStackable.isSelected());
         return d;
     }
 
@@ -219,6 +241,7 @@ public class DiscountManagerPanel extends JPanel {
                 txtStartDate.setText(DateUtils.formatDate(d.getStartTime().toLocalDate()));
                 txtEndDate.setText(DateUtils.formatDate(d.getEndTime().toLocalDate()));
                 cmbOccasion.setSelectedItem(d.getOccasion());
+                chkStackable.setSelected(d.isStackable());
 
                 if (d.isActive()) {
                     btnDeactivate.setText("❌ Vô hiệu hóa");
@@ -236,6 +259,7 @@ public class DiscountManagerPanel extends JPanel {
         txtStartDate.setText(""); txtEndDate.setText("");
         cmbType.setSelectedIndex(0);
         cmbOccasion.setSelectedIndex(0);
+        chkStackable.setSelected(false);
         btnDeactivate.setText("❌ Vô hiệu hóa");
         btnDeactivate.setBackground(new Color(220, 53, 69));
         table.clearSelection();
@@ -253,6 +277,66 @@ public class DiscountManagerPanel extends JPanel {
             loadSelectedRow(); // Update button text
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void toggleStackableAt(int row) {
+        String code = (String) tableModel.getValueAt(row, 0);
+        try {
+            DiscountDTO d = discountBLL.getByCode(code);
+            if (d != null) {
+                boolean newVal = !d.isStackable();
+                d.setStackable(newVal);
+                discountBLL.updateDiscount(d);
+                tableModel.setValueAt(newVal, row, 7);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void toggleStatusAt(int row) {
+        String code = (String) tableModel.getValueAt(row, 0);
+        try {
+            DiscountDTO d = discountBLL.getByCode(code);
+            if (d != null) {
+                boolean newStatus = !d.isActive();
+                discountBLL.toggleActive(d.getDiscountId(), newStatus);
+                tableModel.setValueAt(newStatus ? "Hoạt động" : "Đã vô hiệu", row, 8);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    class CheckBoxRenderer extends JCheckBox implements javax.swing.table.TableCellRenderer {
+        public CheckBoxRenderer() {
+            setHorizontalAlignment(JLabel.CENTER);
+        }
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setSelected(value != null && (Boolean) value);
+            if (isSelected) {
+                setBackground(table.getSelectionBackground());
+                setForeground(table.getSelectionForeground());
+            } else {
+                setBackground(table.getBackground());
+                setForeground(table.getForeground());
+            }
+            return this;
+        }
+    }
+
+    class ButtonRenderer extends JButton implements javax.swing.table.TableCellRenderer {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            setText(value.toString());
+            if ("Hoạt động".equals(value)) {
+                setBackground(new Color(40, 167, 69));
+                setForeground(Color.WHITE);
+            } else {
+                setBackground(new Color(220, 53, 69));
+                setForeground(Color.WHITE);
+            }
+            return this;
         }
     }
 }

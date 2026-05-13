@@ -6,6 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DiscountDAL {
+    public DiscountDAL() {
+        addStackableColumn();
+    }
+
     private Connection getConnection() throws SQLException {
         return DatabaseConnection.getInstance().getConnection();
     }
@@ -68,8 +72,8 @@ public class DiscountDAL {
     }
 
     public int insert(DiscountDTO d) throws SQLException {
-        String sql = "INSERT INTO discounts (code, type, value, min_order_amt, start_time, end_time, occasion, is_active, created_by) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO discounts (code, type, value, min_order_amt, start_time, end_time, occasion, is_active, created_by, is_stackable) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, d.getCode());
             ps.setString(2, d.getType());
@@ -82,6 +86,7 @@ public class DiscountDAL {
             ps.setString(7, d.getOccasion() != null ? d.getOccasion() : "MANUAL");
             ps.setBoolean(8, d.isActive());
             ps.setInt(9, d.getCreatedBy());
+            ps.setBoolean(10, d.isStackable());
             ps.executeUpdate();
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) return rs.getInt(1);
@@ -92,7 +97,7 @@ public class DiscountDAL {
 
     public void update(DiscountDTO d) throws SQLException {
         String sql = "UPDATE discounts SET code=?, type=?, value=?, min_order_amt=?, start_time=?, end_time=?, " +
-                     "occasion=?, is_active=? WHERE discount_id=?";
+                     "occasion=?, is_active=?, is_stackable=? WHERE discount_id=?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, d.getCode());
             ps.setString(2, d.getType());
@@ -104,7 +109,8 @@ public class DiscountDAL {
             else ps.setNull(6, Types.TIMESTAMP);
             ps.setString(7, d.getOccasion());
             ps.setBoolean(8, d.isActive());
-            ps.setInt(9, d.getDiscountId());
+            ps.setBoolean(9, d.isStackable());
+            ps.setInt(10, d.getDiscountId());
             ps.executeUpdate();
         }
     }
@@ -131,6 +137,18 @@ public class DiscountDAL {
         d.setOccasion(rs.getString("occasion"));
         d.setActive(rs.getBoolean("is_active"));
         d.setCreatedBy(rs.getInt("created_by"));
+        try { d.setStackable(rs.getBoolean("is_stackable")); } catch (SQLException ignored) {}
         return d;
+    }
+
+    public void addStackableColumn() {
+        String sql = "IF NOT EXISTS (SELECT * FROM sys.columns WHERE object_id = OBJECT_ID('discounts') AND name = 'is_stackable') " +
+                     "ALTER TABLE discounts ADD is_stackable BIT DEFAULT 0;";
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(sql);
+        } catch (SQLException e) {
+            System.err.println("Lỗi thêm cột is_stackable: " + e.getMessage());
+        }
     }
 }

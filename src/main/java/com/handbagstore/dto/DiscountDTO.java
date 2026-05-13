@@ -18,6 +18,7 @@ public class DiscountDTO {
     private String occasion;        // BIRTHDAY, SPECIAL, MANUAL
     private boolean isActive;
     private int createdBy;          // account_id của admin tạo
+    private boolean isStackable;
 
     public DiscountDTO() {}
 
@@ -66,6 +67,9 @@ public class DiscountDTO {
 
     public int getCreatedBy() { return createdBy; }
     public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+
+    public boolean isStackable() { return isStackable; }
+    public void setStackable(boolean stackable) { isStackable = stackable; }
 
     public boolean isPercentType() { return "PERCENT".equals(type); }
     public boolean isAmountType() { return "AMOUNT".equals(type); }
