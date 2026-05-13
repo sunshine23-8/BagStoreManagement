@@ -19,7 +19,7 @@ public class ProfilePanel extends JPanel {
         setLayout(new BorderLayout(20, 20));
         setBorder(BorderFactory.createEmptyBorder(20, 40, 20, 40));
 
-        JLabel lblTitle = new JLabel("👤 Thông tin cá nhân");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>👤</font> Thông tin cá nhân</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
         add(lblTitle, BorderLayout.NORTH);
 

@@ -38,7 +38,7 @@ public class InvoiceHistoryPanel extends JPanel {
 
         // Top
         JPanel topPanel = new JPanel(new BorderLayout());
-        JLabel lblTitle = new JLabel("<html><font face='Segoe UI Emoji'>🧾</font> Quản lý Hóa đơn</html>");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🧾</font> Quản lý Hóa đơn</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         topPanel.add(lblTitle, BorderLayout.WEST);
 

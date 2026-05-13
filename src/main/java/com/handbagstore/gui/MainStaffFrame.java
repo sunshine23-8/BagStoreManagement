@@ -53,7 +53,7 @@ public class MainStaffFrame extends JFrame {
         // === SIDEBAR ===
         sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(220, 0));
+        sidebar.setPreferredSize(new Dimension(250, 0));
         sidebar.setBackground(new Color(30, 30, 46));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
@@ -73,9 +73,9 @@ public class MainStaffFrame extends JFrame {
 
         // Staff menu items
         String[][] menuItems = {
-            {"<html><font face='Segoe UI Emoji'>🛒</font> Bán hàng</html>", "SALE"},
-            {"<html><font face='Segoe UI Emoji'>👤</font> Khách hàng</html>", "CUSTOMER"},
-            {"<html><font face='Segoe UI Emoji'>🧾</font> Hóa đơn</html>", "INVOICE"}
+            {"<html><font face='Segoe UI Emoji'>🛒</font>&nbsp;Bán&nbsp;hàng</html>", "SALE"},
+            {"<html><font face='Segoe UI Emoji'>👤</font>&nbsp;Khách&nbsp;hàng</html>", "CUSTOMER"},
+            {"<html><font face='Segoe UI Emoji'>🧾</font>&nbsp;Hóa&nbsp;đơn</html>", "INVOICE"}
         };
 
         for (String[] item : menuItems) {
@@ -126,11 +126,12 @@ public class MainStaffFrame extends JFrame {
     private JButton createMenuButton(String text, String command) {
         String htmlText = text;
         if (text.startsWith("<html>") && text.endsWith("</html>")) {
-            htmlText = "<html><table nowrap><tr><td>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
+            htmlText = "<html><table width='180'><tr><td nowrap>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
         }
         JButton btn = new JButton(htmlText);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(200, 40));
+        btn.setMaximumSize(new Dimension(230, 40));
+        btn.setPreferredSize(new Dimension(230, 40));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setForeground(Color.WHITE);
         btn.setBackground(normalColor);

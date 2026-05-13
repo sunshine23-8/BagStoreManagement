@@ -98,7 +98,7 @@ public class MainAdminFrame extends JFrame {
     private JPanel createSidebar() {
         sidebar = new JPanel();
         sidebar.setLayout(new BoxLayout(sidebar, BoxLayout.Y_AXIS));
-        sidebar.setPreferredSize(new Dimension(220, 0));
+        sidebar.setPreferredSize(new Dimension(250, 0));
         sidebar.setBackground(new Color(30, 30, 46));
         sidebar.setBorder(BorderFactory.createEmptyBorder(20, 10, 20, 10));
 
@@ -119,14 +119,14 @@ public class MainAdminFrame extends JFrame {
 
         // Menu buttons
         String[][] menuItems = {
-            {"<html><font face='Segoe UI Emoji'>📦</font> Sản phẩm</html>", "PRODUCT"},
-            {"<html><font face='Segoe UI Emoji'>🏭</font> Kho hàng</html>", "INVENTORY"},
-            {"<html><font face='Segoe UI Emoji'>👥</font> Nhân viên</html>", "STAFF"},
-            {"<html><font face='Segoe UI Emoji'>🧾</font> Hóa đơn</html>", "INVOICE"},
-            {"<html><font face='Segoe UI Emoji'>🎫</font> Giảm giá</html>", "DISCOUNT"},
-            {"<html><font face='Segoe UI Emoji'>📊</font> Thống kê</html>", "STATISTIC"},
-            {"<html><font face='Segoe UI Emoji'>📋</font> Nhật ký</html>", "LOG"},
-            {"<html><font face='Segoe UI Emoji'>👤</font> Cá nhân</html>", "PROFILE"}
+            {"<html><font face='Segoe UI Emoji'>📦</font>&nbsp;Sản&nbsp;phẩm</html>", "PRODUCT"},
+            {"<html><font face='Segoe UI Emoji'>🏭</font>&nbsp;Kho&nbsp;hàng</html>", "INVENTORY"},
+            {"<html><font face='Segoe UI Emoji'>👥</font>&nbsp;Nhân&nbsp;viên</html>", "STAFF"},
+            {"<html><font face='Segoe UI Emoji'>🧾</font>&nbsp;Hóa&nbsp;đơn</html>", "INVOICE"},
+            {"<html><font face='Segoe UI Emoji'>🎫</font>&nbsp;Giảm&nbsp;giá</html>", "DISCOUNT"},
+            {"<html><font face='Segoe UI Emoji'>📊</font>&nbsp;Thống&nbsp;kê</html>", "STATISTIC"},
+            {"<html><font face='Segoe UI Emoji'>📋</font>&nbsp;Nhật&nbsp;ký</html>", "LOG"},
+            {"<html><font face='Segoe UI Emoji'>👤</font>&nbsp;Cá&nbsp;nhân</html>", "PROFILE"}
         };
 
         for (String[] item : menuItems) {
@@ -160,11 +160,12 @@ public class MainAdminFrame extends JFrame {
     private JButton createMenuButton(String text, String command) {
         String htmlText = text;
         if (text.startsWith("<html>") && text.endsWith("</html>")) {
-            htmlText = "<html><table nowrap><tr><td>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
+            htmlText = "<html><table width='180'><tr><td nowrap>" + text.substring(6, text.length() - 7) + "</td></tr></table></html>";
         }
         JButton btn = new JButton(htmlText);
         btn.setAlignmentX(Component.CENTER_ALIGNMENT);
-        btn.setMaximumSize(new Dimension(200, 40));
+        btn.setMaximumSize(new Dimension(230, 40));
+        btn.setPreferredSize(new Dimension(230, 40));
         btn.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btn.setForeground(Color.WHITE);
         btn.setBackground(normalColor);

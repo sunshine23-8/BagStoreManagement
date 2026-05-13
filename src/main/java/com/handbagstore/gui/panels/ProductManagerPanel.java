@@ -35,14 +35,14 @@ public class ProductManagerPanel extends JPanel {
 
         // === TOP: Title + Search ===
         JPanel topPanel = new JPanel(new BorderLayout(10, 0));
-        JLabel lblTitle = new JLabel("<html><font face='Segoe UI Emoji'>📦</font> Quản lý Sản phẩm</html>");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>📦</font> Quản lý Sản phẩm</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         topPanel.add(lblTitle, BorderLayout.WEST);
 
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
-        JButton btnSearch = new JButton("🔍 Tìm");
+        JButton btnSearch = new JButton("<html><font face='Segoe UI Emoji'>🔍</font> Tìm</html>");
         btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());

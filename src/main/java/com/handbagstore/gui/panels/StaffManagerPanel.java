@@ -27,7 +27,7 @@ public class StaffManagerPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("👥 Quản lý Nhân viên");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>👥</font> Quản lý Nhân viên</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
@@ -50,7 +50,7 @@ public class StaffManagerPanel extends JPanel {
 
         // Filter panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        filterPanel.add(new JLabel("🔍 Tìm tên:"));
+        filterPanel.add(new JLabel("<html><font face='Segoe UI Emoji'>🔍</font> Tìm tên:</html>"));
         txtSearch = new JTextField(15);
         filterPanel.add(txtSearch);
 
@@ -88,23 +88,23 @@ public class StaffManagerPanel extends JPanel {
         bottomPanel.add(formPanel, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnCreate = new JButton("➕ Tạo tài khoản");
+        JButton btnCreate = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Tạo tài khoản</html>");
         btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69));
         btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
-        JButton btnUpdate = new JButton("✏️ Cập nhật");
+        JButton btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate.setBackground(new Color(13, 110, 253)); // Blue
         btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateAccount());
 
-        JButton btnReset = new JButton("🔑 Reset mật khẩu");
+        JButton btnReset = new JButton("<html><font face='Segoe UI Emoji'>🔑</font> Reset mật khẩu</html>");
         btnReset.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnReset.addActionListener(e -> resetPassword());
 
-        JButton btnToggle = new JButton("🔒 Khóa/Mở khóa");
+        JButton btnToggle = new JButton("<html><font face='Segoe UI Emoji'>🔒</font> Khóa/Mở khóa</html>");
         btnToggle.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnToggle.setBackground(new Color(220, 53, 69)); // Red
         btnToggle.setForeground(Color.WHITE);

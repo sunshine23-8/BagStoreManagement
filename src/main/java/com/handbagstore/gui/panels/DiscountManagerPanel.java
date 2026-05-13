@@ -32,7 +32,7 @@ public class DiscountManagerPanel extends JPanel {
         setLayout(new BorderLayout(10, 10));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        JLabel lblTitle = new JLabel("🎫 Quản lý Mã giảm giá");
+        JLabel lblTitle = new JLabel("<html><nobr><font face='Segoe UI Emoji'>🎫</font> Quản lý Mã giảm giá</nobr></html>");
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 18));
         add(lblTitle, BorderLayout.NORTH);
 
@@ -84,7 +84,7 @@ public class DiscountManagerPanel extends JPanel {
         txtStartDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
         JPanel startPanel = new JPanel(new BorderLayout(2, 0));
         startPanel.add(txtStartDate, BorderLayout.CENTER);
-        JButton btnCalStart = new JButton("📅");
+        JButton btnCalStart = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
         btnCalStart.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtStartDate.getText());
             LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
@@ -96,7 +96,7 @@ public class DiscountManagerPanel extends JPanel {
         txtEndDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
         JPanel endPanel = new JPanel(new BorderLayout(2, 0));
         endPanel.add(txtEndDate, BorderLayout.CENTER);
-        JButton btnCalEnd = new JButton("📅");
+        JButton btnCalEnd = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
         btnCalEnd.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtEndDate.getText());
             LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
@@ -113,17 +113,17 @@ public class DiscountManagerPanel extends JPanel {
         bottom.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnCreate = new JButton("➕ Tạo mã");
+        JButton btnCreate = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Tạo mã</html>");
         btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createDiscount());
 
-        btnDeactivate = new JButton("❌ Vô hiệu hóa");
+        btnDeactivate = new JButton("<html><font face='Segoe UI Emoji'>❌</font> Vô hiệu hóa</html>");
         btnDeactivate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDeactivate.setBackground(new Color(220, 53, 69)); btnDeactivate.setForeground(Color.WHITE);
         btnDeactivate.addActionListener(e -> toggleDiscountStatus());
 
-        JButton btnUpdate = new JButton("✏️ Cập nhật");
+        JButton btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate.setBackground(new Color(13, 110, 253)); btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateDiscount());
