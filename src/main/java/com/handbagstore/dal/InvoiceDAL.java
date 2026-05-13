@@ -102,13 +102,14 @@ public class InvoiceDAL {
         return list;
     }
 
-    public List<InvoiceDTO> search(String invoiceCode, Integer customerId, java.sql.Date from, java.sql.Date to) throws SQLException {
+    public List<InvoiceDTO> search(String invoiceCode, Integer customerId, java.sql.Date from, java.sql.Date to,
+            String status) throws SQLException {
         StringBuilder sql = new StringBuilder(
-            "SELECT i.*, c.full_name AS customer_name, c.phone AS customer_phone, " +
-            "a.full_name AS staff_name, d.code AS discount_code " +
-            "FROM invoices i LEFT JOIN customers c ON i.customer_id = c.customer_id " +
-            "LEFT JOIN accounts a ON i.staff_id = a.account_id " +
-            "LEFT JOIN discounts d ON i.discount_id = d.discount_id WHERE 1=1 ");
+                "SELECT i.*, c.full_name AS customer_name, c.phone AS customer_phone, " +
+                        "a.full_name AS staff_name, d.code AS discount_code " +
+                        "FROM invoices i LEFT JOIN customers c ON i.customer_id = c.customer_id " +
+                        "LEFT JOIN accounts a ON i.staff_id = a.account_id " +
+                        "LEFT JOIN discounts d ON i.discount_id = d.discount_id WHERE 1=1 ");
         List<Object> params = new ArrayList<>();
 
         if (invoiceCode != null && !invoiceCode.isEmpty()) {
@@ -127,6 +128,10 @@ public class InvoiceDAL {
             sql.append("AND CAST(i.created_at AS DATE) <= ? ");
             params.add(to);
         }
+        if (status != null && !status.isEmpty() && !"ALL".equals(status)) {
+            sql.append("AND i.status = ? ");
+            params.add(status);
+        }
         sql.append("ORDER BY i.created_at DESC");
 
         List<InvoiceDTO> list = new ArrayList<>();
@@ -135,7 +140,8 @@ public class InvoiceDAL {
                 ps.setObject(i + 1, params.get(i));
             }
             try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) list.add(mapResultSet(rs));
+                while (rs.next())
+                    list.add(mapResultSet(rs));
             }
         }
         return list;

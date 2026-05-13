@@ -33,16 +33,8 @@ public class OrderBLL {
      */
     public int createPendingOrder(InvoiceDTO invoice, List<InvoiceDetailDTO> details,
                                   Runnable uiCallback) throws SQLException {
-        // Validate tồn kho
-        for (InvoiceDetailDTO d : details) {
-            int available = inventoryDAL.getAvailableQuantity(d.getProductId());
-            if (available < d.getQuantity()) {
-                ProductDAL productDAL = new ProductDAL();
-                ProductDTO p = productDAL.getById(d.getProductId());
-                throw new RuntimeException("Sản phẩm " + (p != null ? p.getName() : d.getProductId()) +
-                        " chỉ còn " + available + " trong kho!");
-            }
-        }
+        // (Validation done in SalePanel before adding to cart)
+
 
         // Generate invoice code
         String invoiceCode = invoiceDAL.generateInvoiceCode();
@@ -62,10 +54,8 @@ public class OrderBLL {
         }
         detailDAL.insertBatch(details);
 
-        // Reserve quantity
-        for (InvoiceDetailDTO d : details) {
-            inventoryDAL.reserveQuantity(d.getProductId(), d.getQuantity());
-        }
+        // (Stock was already deducted in SalePanel.addToCart)
+
 
         // Schedule auto-cancel
         long delayMs = timeoutMinutes * 60L * 1000L;
@@ -90,13 +80,8 @@ public class OrderBLL {
      * Thanh toán ngay (không qua pending).
      */
     public int createAndPayOrder(InvoiceDTO invoice, List<InvoiceDetailDTO> details) throws SQLException {
-        // Validate tồn kho
-        for (InvoiceDetailDTO d : details) {
-            int available = inventoryDAL.getAvailableQuantity(d.getProductId());
-            if (available < d.getQuantity()) {
-                throw new RuntimeException("Không đủ hàng trong kho!");
-            }
-        }
+        // (Validation done in SalePanel before adding to cart)
+
 
         String invoiceCode = invoiceDAL.generateInvoiceCode();
         invoice.setInvoiceCode(invoiceCode);
@@ -110,10 +95,8 @@ public class OrderBLL {
         }
         detailDAL.insertBatch(details);
 
-        // Trừ kho thật (không reserve)
-        for (InvoiceDetailDTO d : details) {
-            inventoryDAL.updateQuantity(d.getProductId(), -d.getQuantity());
-        }
+        // (Stock was already deducted in SalePanel.addToCart)
+
 
         logDAL.insert(new SystemLogDTO(invoice.getStaffId(), "THANH TOÁN NGAY",
                 "Mã HĐ: " + invoiceCode + ", Tổng: " + invoice.getTotal()));
@@ -138,19 +121,13 @@ public class OrderBLL {
         // Update payment info
         invoiceDAL.updatePaymentInfo(invoiceId, paymentMethod, received, change);
 
-        // Trừ kho thật + giải phóng reserve
-        List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
-        for (InvoiceDetailDTO d : details) {
-            inventoryDAL.confirmSold(d.getProductId(), d.getQuantity());
-        }
+        // (Stock was already deducted, no reservation to release)
+
 
         logDAL.insert(new SystemLogDTO(invoice.getStaffId(), "THANH TOÁN ĐƠN PENDING",
                 "Mã HĐ: " + invoice.getInvoiceCode()));
     }
 
-    /**
-     * Hủy đơn PENDING (nhân viên bấm nút hủy thủ công).
-     */
     public void cancelPendingOrder(int invoiceId) throws SQLException {
         InvoiceDTO invoice = invoiceDAL.getById(invoiceId);
         if (invoice == null) throw new RuntimeException("Không tìm thấy hóa đơn!");
@@ -159,33 +136,32 @@ public class OrderBLL {
         // Cancel timer
         OrderTimerManager.getInstance().cancelTask(invoiceId);
 
-        // Update status
-        invoiceDAL.updateStatus(invoiceId, "CANCELLED");
-
-        // Release reserve → trả lại kho
+        // Return items to stock
         List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
         for (InvoiceDetailDTO d : details) {
-            inventoryDAL.releaseReserve(d.getProductId(), d.getQuantity());
+            inventoryDAL.updateQuantity(d.getProductId(), d.getQuantity());
         }
 
+        // Update status to CANCELLED
+        invoiceDAL.updateStatus(invoiceId, "CANCELLED");
+
         int staffId = AccountBLL.getCurrentUser() != null ? AccountBLL.getCurrentUser().getAccountId() : invoice.getStaffId();
-        logDAL.insert(new SystemLogDTO(staffId, "HỦY ĐƠN THỦ CÔNG",
+        logDAL.insert(new SystemLogDTO(staffId, "HỦY ĐƠN PENDING",
                 "Mã HĐ: " + invoice.getInvoiceCode()));
     }
 
-    /**
-     * Auto-cancel khi hết thời gian pending (gọi bởi OrderTimerManager).
-     */
     private void autoCancelOrder(int invoiceId) throws SQLException {
         InvoiceDTO invoice = invoiceDAL.getById(invoiceId);
         if (invoice == null || !invoice.isPending()) return;
 
-        invoiceDAL.updateStatus(invoiceId, "CANCELLED");
-
+        // Return items to stock
         List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
         for (InvoiceDetailDTO d : details) {
-            inventoryDAL.releaseReserve(d.getProductId(), d.getQuantity());
+            inventoryDAL.updateQuantity(d.getProductId(), d.getQuantity());
         }
+
+        // Update status to CANCELLED
+        invoiceDAL.updateStatus(invoiceId, "CANCELLED");
 
         logDAL.insert(new SystemLogDTO(invoice.getStaffId(), "AUTO-CANCEL",
                 "Mã HĐ: " + invoice.getInvoiceCode() + " - Hết thời gian pending"));
@@ -194,17 +170,23 @@ public class OrderBLL {
     /**
      * Xóa đơn PENDING (dùng khi load lại vào giỏ hàng để tránh trạng thái CANCELLED).
      */
-    public void deletePendingOrder(int invoiceId) throws SQLException {
+    /**
+     * Xóa đơn PENDING (dùng khi load lại vào giỏ hàng hoặc hủy đơn).
+     * @param returnStock true nếu muốn trả hàng về kho (khi hủy), false nếu muốn giữ nguyên (khi load lại vào giỏ)
+     */
+    public void deletePendingOrder(int invoiceId, boolean returnStock) throws SQLException {
         InvoiceDTO invoice = invoiceDAL.getById(invoiceId);
         if (invoice == null) return;
 
         // Cancel timer
         OrderTimerManager.getInstance().cancelTask(invoiceId);
 
-        // Release reserve
-        List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
-        for (InvoiceDetailDTO d : details) {
-            inventoryDAL.releaseReserve(d.getProductId(), d.getQuantity());
+        if (returnStock) {
+            // Return items to stock
+            List<InvoiceDetailDTO> details = detailDAL.getByInvoiceId(invoiceId);
+            for (InvoiceDetailDTO d : details) {
+                inventoryDAL.updateQuantity(d.getProductId(), d.getQuantity());
+            }
         }
 
         // Delete

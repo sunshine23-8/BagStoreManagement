@@ -25,6 +25,7 @@ BEGIN
         full_name     NVARCHAR(100),
         role          NVARCHAR(10) NOT NULL CHECK (role IN ('ADMIN', 'STAFF')),
         is_active     BIT DEFAULT 1,
+        must_change_password BIT DEFAULT 0,
         created_at    DATETIME DEFAULT GETDATE()
     );
 END
