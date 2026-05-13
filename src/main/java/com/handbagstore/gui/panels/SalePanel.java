@@ -71,6 +71,7 @@ public class SalePanel extends JPanel {
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
         JButton btnSearch = new JButton("🔍");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
 
@@ -89,6 +90,7 @@ public class SalePanel extends JPanel {
         };
         productTable = new JTable(productModel);
         productTable.setRowHeight(28);
+        productTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         productTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -107,6 +109,7 @@ public class SalePanel extends JPanel {
         spnQuantity = new JSpinner(new SpinnerNumberModel(1, 1, 999, 1));
         addPanel.add(spnQuantity);
         btnAddToCart = new JButton("➕ Thêm vào đơn");
+        btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAddToCart.setBackground(new Color(40, 167, 69));
         btnAddToCart.setForeground(Color.WHITE);
         btnAddToCart.addActionListener(e -> addToCart());
@@ -132,6 +135,7 @@ public class SalePanel extends JPanel {
         };
         cartTable = new JTable(cartModel);
         cartTable.setRowHeight(28);
+        cartTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         centerPanel.add(new JScrollPane(cartTable), BorderLayout.CENTER);
 
         // Payment section
@@ -145,6 +149,7 @@ public class SalePanel extends JPanel {
         txtCustomerPhone = new JTextField(12);
         customerRow.add(txtCustomerPhone);
         JButton btnLookup = new JButton("Tra cứu");
+        btnLookup.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnLookup.addActionListener(e -> lookupCustomer());
         customerRow.add(btnLookup);
         lblCustomerInfo = new JLabel(" ");
@@ -158,9 +163,11 @@ public class SalePanel extends JPanel {
         txtDiscountCode = new JTextField(12);
         discountRow.add(txtDiscountCode);
         btnApplyDiscount = new JButton("Áp dụng");
+        btnApplyDiscount.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnApplyDiscount.addActionListener(e -> applyDiscount());
         discountRow.add(btnApplyDiscount);
         btnRemoveFromCart = new JButton("❌ Xóa SP");
+        btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
         discountRow.add(btnRemoveFromCart);
         paymentPanel.add(discountRow);
@@ -218,6 +225,7 @@ public class SalePanel extends JPanel {
         btnPending.addActionListener(e -> createPending());
 
         btnExportPdf = new JButton("📄 Xuất PDF");
+        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnExportPdf.addActionListener(e -> exportPdf());
 
         actionRow.add(btnPayNow);

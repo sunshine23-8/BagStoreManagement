@@ -36,6 +36,7 @@ public class CustomerManagerPanel extends JPanel {
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm tên hoặc SĐT...");
         JButton btnSearch = new JButton("🔍");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchCustomers());
         txtSearch.addActionListener(e -> searchCustomers());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -64,6 +65,7 @@ public class CustomerManagerPanel extends JPanel {
         };
         customerTable = new JTable(customerModel);
         customerTable.setRowHeight(28);
+        customerTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         customerTable.setFillsViewportHeight(true);
         customerTable.getSelectionModel().addListSelectionListener(e -> loadHistory());
         customerTable.addMouseListener(new java.awt.event.MouseAdapter() {
@@ -88,6 +90,7 @@ public class CustomerManagerPanel extends JPanel {
         };
         historyTable = new JTable(historyModel);
         historyTable.setRowHeight(28);
+        historyTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         JPanel historyPanel = new JPanel(new BorderLayout());
         historyPanel.add(new JLabel("  📜 Lịch sử mua hàng:"), BorderLayout.NORTH);
         historyPanel.add(new JScrollPane(historyTable), BorderLayout.CENTER);
@@ -108,6 +111,7 @@ public class CustomerManagerPanel extends JPanel {
         birthdayPanel.add(txtBirthday, BorderLayout.CENTER);
 
         JButton btnCal = new JButton("📅");
+        btnCal.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCal.setToolTipText("Chọn ngày từ lịch");
         btnCal.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtBirthday.getText());
@@ -127,10 +131,12 @@ public class CustomerManagerPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnAdd = new JButton("➕ Thêm");
+        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnAdd.setBackground(new Color(40, 167, 69));
         btnAdd.setForeground(Color.WHITE);
         btnAdd.addActionListener(e -> addCustomer());
         JButton btnUpdate = new JButton("✏️ Cập nhật");
+        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate.setBackground(new Color(13, 110, 253));
         btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateCustomer());

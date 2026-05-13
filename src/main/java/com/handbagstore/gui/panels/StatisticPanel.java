@@ -28,6 +28,7 @@ public class StatisticPanel extends JPanel {
         add(lblTitle, BorderLayout.NORTH);
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
 
         // Tab 1: Doanh thu
         JPanel revenuePanel = new JPanel(new BorderLayout(10, 10));
@@ -62,6 +63,7 @@ public class StatisticPanel extends JPanel {
         spnMonth = new JSpinner(new SpinnerNumberModel(LocalDate.now().getMonthValue(), 1, 12, 1));
         filterPanel.add(spnMonth);
         JButton btnRefresh = new JButton("🔄 Cập nhật");
+        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRefresh.addActionListener(e -> refreshData());
         filterPanel.add(btnRefresh);
         revenuePanel.add(filterPanel, BorderLayout.CENTER);
@@ -76,6 +78,7 @@ public class StatisticPanel extends JPanel {
         };
         topProductsTable = new JTable(topModel);
         topProductsTable.setRowHeight(28);
+        topProductsTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         topPanel.add(new JScrollPane(topProductsTable), BorderLayout.CENTER);
         tabs.addTab("🏆 Top bán chạy", topPanel);
 
@@ -87,6 +90,7 @@ public class StatisticPanel extends JPanel {
         };
         stockTable = new JTable(stockModel);
         stockTable.setRowHeight(28);
+        stockTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
         tabs.addTab("📦 Tồn kho", stockPanel);
 

@@ -36,6 +36,7 @@ public class InvoiceHistoryPanel extends JPanel {
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm mã hóa đơn...");
         JButton btnSearch = new JButton("🔍 Tìm");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchInvoices());
         txtSearch.addActionListener(e -> searchInvoices());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -57,6 +58,7 @@ public class InvoiceHistoryPanel extends JPanel {
         };
         invoiceTable = new JTable(invoiceModel);
         invoiceTable.setRowHeight(28);
+        invoiceTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         invoiceTable.getSelectionModel().addListSelectionListener(e -> loadInvoiceDetails());
         splitPane.setTopComponent(new JScrollPane(invoiceTable));
 
@@ -66,6 +68,7 @@ public class InvoiceHistoryPanel extends JPanel {
         };
         detailTable = new JTable(detailModel);
         detailTable.setRowHeight(28);
+        detailTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         JPanel detailPanel = new JPanel(new BorderLayout());
         detailPanel.add(new JLabel("  Chi tiết hóa đơn:"), BorderLayout.NORTH);
         detailPanel.add(new JScrollPane(detailTable), BorderLayout.CENTER);

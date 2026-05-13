@@ -39,6 +39,7 @@ public class DiscountManagerPanel extends JPanel {
         };
         table = new JTable(tableModel);
         table.setRowHeight(28);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Form
@@ -81,10 +82,12 @@ public class DiscountManagerPanel extends JPanel {
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         JButton btnCreate = new JButton("➕ Tạo mã");
+        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCreate.setBackground(new Color(40, 167, 69)); btnCreate.setForeground(Color.WHITE);
         btnCreate.addActionListener(e -> createDiscount());
 
         JButton btnDeactivate = new JButton("❌ Vô hiệu hóa");
+        btnDeactivate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDeactivate.setBackground(new Color(220, 53, 69)); btnDeactivate.setForeground(Color.WHITE);
         btnDeactivate.addActionListener(e -> deactivateDiscount());
 

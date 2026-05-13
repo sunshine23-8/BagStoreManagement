@@ -32,6 +32,7 @@ public class SystemLogPanel extends JPanel {
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo hành động...");
         JButton btnSearch = new JButton("🔍 Tìm");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchLogs());
         txtSearch.addActionListener(e -> searchLogs());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -49,6 +50,7 @@ public class SystemLogPanel extends JPanel {
         };
         table = new JTable(tableModel);
         table.setRowHeight(28);
+        table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         table.getColumnModel().getColumn(3).setPreferredWidth(400);
         add(new JScrollPane(table), BorderLayout.CENTER);
     }

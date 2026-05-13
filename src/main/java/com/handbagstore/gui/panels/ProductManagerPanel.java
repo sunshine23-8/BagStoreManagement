@@ -42,6 +42,7 @@ public class ProductManagerPanel extends JPanel {
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
         JButton btnSearch = new JButton("🔍 Tìm");
+        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -117,9 +118,13 @@ public class ProductManagerPanel extends JPanel {
         // Button panel
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         btnAdd = new JButton("➕ Thêm");
+        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnUpdate = new JButton("✏️ Sửa");
+        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDelete = new JButton("🗑 Ngừng kinh doanh");
+        btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnClear = new JButton("🔄 Làm mới");
+        btnClear.setFont(new Font("Segoe UI", Font.BOLD, 12));
 
         btnAdd.setBackground(new Color(40, 167, 69));
         btnAdd.setForeground(Color.WHITE);
