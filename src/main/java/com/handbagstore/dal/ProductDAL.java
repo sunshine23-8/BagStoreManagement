@@ -174,6 +174,23 @@ public class ProductDAL {
         return list;
     }
 
+    public String getNextProductCode() throws SQLException {
+        String sql = "SELECT MAX(product_code) FROM products WHERE product_code LIKE 'TX%'";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                String maxCode = rs.getString(1);
+                if (maxCode != null && maxCode.length() > 2) {
+                    try {
+                        int num = Integer.parseInt(maxCode.substring(2)) + 1;
+                        return String.format("TX%03d", num);
+                    } catch (NumberFormatException ignored) {}
+                }
+            }
+        }
+        return "TX001";
+    }
+
     /**
      * Map ResultSet → ProductDTO.
      */

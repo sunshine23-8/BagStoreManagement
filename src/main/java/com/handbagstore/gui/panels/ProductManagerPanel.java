@@ -198,7 +198,7 @@ public class ProductManagerPanel extends JPanel {
     }
 
     private void addProduct() {
-        if (txtCode.getText().trim().isEmpty() || txtName.getText().trim().isEmpty() ||
+        if (txtName.getText().trim().isEmpty() ||
                 txtBrand.getText().trim().isEmpty() || txtPrice.getText().trim().isEmpty() ||
                 txtColor.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin sản phẩm.", "Thông báo",
@@ -206,6 +206,9 @@ public class ProductManagerPanel extends JPanel {
             return;
         }
         try {
+            if (txtCode.getText().trim().isEmpty()) {
+                txtCode.setText(productBLL.getNextProductCode());
+            }
             ProductDTO p = getFormData();
             productBLL.addProduct(p);
             JOptionPane.showMessageDialog(this, "Thêm sản phẩm thành công!");
