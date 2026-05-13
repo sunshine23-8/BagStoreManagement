@@ -2,8 +2,8 @@
 # Database Configuration - SQL Server
 # ===========================================
 db.url=jdbc:sqlserver://localhost:1433;databaseName=BagStoreDB;encrypt=true;trustServerCertificate=true
-db.username=sa
-db.password=230706
+db.username=YOUR_USERNAME
+db.password=YOUR_PASSWORD
 
 # ===========================================
 # Application Settings

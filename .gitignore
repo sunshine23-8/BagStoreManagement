@@ -24,3 +24,7 @@ target/
 # OS generated files
 Thumbs.db
 .DS_Store
+
+# Sensitive files
+src/main/resources/application.properties
+
