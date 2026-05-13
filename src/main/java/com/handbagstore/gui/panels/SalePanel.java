@@ -528,17 +528,24 @@ public class SalePanel extends JPanel {
     }
 
     private void lookupCustomer() {
-        String phone = txtCustomerPhone.getText().trim();
+        String rawPhone = txtCustomerPhone.getText();
+        String phone = rawPhone.trim().replaceAll("[^0-9]", "");
         if (phone.isEmpty()) {
             selectedCustomer = null;
             lblCustomerInfo.setText(" ");
+            Container parent = lblCustomerInfo.getParent();
+            if (parent != null) {
+                parent.revalidate();
+                parent.repaint();
+            }
             return;
         }
         try {
             selectedCustomer = customerBLL.getByPhone(phone);
             if (selectedCustomer == null) {
                 lblCustomerInfo.setText("Không tìm thấy — khách vãng lai");
-                if (phone.matches("\\d{10}")) {
+                lblCustomerInfo.setForeground(new Color(166, 173, 186));
+                if (phone.length() == 10) {
                     SwingUtilities.invokeLater(() -> {
                         int choice = JOptionPane.showConfirmDialog(this,
                                 "Khách hàng này chưa có trong hệ thống.\nBạn có muốn đăng ký khách hàng mới không?",
@@ -559,15 +566,21 @@ public class SalePanel extends JPanel {
                 if (selectedCustomer.isBirthday()) {
                     info += " 🎂 Sinh nhật hôm nay!";
                     lblCustomerInfo.setForeground(new Color(255, 193, 7));
-                    // Auto-suggest birthday discount
                     suggestBirthdayDiscount();
                 } else {
-                    lblCustomerInfo.setForeground(new Color(166, 173, 186));
+                    lblCustomerInfo.setForeground(new Color(40, 167, 69)); // Green for found
                 }
                 lblCustomerInfo.setText(info);
             }
         } catch (Exception ex) {
             lblCustomerInfo.setText("Lỗi: " + ex.getMessage());
+            lblCustomerInfo.setForeground(new Color(220, 53, 69)); // Red for error
+        }
+        
+        Container parent = lblCustomerInfo.getParent();
+        if (parent != null) {
+            parent.revalidate();
+            parent.repaint();
         }
     }
 
