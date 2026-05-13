@@ -28,7 +28,7 @@ public class SalePanel extends JPanel {
     private JComboBox<String> cmbPaymentMethod;
     private JSpinner spnQuantity;
     private JButton btnAddToCart, btnRemoveFromCart, btnApplyDiscount;
-    private JButton btnPayNow, btnPending, btnExportPdf;
+    private JButton btnPayNow, btnPending;
 
     private final ProductBLL productBLL = new ProductBLL();
     private final CustomerBLL customerBLL = new CustomerBLL();
@@ -169,8 +169,11 @@ public class SalePanel extends JPanel {
         paymentPanel.setBorder(BorderFactory.createTitledBorder("Thanh toán"));
 
         // Customer
-        JPanel customerRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
-        customerRow.add(new JLabel("SĐT Khách:"));
+        JPanel customerRow = new JPanel();
+        customerRow.setLayout(new BoxLayout(customerRow, BoxLayout.Y_AXIS));
+
+        JPanel topRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        topRow.add(new JLabel("SĐT Khách:"));
         txtCustomerPhone = new JTextField(12);
         txtCustomerPhone.getDocument().addDocumentListener(new DocumentListener() {
             public void insertUpdate(DocumentEvent e) {
@@ -185,10 +188,15 @@ public class SalePanel extends JPanel {
                 lookupCustomer();
             }
         });
-        customerRow.add(txtCustomerPhone);
+        topRow.add(txtCustomerPhone);
+
+        JPanel bottomRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         lblCustomerInfo = new JLabel(" ");
         lblCustomerInfo.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        customerRow.add(lblCustomerInfo);
+        bottomRow.add(lblCustomerInfo);
+
+        customerRow.add(topRow);
+        customerRow.add(bottomRow);
         paymentPanel.add(customerRow);
 
         // Discount
@@ -293,7 +301,7 @@ public class SalePanel extends JPanel {
         paymentPanel.add(receivedRow);
 
         // Action buttons
-        JPanel actionRow = new JPanel(new GridLayout(1, 3, 5, 5));
+        JPanel actionRow = new JPanel(new GridLayout(1, 2, 5, 5));
         btnPayNow = new JButton("💰 Thanh toán ngay");
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
@@ -306,13 +314,8 @@ public class SalePanel extends JPanel {
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());
 
-        btnExportPdf = new JButton("📄 Xuất PDF");
-        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnExportPdf.addActionListener(e -> exportPdf());
-
         actionRow.add(btnPayNow);
         actionRow.add(btnPending);
-        actionRow.add(btnExportPdf);
         paymentPanel.add(actionRow);
 
         centerPanel.add(paymentPanel, BorderLayout.SOUTH);
@@ -576,7 +579,7 @@ public class SalePanel extends JPanel {
             lblCustomerInfo.setText("Lỗi: " + ex.getMessage());
             lblCustomerInfo.setForeground(new Color(220, 53, 69)); // Red for error
         }
-        
+
         Container parent = lblCustomerInfo.getParent();
         if (parent != null) {
             parent.revalidate();

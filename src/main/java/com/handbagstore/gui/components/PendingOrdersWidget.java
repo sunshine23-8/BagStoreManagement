@@ -21,9 +21,14 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
+import javax.swing.JFileChooser;
 
 import com.handbagstore.bll.OrderBLL;
+import com.handbagstore.bll.CustomerBLL;
 import com.handbagstore.dto.InvoiceDTO;
+import com.handbagstore.dto.InvoiceDetailDTO;
+import com.handbagstore.dto.CustomerDTO;
+import com.handbagstore.utils.PdfExporter;
 
 /**
  * Widget hiển thị các đơn hàng PENDING với countdown timer.
@@ -177,10 +182,51 @@ public class PendingOrdersWidget extends JPanel {
 
             String msg = "✅ Thanh toán thành công!";
             if ("CASH".equals(method)) msg += "\nTiền thối: " + change + "đ";
-            JOptionPane.showMessageDialog(this, msg);
+            
+            Object[] optionsPopup = { "Đóng", "📄 Xuất PDF" };
+            int choicePopup = JOptionPane.showOptionDialog(this,
+                    msg,
+                    "Thanh toán",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    optionsPopup,
+                    optionsPopup[0]);
+
             refreshData();
+
+            if (choicePopup == 1) {
+                exportPdf(inv.getInvoiceId());
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void exportPdf(int invoiceId) {
+        try {
+            InvoiceDTO inv = orderBLL.getInvoiceById(invoiceId);
+            if (inv == null) return;
+            List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(invoiceId);
+            CustomerDTO customer = null;
+            if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
+                customer = new CustomerBLL().getById(inv.getCustomerId());
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu PDF Hóa Đơn");
+            fileChooser.setSelectedFile(new java.io.File("HoaDon_" + inv.getInvoiceCode() + ".pdf"));
+
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".pdf"))
+                    path += ".pdf";
+
+                PdfExporter.exportInvoice(path, inv, details, customer);
+                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 

@@ -37,11 +37,14 @@ public class LoginFrame extends JFrame {
         // Title
         JLabel lblTitle = new JLabel("ĐĂNG NHẬP HỆ THỐNG", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
-        gbc.gridx = 0; gbc.gridy = 0; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 0;
+        gbc.gridwidth = 2;
         mainPanel.add(lblTitle, gbc);
 
         // Username
-        gbc.gridy = 1; gbc.gridwidth = 1;
+        gbc.gridy = 1;
+        gbc.gridwidth = 1;
         mainPanel.add(new JLabel("Tên đăng nhập:"), gbc);
         txtUsername = new JTextField(20);
         txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -49,7 +52,8 @@ public class LoginFrame extends JFrame {
         mainPanel.add(txtUsername, gbc);
 
         // Password
-        gbc.gridx = 0; gbc.gridy = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 2;
         mainPanel.add(new JLabel("Mật khẩu:"), gbc);
         txtPassword = new JPasswordField(20);
         txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
@@ -60,7 +64,9 @@ public class LoginFrame extends JFrame {
         lblError = new JLabel(" ", SwingConstants.CENTER);
         lblError.setForeground(new Color(255, 80, 80));
         lblError.setFont(new Font("Segoe UI", Font.ITALIC, 12));
-        gbc.gridx = 0; gbc.gridy = 3; gbc.gridwidth = 2;
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.gridwidth = 2;
         mainPanel.add(lblError, gbc);
 
         // Login button
@@ -71,7 +77,8 @@ public class LoginFrame extends JFrame {
         btnLogin.setFocusPainted(false);
         btnLogin.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnLogin.setPreferredSize(new Dimension(200, 40));
-        gbc.gridy = 4; gbc.gridwidth = 2;
+        gbc.gridy = 4;
+        gbc.gridwidth = 2;
         gbc.fill = GridBagConstraints.NONE;
         gbc.anchor = GridBagConstraints.CENTER;
         mainPanel.add(btnLogin, gbc);
