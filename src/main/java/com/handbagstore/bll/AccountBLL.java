@@ -111,6 +111,23 @@ public class AccountBLL {
                 "Account ID: " + accountId));
     }
 
+    /** Cập nhật thông tin staff */
+    public void updateStaffAccount(int accountId, String username, String fullName) throws SQLException {
+        if (fullName == null || fullName.trim().isEmpty())
+            throw new RuntimeException("Họ tên không được để trống!");
+        if (username == null || username.trim().isEmpty())
+            throw new RuntimeException("Tên tài khoản không được để trống!");
+
+        AccountDTO existing = accountDAL.getByUsername(username);
+        if (existing != null && existing.getAccountId() != accountId) {
+            throw new RuntimeException("Tên tài khoản đã tồn tại!");
+        }
+
+        accountDAL.updateStaffInfo(accountId, fullName.trim(), username.trim());
+        logDAL.insert(new SystemLogDTO(currentUser.getAccountId(), "CẬP NHẬT TÀI KHOẢN",
+                "Cập nhật tài khoản staff ID: " + accountId + " (" + username + ")"));
+    }
+
     /** Lấy danh sách staff */
     public List<AccountDTO> getAllStaff() throws SQLException {
         return accountDAL.getAllStaff();

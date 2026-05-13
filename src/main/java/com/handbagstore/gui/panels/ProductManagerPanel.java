@@ -120,7 +120,7 @@ public class ProductManagerPanel extends JPanel {
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
         btnAdd = new JButton("➕ Thêm");
         btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate = new JButton("✏️ Sửa");
+        btnUpdate = new JButton("✏️ Cập nhật");
         btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnDelete = new JButton("🗑 Ngừng kinh doanh");
         btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
