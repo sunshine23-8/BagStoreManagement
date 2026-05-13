@@ -25,6 +25,10 @@ public class DiscountBLL {
         return discountDAL.getActiveBirthdayDiscounts();
     }
 
+    public DiscountDTO getByCode(String code) throws SQLException {
+        return discountDAL.getByCode(code);
+    }
+
     /** Validate và lấy thông tin mã giảm giá */
     public DiscountDTO validateCode(String code) throws SQLException {
         DiscountDTO discount = discountDAL.getByCode(code);
@@ -93,5 +97,12 @@ public class DiscountBLL {
 
     public void deactivate(int discountId) throws SQLException {
         discountDAL.deactivate(discountId);
+    }
+
+    public void toggleActive(int discountId, boolean active) throws SQLException {
+        DiscountDTO d = discountDAL.getById(discountId);
+        if (d == null) return;
+        d.setActive(active);
+        discountDAL.update(d);
     }
 }

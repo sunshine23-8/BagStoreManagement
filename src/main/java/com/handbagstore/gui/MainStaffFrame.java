@@ -17,6 +17,7 @@ public class MainStaffFrame extends JFrame {
     private CardLayout cardLayout;
     private SalePanel salePanel;
     private CustomerManagerPanel customerPanel;
+    private InvoiceHistoryPanel invoicePanel;
 
     public MainStaffFrame() {
         initComponents();
@@ -62,7 +63,8 @@ public class MainStaffFrame extends JFrame {
         // Staff menu items
         String[][] menuItems = {
             {"🛒 Bán hàng", "SALE"},
-            {"👤 Khách hàng", "CUSTOMER"}
+            {"👤 Khách hàng", "CUSTOMER"},
+            {"🧾 Hóa đơn", "INVOICE"}
         };
 
         for (String[] item : menuItems) {
@@ -85,9 +87,11 @@ public class MainStaffFrame extends JFrame {
 
         salePanel = new SalePanel();
         customerPanel = new CustomerManagerPanel();
+        invoicePanel = new InvoiceHistoryPanel();
 
         contentPanel.add(salePanel, "SALE");
         contentPanel.add(customerPanel, "CUSTOMER");
+        contentPanel.add(invoicePanel, "INVOICE");
 
         add(contentPanel, BorderLayout.CENTER);
         cardLayout.show(contentPanel, "SALE");
@@ -135,5 +139,10 @@ public class MainStaffFrame extends JFrame {
             dispose();
             new LoginFrame().setVisible(true);
         }
+    }
+
+    public void switchToCustomerAndRegister(String phone) {
+        cardLayout.show(contentPanel, "CUSTOMER");
+        customerPanel.prefillForNewCustomer(phone);
     }
 }

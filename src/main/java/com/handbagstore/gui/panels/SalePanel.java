@@ -20,7 +20,8 @@ import java.util.List;
  * toán/pending.
  */
 public class SalePanel extends JPanel {
-    private JTextField txtSearchProduct, txtCustomerPhone, txtDiscountCode, txtPaymentReceived;
+    private JTextField txtSearchProduct, txtCustomerPhone, txtPaymentReceived;
+    private JComboBox<DiscountComboItem> cmbDiscount;
     private JTable productTable, cartTable;
     private DefaultTableModel productModel, cartModel;
     private JLabel lblSubtotal, lblDiscount, lblTotal, lblChange, lblCustomerInfo;
@@ -38,6 +39,22 @@ public class SalePanel extends JPanel {
     private CustomerDTO selectedCustomer;
     private DiscountDTO selectedDiscount;
     private final List<InvoiceDetailDTO> cartItems = new ArrayList<>();
+    private int lastInvoiceId = 0;
+
+    class DiscountComboItem {
+        DiscountDTO discount;
+        String label;
+
+        public DiscountComboItem(DiscountDTO discount, String label) {
+            this.discount = discount;
+            this.label = label;
+        }
+
+        @Override
+        public String toString() {
+            return label;
+        }
+    }
 
     // Panel đơn pending
     private PendingOrdersWidget pendingWidget;
@@ -65,9 +82,17 @@ public class SalePanel extends JPanel {
         txtSearchProduct.putClientProperty("JTextField.placeholderText", "Tìm sản phẩm...");
         txtSearchProduct.addActionListener(e -> searchProducts());
         txtSearchProduct.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { searchProducts(); }
-            public void removeUpdate(DocumentEvent e) { searchProducts(); }
-            public void changedUpdate(DocumentEvent e) { searchProducts(); }
+            public void insertUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                searchProducts();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                searchProducts();
+            }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
         JButton btnSearch = new JButton("🔍");
@@ -147,11 +172,20 @@ public class SalePanel extends JPanel {
         JPanel customerRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         customerRow.add(new JLabel("SĐT Khách:"));
         txtCustomerPhone = new JTextField(12);
+        txtCustomerPhone.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                lookupCustomer();
+            }
+        });
         customerRow.add(txtCustomerPhone);
-        JButton btnLookup = new JButton("Tra cứu");
-        btnLookup.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnLookup.addActionListener(e -> lookupCustomer());
-        customerRow.add(btnLookup);
         lblCustomerInfo = new JLabel(" ");
         lblCustomerInfo.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         customerRow.add(lblCustomerInfo);
@@ -160,12 +194,43 @@ public class SalePanel extends JPanel {
         // Discount
         JPanel discountRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         discountRow.add(new JLabel("Mã giảm giá:"));
-        txtDiscountCode = new JTextField(12);
-        discountRow.add(txtDiscountCode);
-        btnApplyDiscount = new JButton("Áp dụng");
-        btnApplyDiscount.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnApplyDiscount.addActionListener(e -> applyDiscount());
-        discountRow.add(btnApplyDiscount);
+        cmbDiscount = new JComboBox<>();
+        cmbDiscount.addItem(new DiscountComboItem(null, "--- Chọn mã giảm giá ---"));
+        try {
+            List<DiscountDTO> activeDiscounts = discountBLL.getActive();
+            for (DiscountDTO d : activeDiscounts) {
+                String label = d.getCode() + " ("
+                        + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue())) + ")";
+                cmbDiscount.addItem(new DiscountComboItem(d, label));
+            }
+        } catch (Exception ignored) {
+        }
+
+        cmbDiscount.setRenderer(new DefaultListCellRenderer() {
+            @Override
+            public Component getListCellRendererComponent(JList<?> list, Object value, int index, boolean isSelected,
+                    boolean cellHasFocus) {
+                Component c = super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+                if (value instanceof DiscountComboItem) {
+                    DiscountDTO d = ((DiscountComboItem) value).discount;
+                    if (d != null) {
+                        String tooltip = "<html>Mã: <b>" + d.getCode() + "</b><br>" +
+                                "Giảm: " + (d.isPercentType() ? d.getValue() + "%" : formatCurrency(d.getValue()))
+                                + "<br>" +
+                                "Đơn tối thiểu: " + formatCurrency(d.getMinOrderAmt()) + "<br>" +
+                                "Từ: " + com.handbagstore.utils.DateUtils.formatDateTime(d.getStartTime()) + "<br>" +
+                                "Đến: " + com.handbagstore.utils.DateUtils.formatDateTime(d.getEndTime()) + "</html>";
+                        ((JComponent) c).setToolTipText(tooltip);
+                    } else {
+                        ((JComponent) c).setToolTipText(null);
+                    }
+                }
+                return c;
+            }
+        });
+
+        cmbDiscount.addActionListener(e -> applyDiscount());
+        discountRow.add(cmbDiscount);
         btnRemoveFromCart = new JButton("❌ Xóa SP");
         btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
@@ -186,17 +251,32 @@ public class SalePanel extends JPanel {
         totalsPanel.add(new JLabel("TỔNG CỘNG:"));
         totalsPanel.add(lblTotal);
 
-        // Payment method + received
+        // Payment method
         JPanel pmRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
         pmRow.add(new JLabel("Thanh toán:"));
         cmbPaymentMethod = new JComboBox<>(new String[] { "Tiền mặt", "Chuyển khoản" });
         pmRow.add(cmbPaymentMethod);
-        pmRow.add(new JLabel("Tiền nhận:"));
+
+        // Received & Change
+        JPanel receivedRow = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        receivedRow.add(new JLabel("Tiền nhận:"));
         txtPaymentReceived = new JTextField(10);
-        txtPaymentReceived.addActionListener(e -> calculateChange());
-        pmRow.add(txtPaymentReceived);
-        pmRow.add(new JLabel("Thối:"));
-        pmRow.add(lblChange);
+        txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+        });
+        receivedRow.add(txtPaymentReceived);
+        receivedRow.add(new JLabel("Thối:"));
+        receivedRow.add(lblChange);
 
         cmbPaymentMethod.addActionListener(e -> {
             boolean isCash = cmbPaymentMethod.getSelectedIndex() == 0;
@@ -205,13 +285,15 @@ public class SalePanel extends JPanel {
                 txtPaymentReceived.setText("");
                 lblChange.setText("0đ");
             }
+            calculateChange();
         });
 
         paymentPanel.add(totalsPanel);
         paymentPanel.add(pmRow);
+        paymentPanel.add(receivedRow);
 
         // Action buttons
-        JPanel actionRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+        JPanel actionRow = new JPanel(new GridLayout(1, 3, 5, 5));
         btnPayNow = new JButton("💰 Thanh toán ngay");
         btnPayNow.setBackground(new Color(40, 167, 69));
         btnPayNow.setForeground(Color.WHITE);
@@ -243,6 +325,13 @@ public class SalePanel extends JPanel {
     }
 
     // ==================== Logic Methods ====================
+
+    private String formatCurrency(BigDecimal amount) {
+        if (amount == null)
+            return "0đ";
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+        return formatter.format(amount) + "đ";
+    }
 
     private void showProductDetails() {
         int row = productTable.getSelectedRow();
@@ -288,7 +377,7 @@ public class SalePanel extends JPanel {
                         product.getProductCode(),
                         product.getName(),
                         product.getBrand(),
-                        product.getPrice() + " VNĐ",
+                        formatCurrency(product.getPrice()),
                         product.getStyle(),
                         product.getMaterial(),
                         product.getColor(),
@@ -339,7 +428,8 @@ public class SalePanel extends JPanel {
             List<ProductDTO> products = productBLL.getAll(false);
             for (ProductDTO p : products) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                productModel.addRow(new Object[] { p.getProductCode(), p.getName(), p.getPrice(), stock });
+                productModel
+                        .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
@@ -356,7 +446,8 @@ public class SalePanel extends JPanel {
             productModel.setRowCount(0);
             for (ProductDTO p : productBLL.search(keyword)) {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
-                productModel.addRow(new Object[] { p.getProductCode(), p.getName(), p.getPrice(), stock });
+                productModel
+                        .addRow(new Object[] { p.getProductCode(), p.getName(), formatCurrency(p.getPrice()), stock });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
@@ -418,22 +509,22 @@ public class SalePanel extends JPanel {
         for (InvoiceDetailDTO d : cartItems) {
             cartModel.addRow(new Object[] {
                     d.getProductCode(), d.getProductName(),
-                    d.getUnitPrice(), d.getQuantity(), d.getLineTotal()
+                    formatCurrency(d.getUnitPrice()), d.getQuantity(), formatCurrency(d.getLineTotal())
             });
             subtotal = subtotal.add(d.getLineTotal());
         }
-        lblSubtotal.setText(subtotal + "đ");
+        lblSubtotal.setText(formatCurrency(subtotal));
 
         BigDecimal discountAmt = BigDecimal.ZERO;
         if (selectedDiscount != null) {
             discountAmt = discountBLL.calculateDiscount(selectedDiscount, subtotal);
         }
-        lblDiscount.setText("-" + discountAmt + "đ");
+        lblDiscount.setText("-" + formatCurrency(discountAmt));
 
         BigDecimal total = subtotal.subtract(discountAmt);
         if (total.compareTo(BigDecimal.ZERO) < 0)
             total = BigDecimal.ZERO;
-        lblTotal.setText(total + "đ");
+        lblTotal.setText(formatCurrency(total));
     }
 
     private void lookupCustomer() {
@@ -447,8 +538,24 @@ public class SalePanel extends JPanel {
             selectedCustomer = customerBLL.getByPhone(phone);
             if (selectedCustomer == null) {
                 lblCustomerInfo.setText("Không tìm thấy — khách vãng lai");
+                if (phone.matches("\\d{10}")) {
+                    SwingUtilities.invokeLater(() -> {
+                        int choice = JOptionPane.showConfirmDialog(this,
+                                "Khách hàng này chưa có trong hệ thống.\nBạn có muốn đăng ký khách hàng mới không?",
+                                "Đăng ký thành viên", JOptionPane.YES_NO_OPTION);
+                        if (choice == JOptionPane.YES_OPTION) {
+                            Window window = SwingUtilities.getWindowAncestor(this);
+                            if (window instanceof com.handbagstore.gui.MainStaffFrame) {
+                                ((com.handbagstore.gui.MainStaffFrame) window).switchToCustomerAndRegister(phone);
+                            }
+                        }
+                    });
+                }
             } else {
-                String info = selectedCustomer.getFullName();
+                String bday = selectedCustomer.getBirthday() != null
+                        ? com.handbagstore.utils.DateUtils.formatDate(selectedCustomer.getBirthday())
+                        : "N/A";
+                String info = selectedCustomer.getFullName() + " (" + bday + ")";
                 if (selectedCustomer.isBirthday()) {
                     info += " 🎂 Sinh nhật hôm nay!";
                     lblCustomerInfo.setForeground(new Color(255, 193, 7));
@@ -471,11 +578,17 @@ public class SalePanel extends JPanel {
                 DiscountDTO bd = birthdayDiscounts.get(0);
                 int confirm = JOptionPane.showConfirmDialog(this,
                         "🎂 Hôm nay là sinh nhật khách hàng!\nÁp dụng mã giảm giá sinh nhật: " + bd.getCode() + " (" +
-                                (bd.isPercentType() ? bd.getValue() + "%" : bd.getValue() + "đ") + ")?",
+                                (bd.isPercentType() ? bd.getValue() + "%" : formatCurrency(bd.getValue())) + ")?",
                         "Sinh nhật khách hàng", JOptionPane.YES_NO_OPTION);
                 if (confirm == JOptionPane.YES_OPTION) {
                     selectedDiscount = bd;
-                    txtDiscountCode.setText(bd.getCode());
+                    for (int i = 1; i < cmbDiscount.getItemCount(); i++) {
+                        DiscountComboItem item = cmbDiscount.getItemAt(i);
+                        if (item != null && item.discount != null && bd.getCode().equals(item.discount.getCode())) {
+                            cmbDiscount.setSelectedIndex(i);
+                            break;
+                        }
+                    }
                     updateCartDisplay();
                 }
             }
@@ -484,12 +597,16 @@ public class SalePanel extends JPanel {
     }
 
     private void applyDiscount() {
-        String code = txtDiscountCode.getText().trim();
-        if (code.isEmpty()) {
+        if (cmbDiscount == null || cmbDiscount.getSelectedIndex() <= 0) {
             selectedDiscount = null;
             updateCartDisplay();
             return;
         }
+        Object selectedObj = cmbDiscount.getSelectedItem();
+        if (!(selectedObj instanceof DiscountComboItem))
+            return;
+        DiscountComboItem item = (DiscountComboItem) selectedObj;
+        String code = item.discount.getCode();
         try {
             selectedDiscount = discountBLL.validateCode(code);
             // Check min order amount
@@ -497,7 +614,7 @@ public class SalePanel extends JPanel {
             BigDecimal needed = discountBLL.getAmountNeeded(selectedDiscount, subtotal);
             if (needed.compareTo(BigDecimal.ZERO) > 0) {
                 JOptionPane.showMessageDialog(this,
-                        "Cần mua thêm " + needed + "đ để áp dụng mã này.\nGợi ý sản phẩm mua thêm:");
+                        "Cần mua thêm " + formatCurrency(needed) + " để áp dụng mã này.\nGợi ý sản phẩm mua thêm:");
                 // Show upsell suggestions
                 List<ProductDTO> suggestions = productBLL.getUpsellSuggestions(subtotal,
                         selectedDiscount.getMinOrderAmt());
@@ -507,19 +624,21 @@ public class SalePanel extends JPanel {
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Lỗi mã giảm giá", JOptionPane.ERROR_MESSAGE);
             selectedDiscount = null;
+            cmbDiscount.setSelectedIndex(0);
         }
     }
 
     private void showUpsellDialog(List<ProductDTO> suggestions, BigDecimal needed) {
         if (suggestions.isEmpty())
             return;
-        StringBuilder sb = new StringBuilder("Sản phẩm gợi ý mua thêm (cần thêm ≥ " + needed + "đ):\n\n");
+        StringBuilder sb = new StringBuilder(
+                "Sản phẩm gợi ý mua thêm (cần thêm ≥ " + formatCurrency(needed) + "):\n\n");
         int count = 0;
         for (ProductDTO p : suggestions) {
             if (count++ >= 10)
                 break;
             sb.append("• ").append(p.getProductCode()).append(" - ").append(p.getName())
-                    .append(" — ").append(p.getPrice()).append("đ\n");
+                    .append(" — ").append(formatCurrency(p.getPrice())).append("\n");
         }
         JOptionPane.showMessageDialog(this, sb.toString(), "Gợi ý sản phẩm", JOptionPane.INFORMATION_MESSAGE);
     }
@@ -527,13 +646,19 @@ public class SalePanel extends JPanel {
     private void calculateChange() {
         try {
             BigDecimal total = getTotal();
-            BigDecimal received = new BigDecimal(txtPaymentReceived.getText().trim());
+            String input = txtPaymentReceived.getText().trim().replaceAll("[^0-9]", "");
+            if (input.isEmpty()) {
+                lblChange.setText("0đ");
+                return;
+            }
+            BigDecimal received = new BigDecimal(input);
             BigDecimal change = received.subtract(total);
-            lblChange.setText(change.compareTo(BigDecimal.ZERO) >= 0 ? change + "đ" : "Thiếu " + change.abs() + "đ");
+            lblChange.setText(change.compareTo(BigDecimal.ZERO) >= 0 ? formatCurrency(change)
+                    : "Thiếu " + formatCurrency(change.abs()));
             lblChange.setForeground(change.compareTo(BigDecimal.ZERO) >= 0
                     ? new Color(40, 167, 69)
                     : new Color(220, 53, 69));
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             lblChange.setText("—");
         }
     }
@@ -549,11 +674,12 @@ public class SalePanel extends JPanel {
             BigDecimal change = BigDecimal.ZERO;
 
             if (isCash) {
-                if (txtPaymentReceived.getText().trim().isEmpty()) {
+                String input = txtPaymentReceived.getText().trim().replaceAll("[^0-9]", "");
+                if (input.isEmpty()) {
                     JOptionPane.showMessageDialog(this, "Nhập số tiền khách đưa!");
                     return;
                 }
-                received = new BigDecimal(txtPaymentReceived.getText().trim());
+                received = new BigDecimal(input);
                 BigDecimal total = getTotal();
                 if (received.compareTo(total) < 0) {
                     JOptionPane.showMessageDialog(this, "Tiền khách đưa chưa đủ!");
@@ -568,13 +694,26 @@ public class SalePanel extends JPanel {
             invoice.setChangeAmount(change);
 
             int invoiceId = orderBLL.createAndPayOrder(invoice, new ArrayList<>(cartItems));
+            lastInvoiceId = invoiceId;
 
-            String changeMsg = isCash ? "\nTiền thối: " + change + "đ" : "";
-            JOptionPane.showMessageDialog(this,
-                    "✅ Thanh toán thành công!\nMã HĐ: " + invoice.getInvoiceCode() + changeMsg);
+            String changeMsg = isCash ? "\nTiền thối: " + formatCurrency(change) : "";
+
+            Object[] options = { "Đóng", "📄 Xuất PDF" };
+            int choice = JOptionPane.showOptionDialog(this,
+                    "✅ Thanh toán thành công!\nMã HĐ: " + invoice.getInvoiceCode() + changeMsg,
+                    "Thanh toán",
+                    JOptionPane.YES_NO_OPTION,
+                    JOptionPane.INFORMATION_MESSAGE,
+                    null,
+                    options,
+                    options[0]);
 
             clearCart();
             refreshProductList();
+
+            if (choice == 1) {
+                exportPdf();
+            }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
@@ -637,7 +776,35 @@ public class SalePanel extends JPanel {
     }
 
     private void exportPdf() {
-        JOptionPane.showMessageDialog(this, "Chức năng xuất PDF sẽ hoạt động sau khi thanh toán hóa đơn.");
+        if (lastInvoiceId == 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng thanh toán hóa đơn trước khi xuất PDF.");
+            return;
+        }
+        try {
+            InvoiceDTO inv = orderBLL.getInvoiceById(lastInvoiceId);
+            if (inv == null)
+                return;
+            List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(lastInvoiceId);
+            CustomerDTO customer = null;
+            if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
+                customer = customerBLL.getById(inv.getCustomerId());
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu PDF Hóa Đơn");
+            fileChooser.setSelectedFile(new java.io.File("HoaDon_" + inv.getInvoiceCode() + ".pdf"));
+
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".pdf"))
+                    path += ".pdf";
+
+                PdfExporter.exportInvoice(path, inv, details, customer);
+                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void clearCart() {
@@ -645,7 +812,9 @@ public class SalePanel extends JPanel {
         selectedCustomer = null;
         selectedDiscount = null;
         txtCustomerPhone.setText("");
-        txtDiscountCode.setText("");
+        if (cmbDiscount != null && cmbDiscount.getItemCount() > 0) {
+            cmbDiscount.setSelectedIndex(0);
+        }
         txtPaymentReceived.setText("");
         lblCustomerInfo.setText(" ");
         lblChange.setText("0đ");

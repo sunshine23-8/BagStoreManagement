@@ -5,6 +5,8 @@ import com.handbagstore.bll.OrderBLL;
 import com.handbagstore.dto.InvoiceDTO;
 import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.utils.DateUtils;
+import com.handbagstore.utils.PdfExporter;
+import com.handbagstore.bll.CustomerBLL;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -70,11 +72,22 @@ public class InvoiceHistoryPanel extends JPanel {
         detailTable.setRowHeight(28);
         detailTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
         JPanel detailPanel = new JPanel(new BorderLayout());
-        detailPanel.add(new JLabel("  Chi tiết hóa đơn:"), BorderLayout.NORTH);
+        JPanel detailHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        detailHeaderPanel.add(new JLabel("  Chi tiết hóa đơn:"));
+        JButton btnExportPdf = new JButton("📄 Xuất PDF");
+        btnExportPdf.addActionListener(e -> exportSelectedInvoicePdf());
+        detailHeaderPanel.add(btnExportPdf);
+        detailPanel.add(detailHeaderPanel, BorderLayout.NORTH);
         detailPanel.add(new JScrollPane(detailTable), BorderLayout.CENTER);
         splitPane.setBottomComponent(detailPanel);
 
         add(splitPane, BorderLayout.CENTER);
+    }
+
+    private String formatCurrency(java.math.BigDecimal amount) {
+        if (amount == null) return "0đ";
+        java.text.NumberFormat formatter = java.text.NumberFormat.getInstance(new java.util.Locale("vi", "VN"));
+        return formatter.format(amount) + "đ";
     }
 
     public void refreshData() {
@@ -87,7 +100,7 @@ public class InvoiceHistoryPanel extends JPanel {
                     DateUtils.formatDateTime(inv.getCreatedAt()),
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
                     inv.getStaffName(),
-                    inv.getSubtotal(), inv.getDiscountAmount(), inv.getTotal(),
+                    formatCurrency(inv.getSubtotal()), formatCurrency(inv.getDiscountAmount()), formatCurrency(inv.getTotal()),
                     "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
                     inv.getStatus()
                 });
@@ -107,7 +120,7 @@ public class InvoiceHistoryPanel extends JPanel {
                 invoiceModel.addRow(new Object[]{
                     inv.getInvoiceCode(), DateUtils.formatDateTime(inv.getCreatedAt()),
                     inv.getCustomerName() != null ? inv.getCustomerName() : "Khách vãng lai",
-                    inv.getStaffName(), inv.getSubtotal(), inv.getDiscountAmount(), inv.getTotal(),
+                    inv.getStaffName(), formatCurrency(inv.getSubtotal()), formatCurrency(inv.getDiscountAmount()), formatCurrency(inv.getTotal()),
                     "CASH".equals(inv.getPaymentMethod()) ? "Tiền mặt" : "Chuyển khoản",
                     inv.getStatus()
                 });
@@ -132,11 +145,45 @@ public class InvoiceHistoryPanel extends JPanel {
             for (InvoiceDetailDTO d : details) {
                 detailModel.addRow(new Object[]{
                     d.getProductCode(), d.getProductName(),
-                    d.getUnitPrice(), d.getQuantity(), d.getLineTotal()
+                    formatCurrency(d.getUnitPrice()), d.getQuantity(), formatCurrency(d.getLineTotal())
                 });
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage());
+        }
+    }
+
+    private void exportSelectedInvoicePdf() {
+        int row = invoiceTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Vui lòng chọn một hóa đơn để xuất PDF.");
+            return;
+        }
+        try {
+            String code = (String) invoiceModel.getValueAt(row, 0);
+            List<InvoiceDTO> all = invoiceDAL.search(code, null, null, null);
+            if (all.isEmpty()) return;
+            InvoiceDTO inv = all.get(0);
+
+            List<InvoiceDetailDTO> details = orderBLL.getInvoiceDetails(inv.getInvoiceId());
+            com.handbagstore.dto.CustomerDTO customer = null;
+            if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
+                customer = new CustomerBLL().getById(inv.getCustomerId());
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Lưu PDF Hóa Đơn");
+            fileChooser.setSelectedFile(new java.io.File("HoaDon_" + inv.getInvoiceCode() + ".pdf"));
+            
+            if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+                String path = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!path.toLowerCase().endsWith(".pdf")) path += ".pdf";
+                
+                PdfExporter.exportInvoice(path, inv, details, customer);
+                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
         }
     }
 }
