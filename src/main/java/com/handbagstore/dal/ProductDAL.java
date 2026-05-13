@@ -116,7 +116,7 @@ public class ProductDAL {
      */
     public void update(ProductDTO product) throws SQLException {
         String sql = "UPDATE products SET name = ?, brand = ?, price = ?, style = ?, " +
-                     "material = ?, color = ?, image_path = ? WHERE product_id = ?";
+                     "material = ?, color = ?, image_path = ?, status = ? WHERE product_id = ?";
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
             ps.setString(1, product.getName());
             ps.setString(2, product.getBrand());
@@ -125,7 +125,8 @@ public class ProductDAL {
             ps.setString(5, product.getMaterial());
             ps.setString(6, product.getColor());
             ps.setString(7, product.getImagePath());
-            ps.setInt(8, product.getProductId());
+            ps.setString(8, product.getStatus());
+            ps.setInt(9, product.getProductId());
             ps.executeUpdate();
         }
     }

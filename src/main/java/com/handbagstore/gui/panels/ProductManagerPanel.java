@@ -16,7 +16,7 @@ public class ProductManagerPanel extends JPanel {
     private DefaultTableModel tableModel;
     private JTextField txtSearch;
     private JTextField txtCode, txtName, txtBrand, txtPrice, txtColor;
-    private JComboBox<String> cmbStyle, cmbMaterial;
+    private JComboBox<String> cmbStyle, cmbMaterial, cmbStatus;
     private JButton btnAdd, btnUpdate, btnDelete, btnClear;
     private final ProductBLL productBLL = new ProductBLL();
     private final InventoryBLL inventoryBLL = new InventoryBLL();
@@ -75,6 +75,7 @@ public class ProductManagerPanel extends JPanel {
         txtColor = new JTextField();
         cmbStyle = new JComboBox<>(new String[]{"Tote", "Crossbody", "Backpack", "Clutch"});
         cmbMaterial = new JComboBox<>(new String[]{"Da thật", "PU", "Canvas"});
+        cmbStatus = new JComboBox<>(new String[]{"ACTIVE", "INACTIVE"});
 
         formPanel.add(new JLabel("Mã SP:")); formPanel.add(txtCode);
         formPanel.add(new JLabel("Tên:")); formPanel.add(txtName);
@@ -83,7 +84,7 @@ public class ProductManagerPanel extends JPanel {
         formPanel.add(new JLabel("Kiểu dáng:")); formPanel.add(cmbStyle);
         formPanel.add(new JLabel("Chất liệu:")); formPanel.add(cmbMaterial);
         formPanel.add(new JLabel("Màu sắc:")); formPanel.add(txtColor);
-        formPanel.add(new JLabel("")); formPanel.add(new JLabel(""));
+        formPanel.add(new JLabel("Trạng thái:")); formPanel.add(cmbStatus);
 
         bottomPanel.add(formPanel, BorderLayout.CENTER);
 
@@ -160,9 +161,16 @@ public class ProductManagerPanel extends JPanel {
         cmbStyle.setSelectedItem(tableModel.getValueAt(row, 4));
         cmbMaterial.setSelectedItem(tableModel.getValueAt(row, 5));
         txtColor.setText((String) tableModel.getValueAt(row, 6));
+        cmbStatus.setSelectedItem(tableModel.getValueAt(row, 8));
     }
 
     private void addProduct() {
+        if (txtCode.getText().trim().isEmpty() || txtName.getText().trim().isEmpty() ||
+            txtBrand.getText().trim().isEmpty() || txtPrice.getText().trim().isEmpty() ||
+            txtColor.getText().trim().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Vui lòng điền đầy đủ thông tin sản phẩm.", "Thông báo", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
         try {
             ProductDTO p = getFormData();
             productBLL.addProduct(p);
@@ -217,7 +225,7 @@ public class ProductManagerPanel extends JPanel {
         p.setStyle((String) cmbStyle.getSelectedItem());
         p.setMaterial((String) cmbMaterial.getSelectedItem());
         p.setColor(txtColor.getText().trim());
-        p.setStatus("ACTIVE");
+        p.setStatus((String) cmbStatus.getSelectedItem());
         return p;
     }
 
@@ -225,6 +233,7 @@ public class ProductManagerPanel extends JPanel {
         txtCode.setText(""); txtName.setText(""); txtBrand.setText("");
         txtPrice.setText(""); txtColor.setText("");
         cmbStyle.setSelectedIndex(0); cmbMaterial.setSelectedIndex(0);
+        cmbStatus.setSelectedIndex(0);
         table.clearSelection();
     }
 }
