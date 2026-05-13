@@ -18,44 +18,109 @@ public class ImportBatchDTO {
     private int createdBy;
 
     // Transient fields
+    private String productCode;
     private String productName;
     private String supplierName;
     private String createdByName;
 
-    public ImportBatchDTO() {}
+    public ImportBatchDTO() {
+    }
 
     // --- Getters & Setters ---
 
-    public int getBatchId() { return batchId; }
-    public void setBatchId(int batchId) { this.batchId = batchId; }
+    public int getBatchId() {
+        return batchId;
+    }
 
-    public int getProductId() { return productId; }
-    public void setProductId(int productId) { this.productId = productId; }
+    public void setBatchId(int batchId) {
+        this.batchId = batchId;
+    }
 
-    public Integer getSupplierId() { return supplierId; }
-    public void setSupplierId(Integer supplierId) { this.supplierId = supplierId; }
+    public int getProductId() {
+        return productId;
+    }
 
-    public int getQuantity() { return quantity; }
-    public void setQuantity(int quantity) { this.quantity = quantity; }
+    public void setProductId(int productId) {
+        this.productId = productId;
+    }
 
-    public BigDecimal getCostPrice() { return costPrice; }
-    public void setCostPrice(BigDecimal costPrice) { this.costPrice = costPrice; }
+    public Integer getSupplierId() {
+        return supplierId;
+    }
 
-    public LocalDateTime getImportDate() { return importDate; }
-    public void setImportDate(LocalDateTime importDate) { this.importDate = importDate; }
+    public void setSupplierId(Integer supplierId) {
+        this.supplierId = supplierId;
+    }
 
-    public String getNote() { return note; }
-    public void setNote(String note) { this.note = note; }
+    public int getQuantity() {
+        return quantity;
+    }
 
-    public int getCreatedBy() { return createdBy; }
-    public void setCreatedBy(int createdBy) { this.createdBy = createdBy; }
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
+    }
 
-    public String getProductName() { return productName; }
-    public void setProductName(String productName) { this.productName = productName; }
+    public BigDecimal getCostPrice() {
+        return costPrice;
+    }
 
-    public String getSupplierName() { return supplierName; }
-    public void setSupplierName(String supplierName) { this.supplierName = supplierName; }
+    public void setCostPrice(BigDecimal costPrice) {
+        this.costPrice = costPrice;
+    }
 
-    public String getCreatedByName() { return createdByName; }
-    public void setCreatedByName(String createdByName) { this.createdByName = createdByName; }
+    public LocalDateTime getImportDate() {
+        return importDate;
+    }
+
+    public void setImportDate(LocalDateTime importDate) {
+        this.importDate = importDate;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public int getCreatedBy() {
+        return createdBy;
+    }
+
+    public void setCreatedBy(int createdBy) {
+        this.createdBy = createdBy;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public void setProductName(String productName) {
+        this.productName = productName;
+    }
+
+    public String getSupplierName() {
+        return supplierName;
+    }
+
+    public void setSupplierName(String supplierName) {
+        this.supplierName = supplierName;
+    }
+
+    public String getCreatedByName() {
+        return createdByName;
+    }
+
+    public void setCreatedByName(String createdByName) {
+        this.createdByName = createdByName;
+    }
+
+    public String getProductCode() {
+        return productCode;
+    }
+
+    public void setProductCode(String productCode) {
+        this.productCode = productCode;
+    }
 }

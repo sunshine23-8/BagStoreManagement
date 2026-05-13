@@ -116,7 +116,7 @@ public class InventoryPanel extends JPanel {
         importTop.add(btnImport, BorderLayout.EAST);
         importPanel.add(importTop, BorderLayout.NORTH);
 
-        String[] importCols = { "Mã SP", "Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
+        String[] importCols = { "Mã SP","Sản phẩm", "Số lượng", "Giá vốn", "Ngày nhập", "Người nhập", "Ghi chú" };
         importModel = new DefaultTableModel(importCols, 0) {
             @Override
             public boolean isCellEditable(int r, int c) {
