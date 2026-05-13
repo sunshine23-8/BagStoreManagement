@@ -164,6 +164,8 @@ public class SalePanel extends JPanel {
 
         btnRemoveFromCart = new JButton("❌ Xóa SP");
         btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnRemoveFromCart.setBackground(new Color(220, 53, 69));
+        btnRemoveFromCart.setForeground(Color.WHITE);
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
         cartHeaderPanel.add(btnRemoveFromCart, BorderLayout.EAST);
 
