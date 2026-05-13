@@ -4,6 +4,7 @@ import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.InventoryLogDTO;
 import com.handbagstore.dto.ProductDTO;
+import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
@@ -160,7 +161,7 @@ public class ProductManagerPanel extends JPanel {
 
                 tableModel.addRow(new Object[] {
                         p.getProductCode(), p.getName(), p.getBrand(),
-                        p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
+                        CurrencyUtils.format(p.getPrice()), p.getStyle(), p.getMaterial(), p.getColor(),
                         stock, p.getStatus()
                 });
             }
@@ -182,7 +183,7 @@ public class ProductManagerPanel extends JPanel {
                 int stock = inventoryBLL.getAvailableQuantity(p.getProductId());
                 tableModel.addRow(new Object[] {
                         p.getProductCode(), p.getName(), p.getBrand(),
-                        p.getPrice(), p.getStyle(), p.getMaterial(), p.getColor(),
+                        CurrencyUtils.format(p.getPrice()), p.getStyle(), p.getMaterial(), p.getColor(),
                         stock, p.getStatus()
                 });
             }

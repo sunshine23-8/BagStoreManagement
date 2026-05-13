@@ -1,9 +1,14 @@
 package com.handbagstore.gui.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.GridLayout;
+import com.handbagstore.bll.AccountBLL;
+import com.handbagstore.bll.InventoryBLL;
+import com.handbagstore.bll.ProductBLL;
+import com.handbagstore.dto.*;
+import com.handbagstore.utils.CurrencyUtils;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -194,7 +199,7 @@ public class InventoryPanel extends JPanel {
                 stockModel.addRow(new Object[] {
                         s.getProductCode(), s.getProductName(), s.getBrand(),
                         s.getQuantity(), s.getReservedQty(), s.getAvailableQty(),
-                        s.getCostPrice(), s.getSellPrice()
+                        CurrencyUtils.format(s.getCostPrice()), CurrencyUtils.format(s.getSellPrice())
                 });
             }
 
@@ -232,7 +237,9 @@ public class InventoryPanel extends JPanel {
 
                 importModel.addRow(new Object[] {
                         b.getProductCode(),
-                        b.getProductName(), b.getQuantity(), b.getCostPrice(),
+                        b.getProductName(),
+                        b.getQuantity(),
+                        CurrencyUtils.format(b.getCostPrice()),
                         BigDecimal.valueOf(b.getQuantity()).multiply(b.getCostPrice()),
                         formattedDate, b.getCreatedByName(), b.getNote()
                 });

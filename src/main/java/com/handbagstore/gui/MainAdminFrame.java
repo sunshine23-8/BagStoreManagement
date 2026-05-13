@@ -24,6 +24,11 @@ public class MainAdminFrame extends JFrame {
     private DiscountManagerPanel discountPanel;
     private StatisticPanel statisticPanel;
     private SystemLogPanel systemLogPanel;
+    
+    private java.util.List<JButton> menuButtons = new java.util.ArrayList<>();
+    private JButton currentActiveButton;
+    private final Color NORMAL_COLOR = new Color(45, 45, 65);
+    private final Color ACTIVE_COLOR = new Color(64, 133, 240);
 
     public MainAdminFrame() {
         initComponents();
@@ -114,6 +119,13 @@ public class MainAdminFrame extends JFrame {
             JButton btn = createMenuButton(item[0], item[1]);
             sidebar.add(btn);
             sidebar.add(Box.createVerticalStrut(5));
+            menuButtons.add(btn);
+        }
+
+        // Highlight first button by default
+        if (!menuButtons.isEmpty()) {
+            currentActiveButton = menuButtons.get(0);
+            currentActiveButton.setBackground(ACTIVE_COLOR);
         }
 
         sidebar.add(Box.createVerticalGlue());
@@ -139,13 +151,15 @@ public class MainAdminFrame extends JFrame {
 
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent evt) {
-                btn.setBackground(new Color(64, 133, 240));
+                btn.setBackground(ACTIVE_COLOR);
             }
             public void mouseExited(java.awt.event.MouseEvent evt) {
-                if (!"LOGOUT".equals(command))
-                    btn.setBackground(new Color(45, 45, 65));
-                else
-                    btn.setBackground(new Color(220, 53, 69));
+                if (btn != currentActiveButton) {
+                    if ("LOGOUT".equals(command))
+                        btn.setBackground(new Color(220, 53, 69));
+                    else
+                        btn.setBackground(NORMAL_COLOR);
+                }
             }
         });
 
@@ -154,10 +168,19 @@ public class MainAdminFrame extends JFrame {
                 handleLogout();
             } else {
                 cardLayout.show(contentPanel, command);
+                updateButtonColors(btn);
                 refreshPanel(command);
             }
         });
         return btn;
+    }
+
+    private void updateButtonColors(JButton activeBtn) {
+        if (currentActiveButton != null) {
+            currentActiveButton.setBackground(NORMAL_COLOR);
+        }
+        currentActiveButton = activeBtn;
+        currentActiveButton.setBackground(ACTIVE_COLOR);
     }
 
     private void refreshPanel(String panelName) {
