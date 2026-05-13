@@ -21,8 +21,8 @@ public class ProductDAL {
      */
     public List<ProductDTO> getAll(boolean includeInactive) throws SQLException {
         String sql = includeInactive
-                ? "SELECT * FROM products ORDER BY created_at DESC"
-                : "SELECT * FROM products WHERE status = 'ACTIVE' ORDER BY created_at DESC";
+                ? "SELECT * FROM products ORDER BY product_code ASC"
+                : "SELECT * FROM products WHERE status = 'ACTIVE' ORDER BY product_code ASC";
         List<ProductDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -71,7 +71,7 @@ public class ProductDAL {
     public List<ProductDTO> search(String keyword) throws SQLException {
         String sql = "SELECT * FROM products WHERE " +
                      "(product_code LIKE ? OR name LIKE ? OR brand LIKE ?) " +
-                     "AND status = 'ACTIVE' ORDER BY name";
+                     "AND status = 'ACTIVE' ORDER BY product_code ASC";
         String searchTerm = "%" + keyword + "%";
         List<ProductDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {

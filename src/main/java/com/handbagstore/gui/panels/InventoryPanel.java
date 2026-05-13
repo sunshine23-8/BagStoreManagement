@@ -59,7 +59,19 @@ public class InventoryPanel extends JPanel {
         importForm.setBorder(BorderFactory.createTitledBorder("Nhập kho mới"));
 
         cmbProduct = new JComboBox<>();
-        txtQty = new JTextField(); txtCostPrice = new JTextField(); txtNote = new JTextField();
+        txtQty = new JTextField();
+        txtQty.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
+        txtCostPrice = new JTextField();
+        txtCostPrice.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
+        txtNote = new JTextField();
 
         importForm.add(new JLabel("Sản phẩm:")); importForm.add(cmbProduct);
         importForm.add(new JLabel("Số lượng:")); importForm.add(txtQty);

@@ -77,6 +77,11 @@ public class ProductManagerPanel extends JPanel {
         txtName = new JTextField();
         txtBrand = new JTextField();
         txtPrice = new JTextField();
+        txtPrice.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyTyped(java.awt.event.KeyEvent evt) {
+                if (!Character.isDigit(evt.getKeyChar())) evt.consume();
+            }
+        });
         txtColor = new JTextField();
         cmbStyle = new JComboBox<>(new String[] { "Tote", "Crossbody", "Backpack", "Clutch" });
         cmbMaterial = new JComboBox<>(new String[] { "Da thật", "PU", "Canvas" });
