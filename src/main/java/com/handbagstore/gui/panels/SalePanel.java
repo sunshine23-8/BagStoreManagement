@@ -236,7 +236,8 @@ public class SalePanel extends JPanel {
         try {
             List<DiscountDTO> activeDiscounts = discountBLL.getActive();
             for (DiscountDTO d : activeDiscounts) {
-                if ("BIRTHDAY".equals(d.getOccasion())) continue; // Bỏ qua mã sinh nhật trong dropdown
+                if ("BIRTHDAY".equals(d.getOccasion()))
+                    continue; // Bỏ qua mã sinh nhật trong dropdown
                 String label = d.getCode() + " ("
                         + (d.isPercentType() ? d.getValue() + "%" : CurrencyUtils.format(d.getValue())) + ")";
                 cmbDiscount.addItem(new DiscountComboItem(d, label));
@@ -320,9 +321,17 @@ public class SalePanel extends JPanel {
 
         txtPaymentReceived = new JTextField();
         txtPaymentReceived.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { calculateChange(); }
-            public void removeUpdate(DocumentEvent e) { calculateChange(); }
-            public void changedUpdate(DocumentEvent e) { calculateChange(); }
+            public void insertUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                calculateChange();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                calculateChange();
+            }
         });
         gbcP.gridx = 1;
         gbcP.weightx = 1.0;
@@ -546,7 +555,8 @@ public class SalePanel extends JPanel {
                 }
             }
 
-            // Delete the pending order (REMOVE from DB, but KEEP stock deducted because it's now in active cart)
+            // Delete the pending order (REMOVE from DB, but KEEP stock deducted because
+            // it's now in active cart)
             orderBLL.deletePendingOrder(inv.getInvoiceId(), false);
 
             updateCartDisplay();
@@ -727,7 +737,8 @@ public class SalePanel extends JPanel {
             if (!birthdayDiscounts.isEmpty()) {
                 birthdayDiscount = birthdayDiscounts.get(0);
                 JOptionPane.showMessageDialog(this,
-                        "🎂 Hôm nay là sinh nhật khách hàng!\nMã giảm giá sinh nhật '" + birthdayDiscount.getCode() + "' đã được tự động áp dụng.",
+                        "🎂 Hôm nay là sinh nhật khách hàng!\nMã giảm giá sinh nhật '" + birthdayDiscount.getCode()
+                                + "' đã được tự động áp dụng.",
                         "Thông báo", JOptionPane.INFORMATION_MESSAGE);
                 updateCartDisplay();
             }
@@ -970,20 +981,22 @@ public class SalePanel extends JPanel {
         inv.setSubtotal(getSubtotal());
 
         BigDecimal discountAmt = getDiscountAmount(getSubtotal());
-        
+
         inv.setDiscountAmount(discountAmt);
         inv.setTotal(getSubtotal().subtract(discountAmt).max(BigDecimal.ZERO));
-        
+
         if (selectedDiscount != null) {
             inv.setDiscountId(selectedDiscount.getDiscountId());
         } else if (birthdayDiscount != null) {
             inv.setDiscountId(birthdayDiscount.getDiscountId());
         }
-        
+
         StringBuilder codes = new StringBuilder();
-        if (birthdayDiscount != null) codes.append("Sinh nhật");
+        if (birthdayDiscount != null)
+            codes.append("Sinh nhật");
         if (selectedDiscount != null) {
-            if (codes.length() > 0) codes.append(" + ");
+            if (codes.length() > 0)
+                codes.append(" + ");
             codes.append(selectedDiscount.getCode());
         }
         if (codes.length() > 0) {
@@ -1048,7 +1061,30 @@ public class SalePanel extends JPanel {
                     path += ".pdf";
 
                 PdfExporter.exportInvoice(path, inv, details, customer);
-                JOptionPane.showMessageDialog(this, "Đã xuất PDF thành công: " + path);
+                Object[] options = { "OK", "In hóa đơn" };
+                int choice = JOptionPane.showOptionDialog(
+                        this,
+                        "Đã xuất PDF thành công: " + path,
+                        "Thông báo",
+                        JOptionPane.DEFAULT_OPTION,
+                        JOptionPane.INFORMATION_MESSAGE,
+                        null,
+                        options,
+                        options[0]);
+
+                if (choice == 1) {
+                    try {
+                        if (java.awt.Desktop.isDesktopSupported()) {
+                            java.awt.Desktop.getDesktop().open(new java.io.File(path));
+                        } else {
+                            JOptionPane.showMessageDialog(this, "Hệ thống không hỗ trợ mở tệp tự động.", "Thông báo",
+                                    JOptionPane.WARNING_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        JOptionPane.showMessageDialog(this, "Không thể mở tệp: " + ex.getMessage(), "Lỗi",
+                                JOptionPane.ERROR_MESSAGE);
+                    }
+                }
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi xuất PDF: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
