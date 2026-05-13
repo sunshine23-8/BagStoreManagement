@@ -122,7 +122,7 @@ public class CustomerManagerPanel extends JPanel {
         btnAdd.setForeground(Color.WHITE);
         btnAdd.addActionListener(e -> addCustomer());
         JButton btnUpdate = new JButton("✏️ Cập nhật");
-        btnUpdate.setBackground(new Color(255, 193, 7));
+        btnUpdate.setBackground(new Color(13, 110, 253));
         btnUpdate.setForeground(Color.WHITE);
         btnUpdate.addActionListener(e -> updateCustomer());
         btnPanel.add(btnAdd);

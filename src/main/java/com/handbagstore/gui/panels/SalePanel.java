@@ -212,7 +212,7 @@ public class SalePanel extends JPanel {
         btnPayNow.addActionListener(e -> payNow());
 
         btnPending = new JButton("⏳ Giữ đơn (Pending)");
-        btnPending.setBackground(new Color(255, 193, 7));
+        btnPending.setBackground(new Color(13, 110, 253));
         btnPending.setForeground(Color.WHITE);
         btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPending.addActionListener(e -> createPending());

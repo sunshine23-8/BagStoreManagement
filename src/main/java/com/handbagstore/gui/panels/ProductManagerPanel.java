@@ -123,7 +123,7 @@ public class ProductManagerPanel extends JPanel {
 
         btnAdd.setBackground(new Color(40, 167, 69));
         btnAdd.setForeground(Color.WHITE);
-        btnUpdate.setBackground(new Color(255, 193, 7));
+        btnUpdate.setBackground(new Color(13, 110, 253));
         btnUpdate.setForeground(Color.WHITE);
         btnDelete.setBackground(new Color(220, 53, 69));
         btnDelete.setForeground(Color.WHITE);

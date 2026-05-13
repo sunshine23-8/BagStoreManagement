@@ -51,7 +51,7 @@ public class StaffManagerPanel extends JPanel {
         btnReset.addActionListener(e -> resetPassword());
 
         JButton btnToggle = new JButton("🔒 Khóa/Mở khóa");
-        btnToggle.setBackground(new Color(255, 193, 7));
+        btnToggle.setBackground(new Color(13, 110, 253));
         btnToggle.setForeground(Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 

@@ -57,7 +57,7 @@ public class AccountDAL {
      * Lấy danh sách tất cả tài khoản Staff.
      */
     public List<AccountDTO> getAllStaff() throws SQLException {
-        String sql = "SELECT * FROM accounts WHERE role = 'STAFF' ORDER BY created_at DESC";
+        String sql = "SELECT * FROM accounts WHERE role = 'STAFF' ORDER BY account_id ASC";
         List<AccountDTO> list = new ArrayList<>();
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
