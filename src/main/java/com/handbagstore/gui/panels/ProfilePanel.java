@@ -105,7 +105,11 @@ public class ProfilePanel extends JPanel {
         if (!isStaff) {
             mainContent.add(passPanel);
         }
-        add(mainContent, BorderLayout.CENTER);
+
+        JPanel centerWrapper = new JPanel(new BorderLayout());
+        centerWrapper.setOpaque(false);
+        centerWrapper.add(mainContent, BorderLayout.NORTH);
+        add(centerWrapper, BorderLayout.CENTER);
     }
 
     private void addInfoField(JPanel panel, String label, JTextField field, int y, GridBagConstraints gbc) {
