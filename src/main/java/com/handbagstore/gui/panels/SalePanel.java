@@ -5,6 +5,7 @@ import com.handbagstore.dto.*;
 import com.handbagstore.gui.components.*;
 import com.handbagstore.utils.OrderTimerManager;
 import com.handbagstore.utils.PdfExporter;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.CurrencyUtils;
 
 import javax.swing.*;
@@ -106,9 +107,8 @@ public class SalePanel extends JPanel {
             }
         });
         searchPanel.add(txtSearchProduct, BorderLayout.CENTER);
-        JButton btnSearch = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</td></tr></table></html>");
-        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnSearch = new JButton();
+        ButtonUtils.setupButton(btnSearch, "🔍", "Tìm", null, null);
         btnSearch.addActionListener(e -> searchProducts());
         searchPanel.add(btnSearch, BorderLayout.EAST);
 
@@ -158,11 +158,8 @@ public class SalePanel extends JPanel {
             }
         });
 
-        btnAddToCart = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Thêm&nbsp;vào&nbsp;đơn</td></tr></table></html>");
-        btnAddToCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnAddToCart.setBackground(new Color(40, 167, 69));
-        btnAddToCart.setForeground(Color.WHITE);
+        btnAddToCart = new JButton();
+        ButtonUtils.setupButton(btnAddToCart, "➕", "Thêm vào đơn", new Color(40, 167, 69), Color.WHITE);
         btnAddToCart.addActionListener(e -> addToCart());
         addPanel.add(btnAddToCart);
         leftPanel.add(addPanel, BorderLayout.SOUTH);
@@ -182,10 +179,8 @@ public class SalePanel extends JPanel {
         cartTitlePanel.add(cText);
         cartHeaderPanel.add(cartTitlePanel, BorderLayout.WEST);
 
-        btnRemoveFromCart = new JButton("Xóa sản phẩm");
-        btnRemoveFromCart.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnRemoveFromCart.setBackground(new Color(220, 53, 69));
-        btnRemoveFromCart.setForeground(Color.WHITE);
+        btnRemoveFromCart = new JButton();
+        ButtonUtils.setupButton(btnRemoveFromCart, "🗑", "Xóa sản phẩm", new Color(220, 53, 69), Color.WHITE);
         btnRemoveFromCart.addActionListener(e -> removeFromCart());
         cartHeaderPanel.add(btnRemoveFromCart, BorderLayout.EAST);
 
@@ -389,37 +384,11 @@ public class SalePanel extends JPanel {
         actionRow.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
 
         btnPayNow = new JButton();
-        btnPayNow.setLayout(new GridBagLayout());
-        JPanel innerPay = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        innerPay.setOpaque(false);
-        JLabel iconPay = new JLabel("💰");
-        iconPay.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        JLabel textPay = new JLabel("Thanh toán ngay");
-        textPay.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        textPay.setForeground(Color.WHITE);
-        innerPay.add(iconPay);
-        innerPay.add(textPay);
-        btnPayNow.add(innerPay);
-        btnPayNow.setBackground(new Color(40, 167, 69));
-        btnPayNow.setForeground(Color.WHITE);
-        btnPayNow.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        ButtonUtils.setupButton(btnPayNow, "💰", "Thanh toán ngay", new Color(40, 167, 69), Color.WHITE);
         btnPayNow.addActionListener(e -> payNow());
 
         btnPending = new JButton();
-        btnPending.setLayout(new GridBagLayout());
-        JPanel innerPend = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        innerPend.setOpaque(false);
-        JLabel iconPend = new JLabel("⏳");
-        iconPend.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        JLabel textPend = new JLabel("Giữ đơn (Pending)");
-        textPend.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        textPend.setForeground(Color.WHITE);
-        innerPend.add(iconPend);
-        innerPend.add(textPend);
-        btnPending.add(innerPend);
-        btnPending.setBackground(new Color(13, 110, 253));
-        btnPending.setForeground(Color.WHITE);
-        btnPending.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        ButtonUtils.setupButton(btnPending, "⏳", "Giữ đơn (Pending)", new Color(13, 110, 253), Color.WHITE);
         btnPending.addActionListener(e -> createPending());
 
         actionRow.add(btnPayNow);
@@ -435,7 +404,7 @@ public class SalePanel extends JPanel {
 
         // === RIGHT: Pending Orders ===
         pendingWidget = new PendingOrdersWidget(this::refreshAllData, this::loadPendingOrder);
-        pendingWidget.setPreferredSize(new Dimension(280, 0));
+        pendingWidget.setPreferredSize(new Dimension(300, 0));
         add(pendingWidget, BorderLayout.EAST);
     }
 
@@ -530,8 +499,8 @@ public class SalePanel extends JPanel {
             // Button panel
             JPanel btnPanel = new JPanel();
             btnPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
-            JButton btnClose = new JButton("Đóng");
-            btnClose.setFont(new Font("Segoe UI", Font.BOLD, 12));
+            JButton btnClose = new JButton();
+            ButtonUtils.setupButton(btnClose, "🚪", "Đóng", null, null);
             btnClose.addActionListener(e -> dialog.dispose());
             btnPanel.add(btnClose);
             dialog.add(btnPanel, BorderLayout.SOUTH);
@@ -1183,8 +1152,8 @@ public class SalePanel extends JPanel {
         JPanel birthdayPanel = new JPanel(new BorderLayout(2, 0));
         birthdayPanel.add(txtBday, BorderLayout.CENTER);
 
-        JButton btnCal = new JButton("📅");
-        btnCal.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnCal = new JButton();
+        ButtonUtils.setupButton(btnCal, "📅", "", null, null);
         btnCal.setToolTipText("Chọn ngày từ lịch");
         btnCal.addActionListener(e -> {
             LocalDate current = com.handbagstore.utils.DateUtils.parseDate(txtBday.getText().trim());
@@ -1214,10 +1183,8 @@ public class SalePanel extends JPanel {
         dialog.add(main, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton btnReg = new JButton("✅ Đăng ký");
-        btnReg.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnReg.setBackground(new Color(40, 167, 69));
-        btnReg.setForeground(Color.WHITE);
+        JButton btnReg = new JButton();
+        ButtonUtils.setupButton(btnReg, "✅", "Đăng ký", new Color(40, 167, 69), Color.WHITE);
         btnReg.addActionListener(e -> {
             try {
                 CustomerDTO c = new CustomerDTO();
@@ -1245,7 +1212,8 @@ public class SalePanel extends JPanel {
             }
         });
 
-        JButton btnCancel = new JButton("Hủy");
+        JButton btnCancel = new JButton();
+        ButtonUtils.setupButton(btnCancel, "❌", "Hủy", null, null);
         btnCancel.addActionListener(e -> dialog.dispose());
 
         btnPanel.add(btnReg);

@@ -30,6 +30,7 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.ButtonUtils;
 
 /**
  * Widget hiển thị các đơn hàng PENDING với countdown timer.
@@ -66,10 +67,12 @@ public class PendingOrdersWidget extends JPanel {
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(sp, BorderLayout.CENTER);
 
-        JButton btnRefresh = new JButton("🔄 Làm mới");
-        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnRefresh.addActionListener(e -> refreshData());
-        add(btnRefresh, BorderLayout.SOUTH);
+        JButton btnCancelAll = new JButton("🗑 Hủy tất cả");
+        btnCancelAll.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnCancelAll.setBackground(new Color(220, 53, 69));
+        btnCancelAll.setForeground(Color.WHITE);
+        btnCancelAll.addActionListener(e -> cancelAllOrders());
+        add(btnCancelAll, BorderLayout.SOUTH);
     }
 
     public void refreshData() {
@@ -96,10 +99,10 @@ public class PendingOrdersWidget extends JPanel {
     }
 
     private JPanel createOrderCard(InvoiceDTO inv) {
-        JPanel card = new JPanel(new BorderLayout(5, 3));
+        JPanel card = new JPanel(new BorderLayout(8, 3));
         card.setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(new Color(255, 193, 7), 1, true),
-                BorderFactory.createEmptyBorder(8, 10, 8, 10)));
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
         // Fetch customer name
         String custName = "Khách vãng lai";
         if (inv.getCustomerId() != null && inv.getCustomerId() > 0) {
@@ -137,15 +140,19 @@ public class PendingOrdersWidget extends JPanel {
         JPanel infoPanel = new JPanel();
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 
-        infoPanel.add(new JLabel("🧾 " + inv.getInvoiceCode()));
-        infoPanel.add(new JLabel("👤 " + custName));
+        JLabel lblCode = new JLabel("<html><nobr>🧾 " + inv.getInvoiceCode() + "</nobr></html>");
+        infoPanel.add(lblCode);
+
+        JLabel lblCust = new JLabel("<html>👤 " + custName + "</html>");
+        infoPanel.add(lblCust);
 
         JLabel lblProd = new JLabel(sb.toString());
         lblProd.setFont(new Font("Segoe UI", Font.ITALIC, 11));
         lblProd.setForeground(Color.GRAY);
         infoPanel.add(lblProd);
 
-        infoPanel.add(new JLabel("💰 " + CurrencyUtils.format(inv.getTotal())));
+        JLabel lblTotal = new JLabel("<html><b>💰 " + CurrencyUtils.format(inv.getTotal()) + "</b></html>");
+        infoPanel.add(lblTotal);
 
         // Countdown
         String remaining = getCountdownText(inv.getExpiresAt());
@@ -161,17 +168,19 @@ public class PendingOrdersWidget extends JPanel {
         card.putClientProperty("invoice", inv);
 
         // Buttons
-        JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 3));
-        JButton btnPay = new JButton("💰 Thanh toán");
+        JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 5));
+        btnPanel.setPreferredSize(new Dimension(110, 0));
+
+        JButton btnPay = new JButton("Thanh toán");
         btnPay.setBackground(new Color(40, 167, 69));
         btnPay.setForeground(Color.WHITE);
-        btnPay.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnPay.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnPay.addActionListener(e -> selectOrder(inv));
 
-        JButton btnCancel = new JButton("❌ Hủy");
+        JButton btnCancel = new JButton("Hủy");
         btnCancel.setBackground(new Color(220, 53, 69));
         btnCancel.setForeground(Color.WHITE);
-        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 13));
         btnCancel.addActionListener(e -> cancelOrder(inv));
 
         btnPanel.add(btnPay);
@@ -289,6 +298,35 @@ public class PendingOrdersWidget extends JPanel {
         try {
             orderBLL.cancelPendingOrder(inv.getInvoiceId());
             JOptionPane.showMessageDialog(this, "Đã hủy đơn thành công!");
+            refreshData();
+            if (onDataChange != null) {
+                onDataChange.run();
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void cancelAllOrders() {
+        try {
+            List<InvoiceDTO> pendingOrders = orderBLL.getPendingOrders();
+            if (pendingOrders.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Không có đơn hàng chờ nào để hủy!");
+                return;
+            }
+
+            int confirm = JOptionPane.showConfirmDialog(this,
+                    "Bạn có chắc muốn hủy TẤT CẢ " + pendingOrders.size() + " đơn hàng đang chờ?\nHàng sẽ được trả lại kho.",
+                    "Xác nhận hủy tất cả", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+
+            if (confirm != JOptionPane.YES_OPTION)
+                return;
+
+            for (InvoiceDTO inv : pendingOrders) {
+                orderBLL.cancelPendingOrder(inv.getInvoiceId());
+            }
+
+            JOptionPane.showMessageDialog(this, "Đã hủy tất cả đơn hàng chờ thành công!");
             refreshData();
             if (onDataChange != null) {
                 onDataChange.run();

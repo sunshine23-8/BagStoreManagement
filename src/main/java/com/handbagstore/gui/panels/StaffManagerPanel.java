@@ -8,7 +8,11 @@ import java.awt.*;
 import java.util.List;
 import javax.swing.table.TableRowSorter;
 import javax.swing.RowFilter;
+import com.handbagstore.utils.ButtonUtils;
+import com.handbagstore.utils.StringUtils;
 import com.handbagstore.utils.TableUtils;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class StaffManagerPanel extends JPanel {
     private JTable table;
@@ -56,14 +60,22 @@ public class StaffManagerPanel extends JPanel {
         TableUtils.alignLeft(table, 2); // Họ tên
 
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (table.rowAtPoint(e.getPoint()) == -1) {
+                    table.clearSelection();
+                }
+            }
+        });
+        table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Filter panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        filterPanel
-                .add(new JLabel(
-                        "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm&nbsp;tên:</td></tr></table></html>"));
+        filterPanel.add(new JLabel("🔍 Tìm kiếm:"));
         txtSearch = new JTextField(15);
+        txtSearch.putClientProperty("JTextField.placeholderText", "ID, username, họ tên...");
         filterPanel.add(txtSearch);
 
         filterPanel.add(new JLabel("Trạng thái:"));
@@ -73,10 +85,10 @@ public class StaffManagerPanel extends JPanel {
         add(filterPanel, BorderLayout.NORTH);
 
         // Add listeners for filtering
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                applyFilter();
-            }
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { applyFilter(); }
+            public void removeUpdate(DocumentEvent e) { applyFilter(); }
+            public void changedUpdate(DocumentEvent e) { applyFilter(); }
         });
         cmbStatusFilter.addActionListener(e -> applyFilter());
 
@@ -100,30 +112,20 @@ public class StaffManagerPanel extends JPanel {
         bottomPanel.add(formPanel, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnCreate = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Tạo&nbsp;tài&nbsp;khoản</td></tr></table></html>");
-        btnCreate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnCreate.setBackground(new Color(40, 167, 69));
-        btnCreate.setForeground(Color.WHITE);
+        JButton btnCreate = new JButton();
+        ButtonUtils.setupButton(btnCreate, "➕", "Tạo tài khoản", new Color(40, 167, 69), Color.WHITE);
         btnCreate.addActionListener(e -> createAccount());
 
-        JButton btnUpdate = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>✏️</font>&nbsp;Cập&nbsp;nhật</td></tr></table></html>");
-        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate.setBackground(new Color(13, 110, 253)); // Blue
-        btnUpdate.setForeground(Color.WHITE);
+        JButton btnUpdate = new JButton();
+        ButtonUtils.setupButton(btnUpdate, "✏️", "Cập nhật", new Color(13, 110, 253), Color.WHITE);
         btnUpdate.addActionListener(e -> updateAccount());
 
-        JButton btnReset = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔑</font>&nbsp;Reset&nbsp;mật&nbsp;khẩu</td></tr></table></html>");
-        btnReset.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnReset = new JButton();
+        ButtonUtils.setupButton(btnReset, "🔑", "Reset mật khẩu", null, null);
         btnReset.addActionListener(e -> resetPassword());
 
-        JButton btnToggle = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔒</font>&nbsp;Khóa/Mở&nbsp;khóa</td></tr></table></html>");
-        btnToggle.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnToggle.setBackground(new Color(220, 53, 69)); // Red
-        btnToggle.setForeground(Color.WHITE);
+        JButton btnToggle = new JButton();
+        ButtonUtils.setupButton(btnToggle, "🔒", "Khóa/Mở khóa", new Color(220, 53, 69), Color.WHITE);
         btnToggle.addActionListener(e -> toggleActive());
 
         btnPanel.add(btnCreate);
@@ -262,10 +264,21 @@ public class StaffManagerPanel extends JPanel {
         String text = txtSearch.getText().trim();
         String status = (String) cmbStatusFilter.getSelectedItem();
 
-        java.util.List<RowFilter<Object, Object>> filters = new java.util.ArrayList<>();
+        java.util.List<RowFilter<DefaultTableModel, Integer>> filters = new java.util.ArrayList<>();
 
         if (!text.isEmpty()) {
-            filters.add(RowFilter.regexFilter("(?i)" + text, 2)); // Column 2 is Name
+            filters.add(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    // ID (0), Username (1), FullName (2)
+                    for (int i = 0; i <= 2; i++) {
+                        if (StringUtils.containsIgnoreCase(entry.getStringValue(i), text)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
 
         if (!"Tất cả".equals(status)) {

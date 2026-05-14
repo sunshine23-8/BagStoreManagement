@@ -1,6 +1,7 @@
 package com.handbagstore.gui.panels;
 
 import com.handbagstore.bll.StatisticBLL;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.TableUtils;
 import javax.swing.*;
@@ -120,8 +121,11 @@ public class StatisticPanel extends JPanel {
         filterPanel.add(new JLabel("Tháng:"));
         spnMonth = new JSpinner(new SpinnerNumberModel(LocalDate.now().getMonthValue(), 1, 12, 1));
         filterPanel.add(spnMonth);
-        JButton btnRefresh = new JButton("<html><font face='Segoe UI Emoji'>🔄</font> Cập nhật</html>");
-        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 12));
+
+        // JButton btnRefresh = new JButton("<html><font face='Segoe UI Emoji'>🔄</font>
+        // Cập nhật</html>");
+        JButton btnRefresh = new JButton();
+        ButtonUtils.setupButton(btnRefresh, "🔄", "Cập nhật", null, null);
         btnRefresh.addActionListener(e -> refreshData());
         filterPanel.add(btnRefresh);
         topHeader.add(filterPanel, BorderLayout.SOUTH);
@@ -159,7 +163,8 @@ public class StatisticPanel extends JPanel {
         spnChartYear.setEditor(new JSpinner.NumberEditor(spnChartYear, "#"));
         chartControls.add(spnChartYear);
 
-        JButton btnUpdateChart = new JButton("<html><nobr><font face='Segoe UI Emoji'>⚡</font>&nbsp;Xem</nobr></html>");
+        JButton btnUpdateChart = new JButton();
+        ButtonUtils.setupButton(btnUpdateChart, "⚡", "Xem", null, null);
         btnUpdateChart.addActionListener(e -> updateChart());
         chartControls.add(btnUpdateChart);
 

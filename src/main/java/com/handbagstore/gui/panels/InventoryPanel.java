@@ -5,9 +5,13 @@ import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.*;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.StringUtils;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.math.BigDecimal;
@@ -68,7 +72,7 @@ public class InventoryPanel extends JPanel {
         lblSearchIcon1.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
         stockSearchPanel.add(lblSearchIcon1, gbcSearch);
 
-        JLabel lblSearchText1 = new JLabel(" Tìm kiếm tên SP:  ");
+        JLabel lblSearchText1 = new JLabel(" Tìm kiếm:  ");
         lblSearchText1.setFont(new Font("Segoe UI", Font.BOLD, 12));
         gbcSearch.gridx = 1;
         stockSearchPanel.add(lblSearchText1, gbcSearch);
@@ -76,6 +80,7 @@ public class InventoryPanel extends JPanel {
         gbcSearch.gridx = 2;
         gbcSearch.weightx = 1.0;
         txtSearchStock = new JTextField();
+        txtSearchStock.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
         stockSearchPanel.add(txtSearchStock, gbcSearch);
 
         stockTopPanel.add(stockSearchPanel, BorderLayout.CENTER);
@@ -102,14 +107,17 @@ public class InventoryPanel extends JPanel {
         TableUtils.alignLeft(stockTable, 1);
         TableUtils.alignRight(stockTable, 3, 4, 5, 6, 7);
 
-        txtSearchStock.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                String text = txtSearchStock.getText();
-                if (text.trim().length() == 0) {
-                    stockSorter.setRowFilter(null);
-                } else {
-                    stockSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 1)); // Column 1 is ProductName
-                }
+        txtSearchStock.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                filterStock();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                filterStock();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                filterStock();
             }
         });
 
@@ -149,21 +157,8 @@ public class InventoryPanel extends JPanel {
         importForm.add(txtNote);
 
         JButton btnImport = new JButton();
-        btnImport.setLayout(new GridBagLayout());
-        JPanel innerImp = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        innerImp.setOpaque(false);
-        JLabel iconImp = new JLabel("📥");
-        iconImp.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        JLabel textImp = new JLabel("Nhập kho");
-        textImp.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        textImp.setForeground(Color.WHITE);
-        innerImp.add(iconImp);
-        innerImp.add(textImp);
-        btnImport.add(innerImp);
+        ButtonUtils.setupButton(btnImport, "📥", "Nhập kho", new Color(40, 167, 69), Color.WHITE);
         btnImport.setPreferredSize(new Dimension(120, 35));
-        btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnImport.setBackground(new Color(40, 167, 69));
-        btnImport.setForeground(Color.WHITE);
         btnImport.addActionListener(e -> importStock());
 
         JPanel importTop = new JPanel(new BorderLayout(5, 5));
@@ -180,7 +175,7 @@ public class InventoryPanel extends JPanel {
         lblSearchIcon2.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
         importSearchPanel.add(lblSearchIcon2, gbcImport);
 
-        JLabel lblSearchText2 = new JLabel(" Tìm kiếm tên SP:  ");
+        JLabel lblSearchText2 = new JLabel(" Tìm kiếm:  ");
         lblSearchText2.setFont(new Font("Segoe UI", Font.BOLD, 12));
         gbcImport.gridx = 1;
         importSearchPanel.add(lblSearchText2, gbcImport);
@@ -188,6 +183,7 @@ public class InventoryPanel extends JPanel {
         gbcImport.gridx = 2;
         gbcImport.weightx = 1.0;
         txtSearchImport = new JTextField();
+        txtSearchImport.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, ghi chú...");
         importSearchPanel.add(txtSearchImport, gbcImport);
 
         importTop.add(importSearchPanel, BorderLayout.SOUTH);
@@ -214,14 +210,17 @@ public class InventoryPanel extends JPanel {
         TableUtils.alignLeft(importTable, 1);
         TableUtils.alignRight(importTable, 2, 3, 4);
 
-        txtSearchImport.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                String text = txtSearchImport.getText();
-                if (text.trim().length() == 0) {
-                    importSorter.setRowFilter(null);
-                } else {
-                    importSorter.setRowFilter(RowFilter.regexFilter("(?i)" + text, 1)); // Column 1 is ProductName
-                }
+        txtSearchImport.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) {
+                filterImport();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                filterImport();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                filterImport();
             }
         });
 
@@ -331,6 +330,47 @@ public class InventoryPanel extends JPanel {
             refreshData();
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi: " + ex.getMessage(), "Lỗi", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void filterStock() {
+        String text = txtSearchStock.getText().trim();
+        if (text.isEmpty()) {
+            stockSorter.setRowFilter(null);
+        } else {
+            stockSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    // Search across Mã SP (0), Tên SP (1), Thương hiệu (2)
+                    for (int i = 0; i <= 2; i++) {
+                        if (StringUtils.containsIgnoreCase(entry.getStringValue(i), text)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    private void filterImport() {
+        String text = txtSearchImport.getText().trim();
+        if (text.isEmpty()) {
+            importSorter.setRowFilter(null);
+        } else {
+            importSorter.setRowFilter(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    // Search across Mã SP (0), Tên SP (1), Ghi chú (7)
+                    int[] cols = { 0, 1, 7 };
+                    for (int i : cols) {
+                        if (StringUtils.containsIgnoreCase(entry.getStringValue(i), text)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
     }
 }

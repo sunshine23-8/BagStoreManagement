@@ -4,8 +4,10 @@ import com.handbagstore.bll.AccountBLL;
 import com.handbagstore.bll.DiscountBLL;
 import com.handbagstore.dto.DiscountDTO;
 import com.handbagstore.gui.components.DateChooser;
-import com.handbagstore.utils.DateUtils;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.DateUtils;
+import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -75,6 +77,10 @@ public class DiscountManagerPanel extends JPanel {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
+                if (row == -1) {
+                    table.clearSelection();
+                    return;
+                }
                 int col = table.columnAtPoint(e.getPoint());
                 if (row >= 0) {
                     if (col == 7) {
@@ -105,7 +111,8 @@ public class DiscountManagerPanel extends JPanel {
         txtStartDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
         JPanel startPanel = new JPanel(new BorderLayout(2, 0));
         startPanel.add(txtStartDate, BorderLayout.CENTER);
-        JButton btnCalStart = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        JButton btnCalStart = new JButton();
+        ButtonUtils.setupButton(btnCalStart, "📅", "", null, null);
         btnCalStart.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtStartDate.getText());
             LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
@@ -118,7 +125,8 @@ public class DiscountManagerPanel extends JPanel {
         txtEndDate.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
         JPanel endPanel = new JPanel(new BorderLayout(2, 0));
         endPanel.add(txtEndDate, BorderLayout.CENTER);
-        JButton btnCalEnd = new JButton("<html><nobr><font face='Segoe UI Emoji'>📅</font></nobr></html>");
+        JButton btnCalEnd = new JButton();
+        ButtonUtils.setupButton(btnCalEnd, "📅", "", null, null);
         btnCalEnd.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtEndDate.getText());
             LocalDate picked = DateChooser.showDialog(DiscountManagerPanel.this, current);
@@ -273,8 +281,10 @@ public class DiscountManagerPanel extends JPanel {
 
     private void loadSelectedRow() {
         int row = table.getSelectedRow();
-        if (row < 0)
+        if (row < 0) {
+            clearForm();
             return;
+        }
         try {
             String code = (String) tableModel.getValueAt(row, 0);
             // We search in the full list or just fetch from DB. Since it's a manager panel,
@@ -297,6 +307,8 @@ public class DiscountManagerPanel extends JPanel {
                     btnDeactivate.setText("<html><font face='Segoe UI Emoji'>🔄</font> Khôi phục</html>");
                     btnDeactivate.setBackground(new Color(40, 167, 69));
                 }
+                btnDeactivate.revalidate();
+                btnDeactivate.repaint();
             }
         } catch (Exception ignored) {
         }

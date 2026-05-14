@@ -204,10 +204,16 @@ public class MainAdminFrame extends JFrame {
         gbc.anchor = GridBagConstraints.WEST;
         gbc.insets = new java.awt.Insets(0, 40, 0, 0); // 40px padding from left
         
-        JPanel content = new JPanel(new FlowLayout(FlowLayout.LEFT, 10, 0));
+        JPanel content = new JPanel(new GridBagLayout());
         content.setOpaque(false);
-        content.add(lblIcon);
-        content.add(lblText);
+        GridBagConstraints cbc = new GridBagConstraints();
+        cbc.gridx = 0;
+        cbc.gridy = 0;
+        cbc.insets = new java.awt.Insets(0, 0, 0, 10);
+        content.add(lblIcon, cbc);
+        cbc.gridx = 1;
+        cbc.insets = new java.awt.Insets(0, 0, 0, 0);
+        content.add(lblText, cbc);
         
         btn.add(content, gbc);
 
