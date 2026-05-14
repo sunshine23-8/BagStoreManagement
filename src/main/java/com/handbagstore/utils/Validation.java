@@ -7,7 +7,8 @@ public class Validation {
 
     /** Kiểm tra số điện thoại VN (10 số, bắt đầu 0) */
     public static boolean isValidPhone(String phone) {
-        if (phone == null || phone.isEmpty()) return false;
+        if (phone == null || phone.isEmpty())
+            return false;
         return phone.matches("^0\\d{9}$");
     }
 
@@ -36,7 +37,8 @@ public class Validation {
 
     /** Kiểm tra username hợp lệ (chữ + số, 3-50 ký tự) */
     public static boolean isValidUsername(String username) {
-        if (username == null) return false;
+        if (username == null)
+            return false;
         return username.matches("^[a-zA-Z0-9_]{3,50}$");
     }
 
@@ -47,7 +49,8 @@ public class Validation {
 
     /** Kiểm tra mã sản phẩm (TX + số, VD: TX001) */
     public static boolean isValidProductCode(String code) {
-        if (code == null) return false;
+        if (code == null)
+            return false;
         return code.matches("^[A-Z]{2}\\d{3,}$");
     }
 }

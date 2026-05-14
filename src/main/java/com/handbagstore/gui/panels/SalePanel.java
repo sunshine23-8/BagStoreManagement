@@ -914,6 +914,13 @@ public class SalePanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Giỏ hàng trống!");
             return;
         }
+        
+        String rawPhone = txtCustomerPhone.getText().trim();
+        if (!rawPhone.isEmpty() && !com.handbagstore.utils.Validation.isValidPhone(rawPhone)) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại khách hàng không hợp lệ (10 số, bắt đầu bằng 0)!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
             boolean isCash = cmbPaymentMethod.getSelectedIndex() == 0;
             BigDecimal received = BigDecimal.ZERO;
@@ -970,6 +977,13 @@ public class SalePanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Giỏ hàng trống!");
             return;
         }
+        
+        String rawPhone = txtCustomerPhone.getText().trim();
+        if (!rawPhone.isEmpty() && !com.handbagstore.utils.Validation.isValidPhone(rawPhone)) {
+            JOptionPane.showMessageDialog(this, "Số điện thoại khách hàng không hợp lệ (10 số, bắt đầu bằng 0)!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         try {
             InvoiceDTO invoice = buildInvoice("PENDING");
             int invoiceId = orderBLL.createPendingOrder(invoice, new ArrayList<>(cartItems), () -> {
@@ -1187,9 +1201,15 @@ public class SalePanel extends JPanel {
         ButtonUtils.setupButton(btnReg, "✅", "Đăng ký", new Color(40, 167, 69), Color.WHITE);
         btnReg.addActionListener(e -> {
             try {
+                String regPhone = txtRegPhone.getText().trim();
+                if (!com.handbagstore.utils.Validation.isValidPhone(regPhone)) {
+                    JOptionPane.showMessageDialog(dialog, "Số điện thoại không hợp lệ (10 số, bắt đầu bằng 0)!", "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 CustomerDTO c = new CustomerDTO();
                 c.setFullName(txtName.getText().trim());
-                c.setPhone(txtRegPhone.getText().trim());
+                c.setPhone(regPhone);
                 String bdayStr = txtBday.getText().trim();
                 if (!bdayStr.isEmpty()) {
                     c.setBirthday(com.handbagstore.utils.DateUtils.parseDate(bdayStr));

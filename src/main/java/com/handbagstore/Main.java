@@ -29,7 +29,7 @@ public class Main {
             } else {
                 UIManager.setLookAndFeel(new FlatDarkLaf());
             }
-        } catch (Exception e) {
+        } catch (Exception admadade) {
             System.err.println("Không thể cài đặt FlatLaf, dùng theme mặc định.");
         }
 
