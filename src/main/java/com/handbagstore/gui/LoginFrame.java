@@ -24,7 +24,7 @@ public class LoginFrame extends JFrame {
     private void initComponents() {
         setTitle("Đăng nhập - Hệ thống Quản lý Túi Xách");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(450, 350);
+        setSize(600, 400);
         setLocationRelativeTo(null);
         setResizable(false);
 
@@ -37,7 +37,7 @@ public class LoginFrame extends JFrame {
 
         // Title
         JLabel lblTitle = new JLabel("ĐĂNG NHẬP HỆ THỐNG", SwingConstants.CENTER);
-        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 20));
+        lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 30));
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.gridwidth = 2;
@@ -46,31 +46,35 @@ public class LoginFrame extends JFrame {
         // Username
         gbc.gridy = 1;
         gbc.gridwidth = 1;
-        mainPanel.add(new JLabel("Tên đăng nhập:"), gbc);
+        JLabel lblUsername = new JLabel("Tên đăng nhập:");
+        lblUsername.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        mainPanel.add(lblUsername, gbc);
         txtUsername = new JTextField(20);
-        txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtUsername.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         gbc.gridx = 1;
         mainPanel.add(txtUsername, gbc);
 
         // Password
         gbc.gridx = 0;
         gbc.gridy = 2;
-        mainPanel.add(new JLabel("Mật khẩu:"), gbc);
+        JLabel lblPassword = new JLabel("Mật khẩu:");
+        lblPassword.setFont(new Font("Segoe UI", Font.PLAIN, 15));
+        mainPanel.add(lblPassword, gbc);
 
         JPanel passWrapper = new JPanel(new BorderLayout(2, 0));
         passWrapper.setOpaque(false);
-        
+
         txtPassword = new JPasswordField(16); // Slightly reduced columns to fit button
-        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 15));
         passWrapper.add(txtPassword, BorderLayout.CENTER);
-        
+
         JButton btnShowHide = new JButton("👁");
-        btnShowHide.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        btnShowHide.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 15));
         btnShowHide.setFocusPainted(false);
         btnShowHide.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btnShowHide.setMargin(new Insets(0, 5, 0, 5));
         passWrapper.add(btnShowHide, BorderLayout.EAST);
-        
+
         gbc.gridx = 1;
         mainPanel.add(passWrapper, gbc);
 
@@ -97,7 +101,7 @@ public class LoginFrame extends JFrame {
 
         // Login button
         btnLogin = new JButton("Đăng nhập");
-        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        btnLogin.setFont(new Font("Segoe UI", Font.BOLD, 15));
         btnLogin.setBackground(new Color(64, 133, 240));
         btnLogin.setForeground(Color.WHITE);
         btnLogin.setFocusPainted(false);
