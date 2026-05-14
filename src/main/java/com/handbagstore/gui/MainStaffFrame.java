@@ -21,6 +21,7 @@ public class MainStaffFrame extends JFrame {
     private SalePanel salePanel;
     private CustomerManagerPanel customerPanel;
     private InvoiceHistoryPanel invoicePanel;
+    private ProfilePanel profilePanel;
     private java.util.List<JButton> menuButtons = new java.util.ArrayList<>();
     private JButton currentActiveButton;
     private Color normalColor = new Color(45, 45, 65);
@@ -94,7 +95,8 @@ public class MainStaffFrame extends JFrame {
         String[][] menuItems = {
                 { "🛒", "Bán hàng", "SALE" },
                 { "👤", "Khách hàng", "CUSTOMER" },
-                { "🧾", "Hóa đơn", "INVOICE" }
+                { "🧾", "Hóa đơn", "INVOICE" },
+                { "👤", "Cá nhân", "PROFILE" }
         };
 
         for (String[] item : menuItems) {
@@ -140,10 +142,12 @@ public class MainStaffFrame extends JFrame {
         salePanel = new SalePanel();
         customerPanel = new CustomerManagerPanel();
         invoicePanel = new InvoiceHistoryPanel();
+        profilePanel = new ProfilePanel();
 
         contentPanel.add(salePanel, "SALE");
         contentPanel.add(customerPanel, "CUSTOMER");
         contentPanel.add(invoicePanel, "INVOICE");
+        contentPanel.add(profilePanel, "PROFILE");
 
         add(contentPanel, BorderLayout.CENTER);
         cardLayout.show(contentPanel, "SALE");
