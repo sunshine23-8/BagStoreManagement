@@ -435,7 +435,7 @@ public class SalePanel extends JPanel {
 
         // === RIGHT: Pending Orders ===
         pendingWidget = new PendingOrdersWidget(this::refreshAllData, this::loadPendingOrder);
-        pendingWidget.setPreferredSize(new Dimension(280, 0));
+        pendingWidget.setPreferredSize(new Dimension(300, 0));
         add(pendingWidget, BorderLayout.EAST);
     }
 
