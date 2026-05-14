@@ -56,10 +56,35 @@ public class LoginFrame extends JFrame {
         gbc.gridx = 0;
         gbc.gridy = 2;
         mainPanel.add(new JLabel("Mật khẩu:"), gbc);
-        txtPassword = new JPasswordField(20);
+
+        JPanel passWrapper = new JPanel(new BorderLayout(2, 0));
+        passWrapper.setOpaque(false);
+        
+        txtPassword = new JPasswordField(16); // Slightly reduced columns to fit button
         txtPassword.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+        passWrapper.add(txtPassword, BorderLayout.CENTER);
+        
+        JButton btnShowHide = new JButton("👁");
+        btnShowHide.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
+        btnShowHide.setFocusPainted(false);
+        btnShowHide.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        btnShowHide.setMargin(new Insets(0, 5, 0, 5));
+        passWrapper.add(btnShowHide, BorderLayout.EAST);
+        
         gbc.gridx = 1;
-        mainPanel.add(txtPassword, gbc);
+        mainPanel.add(passWrapper, gbc);
+
+        char defaultEcho = txtPassword.getEchoChar();
+        btnShowHide.addActionListener(e -> {
+            if (txtPassword.getEchoChar() == (char) 0) {
+                txtPassword.setEchoChar(defaultEcho);
+                btnShowHide.setText("👁");
+            } else {
+                txtPassword.setEchoChar((char) 0);
+                btnShowHide.setText("🔒");
+            }
+            txtPassword.requestFocusInWindow();
+        });
 
         // Error label
         lblError = new JLabel(" ", SwingConstants.CENTER);
