@@ -85,12 +85,21 @@ public class ProductManagerPanel extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (table.rowAtPoint(e.getPoint()) == -1) {
+                    table.clearSelection();
+                }
+            }
+        });
 
         // Align columns
         TableUtils.alignCenter(table, 0, 2, 4, 5, 6, 8);
         TableUtils.alignLeft(table, 1);
         TableUtils.alignRight(table, 3, 7);
 
+        table.setFillsViewportHeight(true);
         JScrollPane scrollPane = new JScrollPane(table);
         add(scrollPane, BorderLayout.CENTER);
 
@@ -218,8 +227,10 @@ public class ProductManagerPanel extends JPanel {
 
     private void loadSelectedRow() {
         int row = table.getSelectedRow();
-        if (row < 0)
+        if (row < 0) {
+            clearForm();
             return;
+        }
         txtCode.setText((String) tableModel.getValueAt(row, 0));
         txtName.setText((String) tableModel.getValueAt(row, 1));
         txtBrand.setText((String) tableModel.getValueAt(row, 2));

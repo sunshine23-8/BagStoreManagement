@@ -9,12 +9,14 @@ import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.bll.CustomerBLL;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.TableUtils;
+import com.handbagstore.gui.components.DateChooser;
 
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.time.LocalDate;
 import java.util.List;
 
 public class InvoiceHistoryPanel extends JPanel {
@@ -269,15 +271,15 @@ public class InvoiceHistoryPanel extends JPanel {
     private void showFilterDialog() {
         JDialog dialog = new JDialog((Window) SwingUtilities.getWindowAncestor(this), "Bộ lọc hóa đơn");
         dialog.setModal(true);
-        dialog.setSize(350, 250);
+        dialog.setSize(450, 250);
         dialog.setLocationRelativeTo(this);
         dialog.setLayout(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JTextField txtFrom = new JTextField(filterFrom != null ? DateUtils.formatDate(filterFrom.toLocalDate()) : "");
-        JTextField txtTo = new JTextField(filterTo != null ? DateUtils.formatDate(filterTo.toLocalDate()) : "");
+        JTextField txtFrom = new JTextField(filterFrom != null ? DateUtils.formatDate(filterFrom.toLocalDate()) : "", 12);
+        JTextField txtTo = new JTextField(filterTo != null ? DateUtils.formatDate(filterTo.toLocalDate()) : "", 12);
         txtFrom.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
         txtTo.putClientProperty("JTextField.placeholderText", "dd/MM/yyyy");
 
@@ -291,16 +293,38 @@ public class InvoiceHistoryPanel extends JPanel {
             }
         }
 
+        JPanel fromPanel = new JPanel(new BorderLayout(2, 0));
+        fromPanel.add(txtFrom, BorderLayout.CENTER);
+        JButton btnFrom = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        btnFrom.addActionListener(e -> {
+            LocalDate current = DateUtils.parseDate(txtFrom.getText());
+            LocalDate picked = DateChooser.showDialog(dialog, current);
+            if (picked != null)
+                txtFrom.setText(DateUtils.formatDate(picked));
+        });
+        fromPanel.add(btnFrom, BorderLayout.EAST);
+
+        JPanel toPanel = new JPanel(new BorderLayout(2, 0));
+        toPanel.add(txtTo, BorderLayout.CENTER);
+        JButton btnTo = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        btnTo.addActionListener(e -> {
+            LocalDate current = DateUtils.parseDate(txtTo.getText());
+            LocalDate picked = DateChooser.showDialog(dialog, current);
+            if (picked != null)
+                txtTo.setText(DateUtils.formatDate(picked));
+        });
+        toPanel.add(btnTo, BorderLayout.EAST);
+
         gbc.gridx = 0;
         gbc.gridy = 0;
         dialog.add(new JLabel("Từ ngày:"), gbc);
         gbc.gridx = 1;
-        dialog.add(txtFrom, gbc);
+        dialog.add(fromPanel, gbc);
         gbc.gridx = 0;
         gbc.gridy = 1;
         dialog.add(new JLabel("Đến ngày:"), gbc);
         gbc.gridx = 1;
-        dialog.add(txtTo, gbc);
+        dialog.add(toPanel, gbc);
         gbc.gridx = 0;
         gbc.gridy = 2;
         dialog.add(new JLabel("Trạng thái:"), gbc);

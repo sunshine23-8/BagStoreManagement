@@ -9,6 +9,9 @@ import java.util.List;
 import javax.swing.table.TableRowSorter;
 import javax.swing.RowFilter;
 import com.handbagstore.utils.TableUtils;
+import com.handbagstore.utils.StringUtils;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 public class StaffManagerPanel extends JPanel {
     private JTable table;
@@ -56,14 +59,23 @@ public class StaffManagerPanel extends JPanel {
         TableUtils.alignLeft(table, 2); // Họ tên
 
         table.getSelectionModel().addListSelectionListener(e -> loadSelectedRow());
+        table.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (table.rowAtPoint(e.getPoint()) == -1) {
+                    table.clearSelection();
+                }
+            }
+        });
+        table.setFillsViewportHeight(true);
         add(new JScrollPane(table), BorderLayout.CENTER);
 
         // Filter panel
         JPanel filterPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 15, 5));
-        filterPanel
-                .add(new JLabel(
-                        "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm&nbsp;tên:</td></tr></table></html>"));
+        filterPanel.add(new JLabel(
+                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm&nbsp;kiếm:</td></tr></table></html>"));
         txtSearch = new JTextField(15);
+        txtSearch.putClientProperty("JTextField.placeholderText", "ID, username, họ tên...");
         filterPanel.add(txtSearch);
 
         filterPanel.add(new JLabel("Trạng thái:"));
@@ -73,10 +85,10 @@ public class StaffManagerPanel extends JPanel {
         add(filterPanel, BorderLayout.NORTH);
 
         // Add listeners for filtering
-        txtSearch.addKeyListener(new java.awt.event.KeyAdapter() {
-            public void keyReleased(java.awt.event.KeyEvent e) {
-                applyFilter();
-            }
+        txtSearch.getDocument().addDocumentListener(new DocumentListener() {
+            public void insertUpdate(DocumentEvent e) { applyFilter(); }
+            public void removeUpdate(DocumentEvent e) { applyFilter(); }
+            public void changedUpdate(DocumentEvent e) { applyFilter(); }
         });
         cmbStatusFilter.addActionListener(e -> applyFilter());
 
@@ -262,10 +274,21 @@ public class StaffManagerPanel extends JPanel {
         String text = txtSearch.getText().trim();
         String status = (String) cmbStatusFilter.getSelectedItem();
 
-        java.util.List<RowFilter<Object, Object>> filters = new java.util.ArrayList<>();
+        java.util.List<RowFilter<DefaultTableModel, Integer>> filters = new java.util.ArrayList<>();
 
         if (!text.isEmpty()) {
-            filters.add(RowFilter.regexFilter("(?i)" + text, 2)); // Column 2 is Name
+            filters.add(new RowFilter<DefaultTableModel, Integer>() {
+                @Override
+                public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
+                    // ID (0), Username (1), FullName (2)
+                    for (int i = 0; i <= 2; i++) {
+                        if (StringUtils.containsIgnoreCase(entry.getStringValue(i), text)) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+            });
         }
 
         if (!"Tất cả".equals(status)) {

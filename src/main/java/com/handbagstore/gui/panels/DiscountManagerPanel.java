@@ -75,6 +75,10 @@ public class DiscountManagerPanel extends JPanel {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent e) {
                 int row = table.rowAtPoint(e.getPoint());
+                if (row == -1) {
+                    table.clearSelection();
+                    return;
+                }
                 int col = table.columnAtPoint(e.getPoint());
                 if (row >= 0) {
                     if (col == 7) {
@@ -273,8 +277,10 @@ public class DiscountManagerPanel extends JPanel {
 
     private void loadSelectedRow() {
         int row = table.getSelectedRow();
-        if (row < 0)
+        if (row < 0) {
+            clearForm();
             return;
+        }
         try {
             String code = (String) tableModel.getValueAt(row, 0);
             // We search in the full list or just fetch from DB. Since it's a manager panel,
