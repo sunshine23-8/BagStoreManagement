@@ -11,6 +11,7 @@ target/
 .project
 .classpath
 
+app.properties
 compile_error.log
 hs_err_pid*.log
 replay_pid*.log
