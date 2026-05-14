@@ -291,10 +291,10 @@ public class DiscountManagerPanel extends JPanel {
                 chkStackable.setSelected(d.isStackable());
 
                 if (d.isActive()) {
-                    btnDeactivate.setText("❌ Vô hiệu hóa");
+                    btnDeactivate.setText("<html><font face='Segoe UI Emoji'>❌</font> Vô hiệu hóa</html>");
                     btnDeactivate.setBackground(new Color(220, 53, 69));
                 } else {
-                    btnDeactivate.setText("🔄 Khôi phục");
+                    btnDeactivate.setText("<html><font face='Segoe UI Emoji'>🔄</font> Khôi phục</html>");
                     btnDeactivate.setBackground(new Color(40, 167, 69));
                 }
             }
@@ -311,7 +311,7 @@ public class DiscountManagerPanel extends JPanel {
         cmbType.setSelectedIndex(0);
         cmbOccasion.setSelectedIndex(0);
         chkStackable.setSelected(false);
-        btnDeactivate.setText("❌ Vô hiệu hóa");
+        btnDeactivate.setText("<html><font face='Segoe UI Emoji'>❌</font> Vô hiệu hóa</html>");
         btnDeactivate.setBackground(new Color(220, 53, 69));
         table.clearSelection();
     }

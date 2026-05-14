@@ -46,6 +46,7 @@ public class StatisticPanel extends JPanel {
     private JSpinner spnChartYear, spnFromDate, spnToDate;
     private JPanel chartContainer, dateRangePanel;
     private final StatisticBLL statisticBLL = new StatisticBLL();
+    private static SortOrder revenueSortOrder = SortOrder.DESCENDING;
 
     public StatisticPanel() {
         initComponents();
@@ -213,9 +214,9 @@ public class StatisticPanel extends JPanel {
         TableUtils.alignLeft(stockTable, 1);
         TableUtils.alignRight(stockTable, 2, 3, 4, 5, 6);
 
-        stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
-        tabs.addTab("Tồn kho", stockPanel);
-        setupTabHeader(tabs, 2, "📦", "Tồn kho");
+        // stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
+        // tabs.addTab("Tồn kho", stockPanel);
+        // setupTabHeader(tabs, 2, "📦", "Tồn kho");
 
         add(tabs, BorderLayout.CENTER);
     }
@@ -441,21 +442,47 @@ public class StatisticPanel extends JPanel {
             }
 
             JFreeChart chart = ChartFactory.createPieChart(
-                    chartTitle,
+                    null, // Title handled by custom header
                     dataset,
                     false, // Legend
                     true, // Tooltips
                     false // URLs
             );
 
-            chart.setBackgroundPaint(Color.WHITE);
-            chart.getTitle().setFont(new Font("Segoe UI", Font.BOLD, 18));
+            Color uiBg = UIManager.getColor("Panel.background");
+            chart.setBackgroundPaint(uiBg != null ? uiBg : Color.WHITE);
 
             PiePlot plot = (PiePlot) chart.getPlot();
-            plot.setBackgroundPaint(Color.WHITE);
+            plot.setBackgroundPaint(uiBg != null ? uiBg : Color.WHITE);
             plot.setOutlineVisible(false);
             plot.setShadowPaint(null);
+
+            // Disable static labels as requested
             plot.setLabelGenerator(null);
+
+            // Modern separator lines between slices
+            plot.setSectionOutlinesVisible(true);
+
+            // Neutral / Professional Color Palette
+            Color[] colors = {
+                    new Color(78, 121, 167), // Muted Blue
+                    new Color(118, 183, 178), // Muted Cyan/Teal
+                    new Color(89, 161, 79), // Muted Green
+                    new Color(242, 142, 43), // Muted Orange
+                    new Color(225, 87, 89), // Muted Red
+                    new Color(237, 201, 72), // Muted Yellow
+                    new Color(175, 122, 161), // Muted Purple
+                    new Color(255, 157, 167), // Muted Pink
+                    new Color(156, 117, 95), // Muted Brown
+                    new Color(186, 176, 162) // Muted Gray
+            };
+
+            for (int i = 0; i < dataset.getItemCount(); i++) {
+                Comparable key = dataset.getKey(i);
+                plot.setSectionPaint(key, colors[i % colors.length]);
+                plot.setSectionOutlinePaint(key, Color.WHITE);
+                plot.setSectionOutlineStroke(key, new BasicStroke(2.0f));
+            }
 
             plot.setToolTipGenerator(new StandardPieToolTipGenerator(
                     "{0}: {1}đ ({2})",
@@ -463,25 +490,65 @@ public class StatisticPanel extends JPanel {
                     new DecimalFormat("0.0%")));
 
             JDialog dialog = new JDialog((Frame) SwingUtilities.getWindowAncestor(this), dialogTitle, true);
-            dialog.setLayout(new BorderLayout(10, 10));
+            dialog.setLayout(new BorderLayout());
 
-            JLabel lblInfo = new JLabel("Di chuột vào từng phần của biểu đồ để xem chi tiết", SwingConstants.CENTER);
-            lblInfo.setFont(new Font("Segoe UI", Font.BOLD, 15));
-            lblInfo.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-            lblInfo.setForeground(new Color(100, 100, 100));
-            dialog.add(lblInfo, BorderLayout.SOUTH);
+            Color bg = UIManager.getColor("Panel.background");
+            boolean isDark = bg != null && (bg.getRed() + bg.getGreen() + bg.getBlue()) / 3 < 128;
+
+            final Color titleColor = isDark ? new Color(240, 240, 240) : new Color(44, 62, 80);
+            final Color hintColor = isDark ? new Color(170, 180, 195) : new Color(100, 110, 125);
+            final Color highlightColor = isDark ? new Color(118, 183, 178) : new Color(78, 121, 167);
+
+            // Custom Header
+            JPanel headerPanel = new JPanel(new BorderLayout());
+            headerPanel.setBackground(UIManager.getColor("Panel.background"));
+            headerPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(0, 0, 1, 0, new Color(230, 235, 245)),
+                    BorderFactory.createEmptyBorder(20, 20, 15, 20)));
+
+            JLabel lblTitle = new JLabel(chartTitle, SwingConstants.CENTER);
+            lblTitle.setFont(new Font("Segoe UI", Font.BOLD, 22));
+            lblTitle.setForeground(titleColor);
+            headerPanel.add(lblTitle, BorderLayout.CENTER);
+            dialog.add(headerPanel, BorderLayout.NORTH);
+
+            // Custom Status Bar (Info)
+            JPanel statusPanel = new JPanel(new BorderLayout());
+            statusPanel.setBackground(UIManager.getColor("Panel.background"));
+            statusPanel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createMatteBorder(1, 0, 0, 0, new Color(230, 235, 245)),
+                    BorderFactory.createEmptyBorder(15, 20, 15, 20)));
+
+            final JLabel lblInfo = new JLabel("Di chuột vào từng phần của biểu đồ để xem chi tiết!",
+                    SwingConstants.CENTER);
+            lblInfo.setFont(new Font("Segoe UI", Font.PLAIN, 14));
+            lblInfo.setForeground(hintColor);
+            statusPanel.add(lblInfo, BorderLayout.CENTER);
+            dialog.add(statusPanel, BorderLayout.SOUTH);
 
             ChartPanel chartPanel = new ChartPanel(chart);
             chartPanel.setDisplayToolTips(true);
             chartPanel.setInitialDelay(0);
 
+            final JTable[] legendTableHolder = new JTable[1];
+
             chartPanel.addChartMouseListener(new ChartMouseListener() {
                 @Override
                 public void chartMouseMoved(ChartMouseEvent event) {
                     ChartEntity entity = event.getEntity();
+
+                    // Reset all explodes
+                    for (int i = 0; i < dataset.getItemCount(); i++) {
+                        plot.setExplodePercent(dataset.getKey(i), 0.0);
+                    }
+
                     if (entity instanceof PieSectionEntity) {
                         PieSectionEntity pieEntity = (PieSectionEntity) entity;
                         String key = (String) pieEntity.getSectionKey();
+
+                        // Explode the hovered section
+                        plot.setExplodePercent(key, 0.10); // 10% explode
+
                         Number value = dataset.getValue(key);
                         double total = 0;
                         for (int i = 0; i < dataset.getItemCount(); i++) {
@@ -489,22 +556,217 @@ public class StatisticPanel extends JPanel {
                         }
                         double percent = (value.doubleValue() / total) * 100;
 
-                        lblInfo.setText(String.format("📦 %s: %sđ (%.1f%%)",
+                        lblInfo.setText(String.format(" %s: %sđ (%.1f%%)",
                                 key, new DecimalFormat("#,###").format(value), percent));
-                        lblInfo.setForeground(new Color(13, 110, 253));
+                        lblInfo.setForeground(highlightColor);
                     } else {
-                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết");
-                        lblInfo.setForeground(new Color(100, 100, 100));
+                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết!");
+                        lblInfo.setForeground(hintColor);
                     }
                 }
 
                 @Override
                 public void chartMouseClicked(ChartMouseEvent event) {
+                    ChartEntity entity = event.getEntity();
+                    if (!(entity instanceof PieSectionEntity)) {
+                        if (legendTableHolder[0] != null) {
+                            legendTableHolder[0].clearSelection();
+                        }
+
+                        // Reset all explodes
+                        for (int i = 0; i < dataset.getItemCount(); i++) {
+                            plot.setExplodePercent(dataset.getKey(i), 0.0);
+                        }
+
+                        // Reset text
+                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết!");
+                        lblInfo.setForeground(hintColor);
+                    }
                 }
             });
 
-            chartPanel.setPreferredSize(new Dimension(800, 600));
-            dialog.add(chartPanel, BorderLayout.CENTER);
+            chartPanel.setPreferredSize(new Dimension(600, 500)); // Reduced width for chart to fit legend
+
+            JPanel centerPanel = new JPanel(new BorderLayout(10, 10));
+            centerPanel.setBackground(UIManager.getColor("Panel.background"));
+            centerPanel.add(chartPanel, BorderLayout.CENTER);
+
+            // Create Legend Table
+            String[] colNames = { "Màu", "Sản phẩm", "Doanh thu", "Tỉ lệ" };
+            DefaultTableModel legendModel = new DefaultTableModel(colNames, 0) {
+                @Override
+                public boolean isCellEditable(int r, int c) {
+                    return false;
+                }
+
+                @Override
+                public Class<?> getColumnClass(int columnIndex) {
+                    if (columnIndex == 0)
+                        return Color.class;
+                    if (columnIndex == 2)
+                        return Double.class;
+                    if (columnIndex == 3)
+                        return Double.class;
+                    return String.class;
+                }
+            };
+
+            JTable legendTable = new JTable(legendModel);
+            legendTable.setRowHeight(30);
+            legendTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 12));
+            legendTable.setFillsViewportHeight(true);
+            legendTable.setFocusable(false);
+
+            javax.swing.table.TableRowSorter<javax.swing.table.TableModel> sorter = new javax.swing.table.TableRowSorter<>(
+                    legendModel);
+            legendTable.setRowSorter(sorter);
+            java.util.List<javax.swing.RowSorter.SortKey> sortKeys = new java.util.ArrayList<>();
+            sortKeys.add(new javax.swing.RowSorter.SortKey(2, revenueSortOrder));
+            sorter.setSortKeys(sortKeys);
+
+            sorter.addRowSorterListener(e -> {
+                java.util.List<? extends javax.swing.RowSorter.SortKey> keys = sorter.getSortKeys();
+                if (!keys.isEmpty()) {
+                    javax.swing.RowSorter.SortKey key = keys.get(0);
+                    if (key.getColumn() == 2) {
+                        revenueSortOrder = key.getSortOrder();
+                    }
+                }
+            });
+
+            legendTableHolder[0] = legendTable; // Store reference for chart listener
+
+            // Populate data
+            double totalRevenue = 0;
+            for (int i = 0; i < dataset.getItemCount(); i++) {
+                totalRevenue += dataset.getValue(i).doubleValue();
+            }
+
+            final double finalTotalRevenue = totalRevenue; // For listener
+
+            for (int i = 0; i < dataset.getItemCount(); i++) {
+                Comparable key = dataset.getKey(i);
+                Number value = dataset.getValue(i);
+                double percent = (value.doubleValue() / totalRevenue) * 100;
+
+                Color color = colors[i % colors.length];
+                String name = key.toString();
+
+                legendModel.addRow(new Object[] { color, name, value.doubleValue(), percent });
+            }
+
+            // Custom renderer for Color column
+            legendTable.getColumnModel().getColumn(0).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                        boolean hasFocus, int row, int column) {
+                    Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    if (value instanceof Color) {
+                        Color col = (Color) value;
+                        JPanel colorBox = new JPanel();
+                        colorBox.setBackground(col);
+                        colorBox.setPreferredSize(new Dimension(15, 15));
+                        colorBox.setBorder(BorderFactory.createLineBorder(Color.WHITE, 2));
+
+                        JPanel wrapper = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 5));
+                        wrapper.setBackground(isSelected ? table.getSelectionBackground() : table.getBackground());
+                        wrapper.add(colorBox);
+                        return wrapper;
+                    }
+                    return c;
+                }
+            });
+
+            // Renderer for Revenue (to keep format and alignment while sorting numerically)
+            legendTable.getColumnModel().getColumn(2).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                        boolean hasFocus, int row, int column) {
+                    Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    if (value instanceof Number) {
+                        setText(new DecimalFormat("#,###").format(value) + "đ");
+                    }
+                    setHorizontalAlignment(SwingConstants.RIGHT);
+                    return c;
+                }
+            });
+
+            // Renderer for Percentage
+            legendTable.getColumnModel().getColumn(3).setCellRenderer(new javax.swing.table.DefaultTableCellRenderer() {
+                @Override
+                public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                        boolean hasFocus, int row, int column) {
+                    Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+                    if (value instanceof Number) {
+                        setText(String.format("%.1f%%", ((Number) value).doubleValue()));
+                    }
+                    setHorizontalAlignment(SwingConstants.RIGHT);
+                    return c;
+                }
+            });
+
+            // Alignments for other columns
+            TableUtils.alignLeft(legendTable, 1);
+
+            // Widths
+            legendTable.getColumnModel().getColumn(0).setPreferredWidth(50);
+            legendTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+            legendTable.getColumnModel().getColumn(2).setPreferredWidth(100);
+            legendTable.getColumnModel().getColumn(3).setPreferredWidth(70);
+
+            legendTable.getSelectionModel().addListSelectionListener(e -> {
+                if (!e.getValueIsAdjusting()) {
+                    int row = legendTable.getSelectedRow();
+                    if (row != -1) {
+                        String key = (String) legendModel.getValueAt(row, 1);
+                        Number value = dataset.getValue(key);
+
+                        // Reset all explodes
+                        for (int i = 0; i < dataset.getItemCount(); i++) {
+                            plot.setExplodePercent(dataset.getKey(i), 0.0);
+                        }
+
+                        // Explode the selected one
+                        plot.setExplodePercent(key, 0.15); // 15% explode
+
+                        double percent = (value.doubleValue() / finalTotalRevenue) * 100;
+                        lblInfo.setText(String.format(" %s: %sđ (%.1f%%)",
+                                key, new DecimalFormat("#,###").format(value), percent));
+                        lblInfo.setForeground(highlightColor);
+                    }
+                }
+            });
+
+            // Mouse Listener to deselect on empty space
+            legendTable.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mouseClicked(java.awt.event.MouseEvent e) {
+                    int row = legendTable.rowAtPoint(e.getPoint());
+                    if (row == -1) {
+                        legendTable.clearSelection();
+
+                        // Reset all explodes
+                        for (int i = 0; i < dataset.getItemCount(); i++) {
+                            plot.setExplodePercent(dataset.getKey(i), 0.0);
+                        }
+
+                        // Reset text
+                        lblInfo.setText("Di chuột vào từng phần của biểu đồ để xem chi tiết!");
+                        lblInfo.setForeground(hintColor);
+                    }
+                }
+            });
+
+            JScrollPane legendScroll = new JScrollPane(legendTable);
+            legendScroll.setPreferredSize(new Dimension(420, 0));
+            legendScroll.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 10));
+            // Color bg = UIManager.getColor("Panel.background");
+            legendScroll.setBackground(bg != null ? bg : Color.WHITE);
+            legendScroll.getViewport().setBackground(bg != null ? bg : Color.WHITE);
+
+            centerPanel.add(legendScroll, BorderLayout.EAST);
+
+            dialog.add(centerPanel, BorderLayout.CENTER);
             dialog.pack();
             dialog.setLocationRelativeTo(this);
             dialog.setVisible(true);
