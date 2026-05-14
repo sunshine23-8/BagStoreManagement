@@ -67,8 +67,7 @@ public class PendingOrdersWidget extends JPanel {
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(sp, BorderLayout.CENTER);
 
-        JButton btnCancelAll = new JButton(
-                "<html><nobr><font face='Segoe UI Emoji'>🗑</font> Hủy tất cả</nobr></html>");
+        JButton btnCancelAll = new JButton("Hủy tất cả");
         btnCancelAll.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCancelAll.setBackground(new Color(220, 53, 69));
         btnCancelAll.setForeground(Color.WHITE);

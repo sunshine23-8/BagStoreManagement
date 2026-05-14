@@ -67,8 +67,9 @@ public class MainStaffFrame extends JFrame {
         logoPanel.add(lblLogoIcon);
         logoPanel.add(lblLogo);
         logoPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        logoPanel.setMaximumSize(new Dimension(250, 50));
         sidebar.add(logoPanel);
-        sidebar.add(Box.createVerticalStrut(5)); // Minimal space after logo
+        sidebar.add(Box.createVerticalStrut(10));
 
         JPanel rolePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
         rolePanel.setOpaque(false);
@@ -80,8 +81,9 @@ public class MainStaffFrame extends JFrame {
         rolePanel.add(lblRoleIcon);
         rolePanel.add(lblRole);
         rolePanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        rolePanel.setMaximumSize(new Dimension(250, 30));
         sidebar.add(rolePanel);
-        sidebar.add(Box.createVerticalStrut(5)); // Minimal space before menu
+        sidebar.add(Box.createVerticalStrut(20));
 
         // Menu items container (Top)
         JPanel menuContainer = new JPanel();
