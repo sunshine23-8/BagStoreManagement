@@ -158,7 +158,6 @@ public class MainStaffFrame extends JFrame {
         JLabel lblIcon = new JLabel(icon);
         lblIcon.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
         lblIcon.setForeground(Color.WHITE);
-        lblIcon.setPreferredSize(new Dimension(32, 25)); // Fixed width for icons
         lblIcon.setHorizontalAlignment(SwingConstants.CENTER);
         
         JLabel lblText = new JLabel(text);

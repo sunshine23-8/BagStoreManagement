@@ -67,7 +67,8 @@ public class PendingOrdersWidget extends JPanel {
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(sp, BorderLayout.CENTER);
 
-        JButton btnCancelAll = new JButton("🗑 Hủy tất cả");
+        JButton btnCancelAll = new JButton(
+                "<html><nobr><font face='Segoe UI Emoji'>🗑</font> Hủy tất cả</nobr></html>");
         btnCancelAll.setFont(new Font("Segoe UI", Font.BOLD, 12));
         btnCancelAll.setBackground(new Color(220, 53, 69));
         btnCancelAll.setForeground(Color.WHITE);
@@ -316,7 +317,8 @@ public class PendingOrdersWidget extends JPanel {
             }
 
             int confirm = JOptionPane.showConfirmDialog(this,
-                    "Bạn có chắc muốn hủy TẤT CẢ " + pendingOrders.size() + " đơn hàng đang chờ?\nHàng sẽ được trả lại kho.",
+                    "Bạn có chắc muốn hủy TẤT CẢ " + pendingOrders.size()
+                            + " đơn hàng đang chờ?\nHàng sẽ được trả lại kho.",
                     "Xác nhận hủy tất cả", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
 
             if (confirm != JOptionPane.YES_OPTION)
