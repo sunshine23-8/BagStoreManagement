@@ -28,6 +28,8 @@ public class MainAdminFrame extends JFrame {
     private StatisticPanel statisticPanel;
     private SystemLogPanel systemLogPanel;
     private ProfilePanel profilePanel;
+    private SalePanel salePanel;
+    private CustomerManagerPanel customerPanel;
 
     private java.util.List<JButton> menuButtons = new java.util.ArrayList<>();
     private JButton currentActiveButton;
@@ -76,6 +78,8 @@ public class MainAdminFrame extends JFrame {
         statisticPanel = new StatisticPanel();
         systemLogPanel = new SystemLogPanel();
         profilePanel = new ProfilePanel();
+        salePanel = new SalePanel();
+        customerPanel = new CustomerManagerPanel();
 
         contentPanel.add(productPanel, "PRODUCT");
         contentPanel.add(inventoryPanel, "INVENTORY");
@@ -85,6 +89,8 @@ public class MainAdminFrame extends JFrame {
         contentPanel.add(statisticPanel, "STATISTIC");
         contentPanel.add(systemLogPanel, "LOG");
         contentPanel.add(profilePanel, "PROFILE");
+        contentPanel.add(salePanel, "SALE");
+        contentPanel.add(customerPanel, "CUSTOMER");
 
         add(contentPanel, BorderLayout.CENTER);
 
@@ -139,6 +145,8 @@ public class MainAdminFrame extends JFrame {
         // Menu items
         String[][] menuItems = {
                 { "📦", "Sản phẩm", "PRODUCT" },
+                { "🛒", "Bán hàng", "SALE" },
+                { "👤", "Khách hàng", "CUSTOMER" },
                 { "🏭", "Kho hàng", "INVENTORY" },
                 { "👥", "Nhân viên", "STAFF" },
                 { "🧾", "Hóa đơn", "INVOICE" },
@@ -357,6 +365,7 @@ public class MainAdminFrame extends JFrame {
                 case "DISCOUNT" -> discountPanel.refreshData();
                 case "STATISTIC" -> statisticPanel.refreshData();
                 case "LOG" -> systemLogPanel.refreshData();
+                case "CUSTOMER" -> customerPanel.refreshData();
             }
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, "Lỗi tải dữ liệu: " + ex.getMessage());
