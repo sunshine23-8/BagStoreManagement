@@ -6,6 +6,7 @@ import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.dto.InvoiceDTO;
 import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.gui.components.DateChooser;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.TableUtils;
@@ -47,9 +48,8 @@ public class CustomerManagerPanel extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm tên hoặc SĐT...");
-        JButton btnSearch = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font></td></tr></table></html>");
-        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnSearch = new JButton();
+        ButtonUtils.setupButton(btnSearch, "🔍", "Tìm", null, null);
         btnSearch.addActionListener(e -> searchCustomers());
         txtSearch.addActionListener(e -> searchCustomers());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -133,9 +133,8 @@ public class CustomerManagerPanel extends JPanel {
         historyTitlePanel.add(histText);
         historyHeader.add(historyTitlePanel, BorderLayout.WEST);
 
-        JButton btnExportPdf = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>📄</font>&nbsp;In&nbsp;PDF</td></tr></table></html>");
-        btnExportPdf.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnExportPdf = new JButton();
+        ButtonUtils.setupButton(btnExportPdf, "📄", "In PDF", null, null);
         btnExportPdf.addActionListener(e -> exportPdf());
         historyHeader.add(btnExportPdf, BorderLayout.EAST);
 
@@ -157,8 +156,8 @@ public class CustomerManagerPanel extends JPanel {
         JPanel birthdayPanel = new JPanel(new BorderLayout(2, 0));
         birthdayPanel.add(txtBirthday, BorderLayout.CENTER);
 
-        JButton btnCal = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
-        btnCal.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnCal = new JButton();
+        ButtonUtils.setupButton(btnCal, "📅", "", null, null);
         btnCal.setToolTipText("Chọn ngày từ lịch");
         btnCal.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtBirthday.getText());
@@ -177,15 +176,12 @@ public class CustomerManagerPanel extends JPanel {
         bottom.add(form, BorderLayout.CENTER);
 
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        JButton btnAdd = new JButton("<html><font face='Segoe UI Emoji'>➕</font> Thêm</html>");
-        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnAdd.setBackground(new Color(40, 167, 69));
-        btnAdd.setForeground(Color.WHITE);
+        JButton btnAdd = new JButton();
+        ButtonUtils.setupButton(btnAdd, "➕", "Thêm", new Color(40, 167, 69), Color.WHITE);
         btnAdd.addActionListener(e -> addCustomer());
-        JButton btnUpdate = new JButton("<html><font face='Segoe UI Emoji'>✏️</font> Cập nhật</html>");
-        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate.setBackground(new Color(13, 110, 253));
-        btnUpdate.setForeground(Color.WHITE);
+        
+        JButton btnUpdate = new JButton();
+        ButtonUtils.setupButton(btnUpdate, "✏️", "Cập nhật", new Color(13, 110, 253), Color.WHITE);
         btnUpdate.addActionListener(e -> updateCustomer());
         btnPanel.add(btnAdd);
         btnPanel.add(btnUpdate);

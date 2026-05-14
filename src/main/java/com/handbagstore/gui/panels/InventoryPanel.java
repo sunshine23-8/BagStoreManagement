@@ -6,6 +6,7 @@ import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.*;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.StringUtils;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.TableUtils;
 
 import javax.swing.*;
@@ -107,9 +108,17 @@ public class InventoryPanel extends JPanel {
         TableUtils.alignRight(stockTable, 3, 4, 5, 6, 7);
 
         txtSearchStock.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterStock(); }
-            public void removeUpdate(DocumentEvent e) { filterStock(); }
-            public void changedUpdate(DocumentEvent e) { filterStock(); }
+            public void insertUpdate(DocumentEvent e) {
+                filterStock();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                filterStock();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                filterStock();
+            }
         });
 
         stockPanel.add(new JScrollPane(stockTable), BorderLayout.CENTER);
@@ -148,21 +157,8 @@ public class InventoryPanel extends JPanel {
         importForm.add(txtNote);
 
         JButton btnImport = new JButton();
-        btnImport.setLayout(new GridBagLayout());
-        JPanel innerImp = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
-        innerImp.setOpaque(false);
-        JLabel iconImp = new JLabel("📥");
-        iconImp.setFont(new Font("Segoe UI Emoji", Font.PLAIN, 14));
-        JLabel textImp = new JLabel("Nhập kho");
-        textImp.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        textImp.setForeground(Color.WHITE);
-        innerImp.add(iconImp);
-        innerImp.add(textImp);
-        btnImport.add(innerImp);
+        ButtonUtils.setupButton(btnImport, "📥", "Nhập kho", new Color(40, 167, 69), Color.WHITE);
         btnImport.setPreferredSize(new Dimension(120, 35));
-        btnImport.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnImport.setBackground(new Color(40, 167, 69));
-        btnImport.setForeground(Color.WHITE);
         btnImport.addActionListener(e -> importStock());
 
         JPanel importTop = new JPanel(new BorderLayout(5, 5));
@@ -215,9 +211,17 @@ public class InventoryPanel extends JPanel {
         TableUtils.alignRight(importTable, 2, 3, 4);
 
         txtSearchImport.getDocument().addDocumentListener(new DocumentListener() {
-            public void insertUpdate(DocumentEvent e) { filterImport(); }
-            public void removeUpdate(DocumentEvent e) { filterImport(); }
-            public void changedUpdate(DocumentEvent e) { filterImport(); }
+            public void insertUpdate(DocumentEvent e) {
+                filterImport();
+            }
+
+            public void removeUpdate(DocumentEvent e) {
+                filterImport();
+            }
+
+            public void changedUpdate(DocumentEvent e) {
+                filterImport();
+            }
         });
 
         importPanel.add(new JScrollPane(importTable), BorderLayout.CENTER);
@@ -358,7 +362,7 @@ public class InventoryPanel extends JPanel {
                 @Override
                 public boolean include(Entry<? extends DefaultTableModel, ? extends Integer> entry) {
                     // Search across Mã SP (0), Tên SP (1), Ghi chú (7)
-                    int[] cols = {0, 1, 7};
+                    int[] cols = { 0, 1, 7 };
                     for (int i : cols) {
                         if (StringUtils.containsIgnoreCase(entry.getStringValue(i), text)) {
                             return true;

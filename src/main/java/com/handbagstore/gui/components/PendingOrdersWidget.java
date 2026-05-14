@@ -30,6 +30,7 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.dto.CustomerDTO;
 import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.utils.CurrencyUtils;
+import com.handbagstore.utils.ButtonUtils;
 
 /**
  * Widget hiển thị các đơn hàng PENDING với countdown timer.
@@ -66,8 +67,8 @@ public class PendingOrdersWidget extends JPanel {
         sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         add(sp, BorderLayout.CENTER);
 
-        JButton btnRefresh = new JButton("🔄 Làm mới");
-        btnRefresh.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnRefresh = new JButton();
+        ButtonUtils.setupButton(btnRefresh, "🔄", "Làm mới", null, null);
         btnRefresh.addActionListener(e -> refreshData());
         add(btnRefresh, BorderLayout.SOUTH);
     }
@@ -162,16 +163,12 @@ public class PendingOrdersWidget extends JPanel {
 
         // Buttons
         JPanel btnPanel = new JPanel(new GridLayout(2, 1, 0, 3));
-        JButton btnPay = new JButton("💰 Thanh toán");
-        btnPay.setBackground(new Color(40, 167, 69));
-        btnPay.setForeground(Color.WHITE);
-        btnPay.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        JButton btnPay = new JButton();
+        ButtonUtils.setupButton(btnPay, "💰", "Thanh toán", new Color(40, 167, 69), Color.WHITE);
         btnPay.addActionListener(e -> selectOrder(inv));
 
-        JButton btnCancel = new JButton("❌ Hủy");
-        btnCancel.setBackground(new Color(220, 53, 69));
-        btnCancel.setForeground(Color.WHITE);
-        btnCancel.setFont(new Font("Segoe UI", Font.BOLD, 11));
+        JButton btnCancel = new JButton();
+        ButtonUtils.setupButton(btnCancel, "❌", "Hủy", new Color(220, 53, 69), Color.WHITE);
         btnCancel.addActionListener(e -> cancelOrder(inv));
 
         btnPanel.add(btnPay);
