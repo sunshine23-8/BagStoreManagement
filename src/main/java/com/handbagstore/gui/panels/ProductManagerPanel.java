@@ -326,7 +326,7 @@ public class ProductManagerPanel extends JPanel {
         p.setProductCode(txtCode.getText().trim());
         p.setName(txtName.getText().trim());
         p.setBrand(txtBrand.getText().trim());
-        p.setPrice(new BigDecimal(txtPrice.getText().trim()));
+        p.setPrice(CurrencyUtils.parse(txtPrice.getText().trim()));
         p.setStyle((String) cmbStyle.getSelectedItem());
         p.setMaterial((String) cmbMaterial.getSelectedItem());
         p.setColor(txtColor.getText().trim());

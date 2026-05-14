@@ -25,4 +25,14 @@ public class CurrencyUtils {
         if (amount instanceof Number) return format(((Number) amount).doubleValue());
         return amount.toString() + "đ";
     }
+
+    public static BigDecimal parse(String amountStr) {
+        if (amountStr == null || amountStr.trim().isEmpty()) return BigDecimal.ZERO;
+        String clean = amountStr.replace(".", "").replace("đ", "").trim();
+        try {
+            return new BigDecimal(clean);
+        } catch (Exception e) {
+            return BigDecimal.ZERO;
+        }
+    }
 }
