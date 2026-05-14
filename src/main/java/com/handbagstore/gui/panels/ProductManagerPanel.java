@@ -4,6 +4,7 @@ import com.handbagstore.bll.InventoryBLL;
 import com.handbagstore.bll.ProductBLL;
 import com.handbagstore.dto.InventoryLogDTO;
 import com.handbagstore.dto.ProductDTO;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.TableUtils;
 
@@ -48,8 +49,8 @@ public class ProductManagerPanel extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm theo mã, tên, thương hiệu...");
-        JButton btnSearch = new JButton("<html><nobr><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</nobr></html>");
-        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnSearch = new JButton();
+        ButtonUtils.setupButton(btnSearch, "🔍", "Tìm", null, null);
         btnSearch.addActionListener(e -> searchProducts());
         txtSearch.addActionListener(e -> searchProducts());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
@@ -147,25 +148,19 @@ public class ProductManagerPanel extends JPanel {
 
         // Button panel
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
-        btnAdd = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>➕</font>&nbsp;Thêm</td></tr></table></html>");
-        btnAdd.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnUpdate = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>✏️</font>&nbsp;Cập&nbsp;nhật</td></tr></table></html>");
-        btnUpdate.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnDelete = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🗑</font>&nbsp;Ngừng&nbsp;kinh&nbsp;doanh</td></tr></table></html>");
-        btnDelete.setFont(new Font("Segoe UI", Font.BOLD, 12));
-        btnClear = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔄</font>&nbsp;Làm&nbsp;mới</td></tr></table></html>");
-        btnClear.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        btnAdd = new JButton();
+        ButtonUtils.setupButton(btnAdd, "➕", "Thêm", new Color(40, 167, 69), Color.WHITE);
+        
+        btnUpdate = new JButton();
+        ButtonUtils.setupButton(btnUpdate, "✏️", "Cập nhật", new Color(13, 110, 253), Color.WHITE);
+        
+        btnDelete = new JButton();
+        ButtonUtils.setupButton(btnDelete, "🗑", "Ngừng kinh doanh", new Color(220, 53, 69), Color.WHITE);
+        
+        btnClear = new JButton();
+        ButtonUtils.setupButton(btnClear, "🔄", "Làm mới", null, null);
 
-        btnAdd.setBackground(new Color(40, 167, 69));
-        btnAdd.setForeground(Color.WHITE);
-        btnUpdate.setBackground(new Color(13, 110, 253));
-        btnUpdate.setForeground(Color.WHITE);
-        btnDelete.setBackground(new Color(220, 53, 69));
-        btnDelete.setForeground(Color.WHITE);
+        // Colors already handled by setupButton
 
         btnAdd.addActionListener(e -> addProduct());
         btnUpdate.addActionListener(e -> updateProduct());
@@ -242,12 +237,14 @@ public class ProductManagerPanel extends JPanel {
         cmbStatus.setSelectedItem(status);
 
         if ("INACTIVE".equals(status)) {
-            btnDelete.setText("<html><font face='Segoe UI Emoji'>🔄</font> Kinh doanh tiếp</html>");
-            btnDelete.setBackground(new Color(40, 167, 69));
+            btnDelete.removeAll();
+            ButtonUtils.setupButton(btnDelete, "🔄", "Kinh doanh tiếp", new Color(40, 167, 69), Color.WHITE);
         } else {
-            btnDelete.setText("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
-            btnDelete.setBackground(new Color(220, 53, 69));
+            btnDelete.removeAll();
+            ButtonUtils.setupButton(btnDelete, "🗑", "Ngừng kinh doanh", new Color(220, 53, 69), Color.WHITE);
         }
+        btnDelete.revalidate();
+        btnDelete.repaint();
     }
 
     private void addProduct() {
@@ -346,8 +343,10 @@ public class ProductManagerPanel extends JPanel {
         cmbStyle.setSelectedIndex(0);
         cmbMaterial.setSelectedIndex(0);
         cmbStatus.setSelectedIndex(0);
-        btnDelete.setText("<html><font face='Segoe UI Emoji'>🗑</font> Ngừng kinh doanh</html>");
-        btnDelete.setBackground(new Color(220, 53, 69));
+        btnDelete.removeAll();
+        ButtonUtils.setupButton(btnDelete, "🗑", "Ngừng kinh doanh", new Color(220, 53, 69), Color.WHITE);
+        btnDelete.revalidate();
+        btnDelete.repaint();
         table.clearSelection();
     }
 }

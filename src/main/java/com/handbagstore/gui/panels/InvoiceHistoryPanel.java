@@ -7,6 +7,7 @@ import com.handbagstore.dto.InvoiceDetailDTO;
 import com.handbagstore.utils.DateUtils;
 import com.handbagstore.utils.PdfExporter;
 import com.handbagstore.bll.CustomerBLL;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.CurrencyUtils;
 import com.handbagstore.utils.TableUtils;
 import com.handbagstore.gui.components.DateChooser;
@@ -53,14 +54,12 @@ public class InvoiceHistoryPanel extends JPanel {
         JPanel searchPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         txtSearch = new JTextField(20);
         txtSearch.putClientProperty("JTextField.placeholderText", "Tìm mã hóa đơn...");
-        JButton btnSearch = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</td></tr></table></html>");
-        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnSearch = new JButton();
+        ButtonUtils.setupButton(btnSearch, "🔍", "Tìm", null, null);
         btnSearch.addActionListener(e -> searchInvoices());
 
-        JButton btnFilter = new JButton(
-                "<html><table><tr><td nowrap><font face='Segoe UI Emoji'>⏳</font>&nbsp;Bộ&nbsp;lọc</td></tr></table></html>");
-        btnFilter.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnFilter = new JButton();
+        ButtonUtils.setupButton(btnFilter, "⏳", "Bộ lọc", null, null);
         btnFilter.addActionListener(e -> showFilterDialog());
 
         txtSearch.addActionListener(e -> searchInvoices());
@@ -125,7 +124,8 @@ public class InvoiceHistoryPanel extends JPanel {
         JPanel detailPanel = new JPanel(new BorderLayout());
         JPanel detailHeaderPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         detailHeaderPanel.add(new JLabel("  Chi tiết hóa đơn:"));
-        JButton btnExportPdf = new JButton("<html><font face='Segoe UI Emoji'>📄</font> Xuất PDF</html>");
+        JButton btnExportPdf = new JButton();
+        ButtonUtils.setupButton(btnExportPdf, "📄", "Xuất PDF", null, null);
         btnExportPdf.addActionListener(e -> exportSelectedInvoicePdf());
         detailHeaderPanel.add(btnExportPdf);
         detailPanel.add(detailHeaderPanel, BorderLayout.NORTH);
@@ -295,7 +295,8 @@ public class InvoiceHistoryPanel extends JPanel {
 
         JPanel fromPanel = new JPanel(new BorderLayout(2, 0));
         fromPanel.add(txtFrom, BorderLayout.CENTER);
-        JButton btnFrom = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        JButton btnFrom = new JButton();
+        ButtonUtils.setupButton(btnFrom, "📅", "", null, null);
         btnFrom.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtFrom.getText());
             LocalDate picked = DateChooser.showDialog(dialog, current);
@@ -306,7 +307,8 @@ public class InvoiceHistoryPanel extends JPanel {
 
         JPanel toPanel = new JPanel(new BorderLayout(2, 0));
         toPanel.add(txtTo, BorderLayout.CENTER);
-        JButton btnTo = new JButton("<html><font face='Segoe UI Emoji'>📅</font></html>");
+        JButton btnTo = new JButton();
+        ButtonUtils.setupButton(btnTo, "📅", "", null, null);
         btnTo.addActionListener(e -> {
             LocalDate current = DateUtils.parseDate(txtTo.getText());
             LocalDate picked = DateChooser.showDialog(dialog, current);

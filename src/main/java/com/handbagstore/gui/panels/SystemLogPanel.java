@@ -2,6 +2,7 @@ package com.handbagstore.gui.panels;
 
 import com.handbagstore.bll.SystemLogBLL;
 import com.handbagstore.dto.SystemLogDTO;
+import com.handbagstore.utils.ButtonUtils;
 import com.handbagstore.utils.DateUtils;
 
 import javax.swing.*;
@@ -48,8 +49,8 @@ public class SystemLogPanel extends JPanel {
         searchTitlePanel.add(sIcon);
         searchTitlePanel.add(sText);
         searchPanel.add(searchTitlePanel);
-        JButton btnSearch = new JButton("<html><nobr><font face='Segoe UI Emoji'>🔍</font>&nbsp;Tìm</nobr></html>");
-        btnSearch.setFont(new Font("Segoe UI", Font.BOLD, 12));
+        JButton btnSearch = new JButton();
+        ButtonUtils.setupButton(btnSearch, "🔍", "Tìm", null, null);
         btnSearch.addActionListener(e -> searchLogs());
         txtSearch.addActionListener(e -> searchLogs());
         txtSearch.getDocument().addDocumentListener(new DocumentListener() {
